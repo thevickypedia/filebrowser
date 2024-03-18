@@ -101,6 +101,7 @@ jobs:
     steps:
       - run: echo "done"
 
+# upload assets for different OS
   upload_assets:
     if: ${{ github.event_name == 'release' }}
     needs: [lint, test, pre-flight-check]
