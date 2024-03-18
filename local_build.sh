@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set +e  # ignore errors and proceed
+set -e
 
 SHELL="/usr/bin/env bash"
 BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
