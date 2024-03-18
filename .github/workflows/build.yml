@@ -1,4 +1,4 @@
-name: main
+name: test, build and upload asset
 
 on:
   release:
@@ -123,8 +123,14 @@ jobs:
           mkdir -p "$TOOLS_BIN"
           export PATH="$TOOLS_BIN:$PATH"
           LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
-          cd frontend && npm ci && npm run build
-          go build -ldflags "$LDFLAGS" -o .
+        shell: bash
+
+      - name: Build Frontend
+        run: cd frontend && npm ci && npm run build
+        shell: bash
+
+      - name: Build Backend
+        run: go build -ldflags "$LDFLAGS" -o .
         shell: bash
 
       - name: Copy Artifacts (Windows)
