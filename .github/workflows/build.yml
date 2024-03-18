@@ -3,13 +3,46 @@ name: build and upload asset
 on:
   push:
     branches:
-      - 'master'
-    tags:
-      - 'v*'
+      - main
+  release:
+    types:
+      - published
+  workflow_dispatch:
 
 jobs:
 # linters
+  pre-flight-check:
+    runs-on: ubuntu-latest
+    outputs:
+      release-id: ${{ steps.check-release-id.outputs.release_id }}
+    steps:
+      - name: Check Release ID
+        id: check-release-id
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "Running pre-flight check"
+          else
+            exit 0
+          fi
+          if [ -n "${{ github.event.release.id }}" ]; then
+            echo "Release ID: ${{ github.event.release.id }}"
+            echo "release_id=${{ github.event.release.id }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Failed to fetch current release id, trying to fetch externally"
+            release_id=$(curl -s -X GET \
+              -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/latest" | \
+              jq -r ".id")
+            if [ -n "$release_id" ]; then
+              echo "Release ID: ${{ github.event.release.id }}"
+              echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+            else
+              echo "Release ID not available in the event."
+              exit 1
+            fi
+          fi
   lint-frontend:
+    needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +51,7 @@ jobs:
           node-version: '18'
       - run: make lint-frontend
   lint-backend:
+    needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +60,7 @@ jobs:
           go-version: 1.21.0
       - run: make lint-backend
   lint-commits:
+    needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +78,7 @@ jobs:
 
 # tests
   test-frontend:
+    needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +87,7 @@ jobs:
           node-version: '18'
       - run: make test-frontend
   test-backend:
+    needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,8 +102,8 @@ jobs:
       - run: echo "done"
 
   upload_assets:
-    needs: [lint, test]
-    if: startsWith(github.event.ref, 'refs/tags/v')
+    if: ${{ github.event_name == 'release' }}
+    needs: [lint, test, pre-flight-check]
     strategy:
       matrix:
         platform:
@@ -161,5 +198,5 @@ jobs:
           curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @"${{ matrix.platform.name }}" \
-          "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.event.release.id }}/assets?name=${{ matrix.platform.name }}"
+          "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.pre-flight-check.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
         shell: bash
