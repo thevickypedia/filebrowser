@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-# linters
+# Linters
   pre-flight-check:
     runs-on: ubuntu-latest
     outputs:
@@ -76,7 +76,7 @@ jobs:
     steps:
       - run: echo "done"
 
-# tests
+# Tests
   test-frontend:
     needs: pre-flight-check
     runs-on: ubuntu-latest
@@ -101,13 +101,14 @@ jobs:
     steps:
       - run: echo "done"
 
-# upload assets for different OS
+# Upload assets for different OS and Architecture
   upload_assets:
     if: ${{ github.event_name == 'release' }}
     needs: [lint, test, pre-flight-check]
     strategy:
       matrix:
         platform:
+          # Naming Convention: {operating_system}-{architecture}-{package_name}.{archive_format}
           # macOS - 2
           - release_for: macOS-amd64
             os: macOS-latest
@@ -125,30 +126,31 @@ jobs:
             pkg-name: darwin-arm64-filebrowser
             command: build
 
-          # freebsd - 3
-          - release_for: freebsd-386
-            os: freebsd-latest
-            target: i386-unknown-freebsd
-            bin: filebrowser
-            name: freebsd-386-filebrowser.tar.gz
-            pkg-name: freebsd-386-filebrowser
-            command: build
-
-          - release_for: freebsd-amd64
-            os: freebsd-latest
-            target: x86_64-unknown-freebsd
-            bin: filebrowser
-            name: freebsd-amd64-filebrowser.tar.gz
-            pkg-name: freebsd-amd64-filebrowser
-            command: build
-
-          - release_for: freebsd-arm64
-            os: freebsd-latest
-            target: aarch64-unknown-freebsd
-            bin: filebrowser
-            name: freebsd-arm64-filebrowser.tar.gz
-            pkg-name: freebsd-arm64-filebrowser
-            command: build
+# # GitHub doesn't have runners available for FreeBSD: https://github.com/actions/runner/issues/385
+#          # freebsd - 3
+#          - release_for: freebsd-386
+#            os: freebsd-latest
+#            target: i386-unknown-freebsd
+#            bin: filebrowser
+#            name: freebsd-386-filebrowser.tar.gz
+#            pkg-name: freebsd-386-filebrowser
+#            command: build
+#
+#          - release_for: freebsd-amd64
+#            os: freebsd-latest
+#            target: x86_64-unknown-freebsd
+#            bin: filebrowser
+#            name: freebsd-amd64-filebrowser.tar.gz
+#            pkg-name: freebsd-amd64-filebrowser
+#            command: build
+#
+#          - release_for: freebsd-arm64
+#            os: freebsd-latest
+#            target: aarch64-unknown-freebsd
+#            bin: filebrowser
+#            name: freebsd-arm64-filebrowser.tar.gz
+#            pkg-name: freebsd-arm64-filebrowser
+#            command: build
 
           # linux - 7
           - release_for: linux-386
@@ -310,7 +312,7 @@ jobs:
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
           tar -zcvf ${{ matrix.platform.name }} ${{ matrix.platform.pkg-name }}/
 
-      - name: Upload Asset to Release
+      - name: Upload Asset
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
