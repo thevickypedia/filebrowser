@@ -263,6 +263,14 @@ jobs:
     permissions:
       contents: write
     steps:
+      - shell: bash
+        run: |
+          if [ "${{ vars.target_os }}" ]; then
+            if [ "${{ vars.target_os }}" != "${{ matrix.platform.release_for }}" ]; then
+              echo "Skipping release for ${{ matrix.platform.release_for }}, expected ${{ vars.target_os }}"
+              exit 0
+            fi
+          fi
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
