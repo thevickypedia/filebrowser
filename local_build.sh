@@ -2,6 +2,13 @@
 
 set -e
 
+cleanup() {
+  rm -rf filebrowser filebrowser.db frontend/node_modules
+  rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
+}
+
+cleanup &
+
 SHELL="/usr/bin/env bash"
 BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0)

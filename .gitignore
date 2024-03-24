@@ -32,3 +32,9 @@ build/
 
 /frontend/dist/*
 !/frontend/dist/.gitkeep
+
+# local test
+*.mp4
+*.mov
+*.mkv
+*.vtt
