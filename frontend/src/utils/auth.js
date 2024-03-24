@@ -12,8 +12,25 @@ export function parseToken(token) {
 
   const data = JSON.parse(Base64.decode(parts[1]));
 
-  document.cookie = `auth=${token}; path=/`;
+  // Setting cookie options
+  const cookieOptions = {
+    path: "/",
+    secure: true, // Ensures the cookie is sent only over HTTPS
+    httpOnly: true, // Prevents JavaScript from accessing the cookie
+  };
 
+  // Constructing the cookie string
+  let cookieString = `auth=${token};`;
+
+  // Adding additional options
+  for (const [key, value] of Object.entries(cookieOptions)) {
+    cookieString += ` ${key}=${value};`;
+  }
+
+  // Setting the cookie
+  document.cookie = cookieString;
+
+  // Setting token in localStorage and Vuex store
   localStorage.setItem("jwt", token);
   store.commit("setJWT", token);
   store.commit("setUser", data.user);
