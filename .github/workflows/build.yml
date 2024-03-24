@@ -265,23 +265,29 @@ jobs:
     steps:
       - shell: bash
         run: |
+          release=true;
           if [ "${{ vars.target_os }}" ]; then
             if [ "${{ vars.target_os }}" != "${{ matrix.platform.release_for }}" ]; then
               echo "Skipping release for ${{ matrix.platform.release_for }}, expected ${{ vars.target_os }}"
-              exit 0
+              release=false;
             fi
           fi
+          echo "release=$release" >> $GITHUB_ENV
       - uses: actions/checkout@v4
+        if: env.release == 'true'
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v5
+        if: env.release == 'true'
         with:
           go-version: 1.21.0
       - uses: actions/setup-node@v4
+        if: env.release == 'true'
         with:
           node-version: '18'
 
       - name: Build Essentials
+        if: env.release == 'true'
         run: |
           SHELL="/usr/bin/env bash"
           BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
@@ -299,28 +305,33 @@ jobs:
         shell: bash
 
       - name: Build Frontend
+        if: env.release == 'true'
         run: cd frontend && npm ci && npm run build
         shell: bash
 
       - name: Build Backend
+        if: env.release == 'true'
         run: go build -ldflags "$LDFLAGS" -o .
         shell: bash
 
       - name: Copy Artifact (Windows)
-        if: ${{ matrix.platform.os == 'windows-latest' }}
+        if: env.release == 'true' && matrix.platform.os == 'windows-latest'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
-          Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ matrix.platform.pkg-name }}/
+          Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ matrix.platform.pkg-name }}
+        shell: bash
 
       - name: Copy Artifact (macOS/Linux/RaspberryPi)
-        if: ${{ matrix.platform.os != 'windows-latest' }}
+        if: env.release == 'true' && matrix.platform.os != 'windows-latest'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
-          tar -zcvf ${{ matrix.platform.name }} ${{ matrix.platform.pkg-name }}/
+          tar -zcvf ${{ matrix.platform.name }} ${{ matrix.platform.pkg-name }}
+        shell: bash
 
       - name: Upload Asset
+        if: env.release == 'true'
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
