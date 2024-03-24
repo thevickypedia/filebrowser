@@ -1,7 +1,7 @@
 <template>
   <div
     id="previewer"
-    @touchmove.prevent.stop 
+    @touchmove.prevent.stop
     @wheel.prevent.stop
     @mousemove="toggleNavigation"
     @touchstart="toggleNavigation"
@@ -66,13 +66,25 @@
           :autoplay="autoPlay"
           @play="autoPlay = true"
         ></audio>
+        <!-- todo: center video object to center of the page -->
         <video
           v-else-if="req.type == 'video'"
           ref="player"
           :src="raw"
+          class="video-js"
+          preload="auto"
           controls
           :autoplay="autoPlay"
           @play="autoPlay = true"
+          data-setup='{
+            "playbackRates": [1, 1.5, 2, 5],
+            "controlBar": {
+              "skipButtons": {
+                "backward": 10,
+                "forward": 10
+              }
+            }
+          }'
         >
           <track
             kind="captions"
@@ -217,6 +229,16 @@ export default {
     },
   },
   async mounted() {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://thevickypedia.github.io/open-source/videojs/video.css";
+    document.head.appendChild(link);
+
+    const script = document.createElement("script");
+    script.src = "https://thevickypedia.github.io/open-source/videojs/video.js";
+    script.defer = true;
+    document.head.appendChild(script);
+
     window.addEventListener("keydown", this.key);
     this.listing = this.oldReq.items;
     this.updatePreview();
