@@ -74,17 +74,21 @@ def download_asset() -> None:
                 f_out.flush()
         assert os.path.isfile(tar_file), f"Failed to gunzip {filemanager_file}"
         os.remove(filemanager_file)
-        content_dir = tar_file.rstrip('.tar')
         with tarfile.open(tar_file, 'r') as tar:
             tar.extractall()
+        if os.path.isfile(EXECUTABLE):
+            return
+        content_dir = tar_file.rstrip('.tar')
         assert os.path.isdir(content_dir) and os.path.isfile(os.path.join(content_dir, EXECUTABLE)), \
             f"Failed to unarchive {tar_file}"
         os.remove(tar_file)
     elif filemanager_file.endswith(".zip"):
         EXECUTABLE += ".exe"
-        content_dir = filemanager_file.rstrip(".zip")
         with zipfile.ZipFile(filemanager_file, 'r') as zip_ref:
             zip_ref.extractall()
+        if os.path.isfile(EXECUTABLE):
+            return
+        content_dir = filemanager_file.rstrip(".zip")
         assert os.path.isdir(content_dir) and os.path.isfile(os.path.join(content_dir, EXECUTABLE)), \
             f"Failed to unzip {filemanager_file}"
         os.remove(filemanager_file)

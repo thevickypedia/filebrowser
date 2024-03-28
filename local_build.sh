@@ -7,7 +7,7 @@ cleanup() {
   rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 }
 
-cleanup &
+cleanup
 
 SHELL="/usr/bin/env bash"
 BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
