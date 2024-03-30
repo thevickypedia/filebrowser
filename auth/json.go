@@ -25,15 +25,17 @@ type JSONAuth struct {
 	ReCaptcha *ReCaptcha `json:"recaptcha" yaml:"recaptcha"`
 }
 
-// Auth authenticates the user via a json in content body.
+// Auth authenticates the user via a json in authorization header.
 func (a JSONAuth) Auth(r *http.Request, usr users.Store, stg *settings.Settings, srv *settings.Server) (*users.User, error) {
 	var cred jsonCred
 
-	if r.Body == nil {
+    // todo: recaptcha
+    authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
 		return nil, os.ErrPermission
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&cred)
+    err := json.NewDecoder(strings.NewReader(authHeader)).Decode(&cred)
 	if err != nil {
 		return nil, os.ErrPermission
 	}

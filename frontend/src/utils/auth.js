@@ -2,6 +2,7 @@ import store from "@/store";
 import router from "@/router";
 import { Base64 } from "js-base64";
 import { baseURL } from "@/utils/constants";
+import CryptoJS from "crypto-js";
 
 export function parseToken(token) {
   const parts = token.split(".");
@@ -36,6 +37,18 @@ export function parseToken(token) {
   store.commit("setUser", data.user);
 }
 
+export async function getProxyFlag() {
+  const name = "pyproxy";
+  let cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i].trim();
+    if (cookie.indexOf(name + "=") === 0) {
+      return cookie.substring(name.length + 1, cookie.length);
+    }
+  }
+  return "off";
+}
+
 export async function validateLogin() {
   try {
     if (localStorage.getItem("jwt")) {
@@ -46,15 +59,40 @@ export async function validateLogin() {
   }
 }
 
+async function CalculateHash(message) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  if (crypto.subtle === undefined) {
+    const wordArray = CryptoJS.lib.WordArray.create(data);
+    const hash = CryptoJS.SHA512(wordArray);
+    // Convert the hash to a hexadecimal string and return it
+    return hash.toString(CryptoJS.enc.Hex);
+  } else {
+    const hashBuffer = await crypto.subtle.digest("SHA-512", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    // Convert each byte to a hexadecimal string, pad with zeros, and join them to form the final hash
+    return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+}
+
 export async function login(username, password, recaptcha) {
-  const data = { username, password, recaptcha };
+  const proxy_status = await getProxyFlag();
+  let payload;
+  if (proxy_status === "on") {
+    payload = btoa(username + "," + (await CalculateHash(username + password)) + "," + recaptcha) // eslint-disable-line
+  } else {
+    console.warn(
+      "pyproxy is turned off! auth header will be sent as plain text"
+    );
+    payload = JSON.stringify({ username, password, recaptcha });
+  }
 
   const res = await fetch(`${baseURL}/api/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: payload,
     },
-    body: JSON.stringify(data),
   });
 
   const body = await res.text();
