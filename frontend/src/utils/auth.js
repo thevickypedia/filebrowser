@@ -59,6 +59,14 @@ export async function validateLogin() {
   }
 }
 
+export async function ConvertStringToHex(str) {
+  let arr = [];
+  for (let i = 0; i < str.length; i++) {
+    arr[i] = ("00" + str.charCodeAt(i).toString(16)).slice(-4);
+  }
+  return "\\u" + arr.join("\\u");
+}
+
 async function CalculateHash(message) {
   const encoder = new TextEncoder();
   const data = encoder.encode(message);
@@ -79,7 +87,10 @@ export async function login(username, password, recaptcha) {
   const proxy_status = await getProxyFlag();
   let payload;
   if (proxy_status === "on") {
-    payload = btoa(username + "," + (await CalculateHash(username + password)) + "," + recaptcha) // eslint-disable-line
+    let hex_user = await ConvertStringToHex(username);
+    let signature = await CalculateHash(password);
+    let hex_recaptcha = await ConvertStringToHex(recaptcha);
+    payload = btoa(hex_user + "," + signature + "," + hex_recaptcha) // eslint-disable-line
   } else {
     console.warn(
       "pyproxy is turned off! auth header will be sent as plain text"
