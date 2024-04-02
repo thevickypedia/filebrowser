@@ -29,13 +29,12 @@ type JSONAuth struct {
 func (a JSONAuth) Auth(r *http.Request, usr users.Store, stg *settings.Settings, srv *settings.Server) (*users.User, error) {
 	var cred jsonCred
 
-    // todo: recaptcha
-    authHeader := r.Header.Get("Authorization")
+	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		return nil, os.ErrPermission
 	}
 
-    err := json.NewDecoder(strings.NewReader(authHeader)).Decode(&cred)
+	err := json.NewDecoder(strings.NewReader(authHeader)).Decode(&cred)
 	if err != nil {
 		return nil, os.ErrPermission
 	}
