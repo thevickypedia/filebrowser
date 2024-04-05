@@ -1,29 +1,28 @@
-name: Build and Upload Asset
+# Builds for all operating system platforms, and uploads executable to the release
+# This workflow uses both self-hosted, and GitHub action runners
+
+name: Build and Upload Artifact
 
 on:
-  push:
-    branches:
-      - main
   release:
     types:
       - published
-  workflow_dispatch:
 
 jobs:
-# Linters
   pre-flight-check:
-    runs-on: ubuntu-latest
+    uses:
+      ./.github/workflows/pre-release.yml
+    with:
+      build: 'false'
+  release-check:
+    runs-on: self-hosted
+    needs: pre-flight-check
     outputs:
-      release-id: ${{ steps.check-release-id.outputs.release_id }}
+      release-id: ${{ steps.get-release-id.outputs.release_id }}
     steps:
       - name: Check Release ID
-        id: check-release-id
+        id: get-release-id
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "Running pre-flight check"
-          else
-            exit 0
-          fi
           if [ -n "${{ github.event.release.id }}" ]; then
             echo "Release ID: ${{ github.event.release.id }}"
             echo "release_id=${{ github.event.release.id }}" >> "$GITHUB_OUTPUT"
@@ -41,70 +40,11 @@ jobs:
               exit 1
             fi
           fi
-  lint-frontend:
-    needs: pre-flight-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - run: make lint-frontend
-  lint-backend:
-    needs: pre-flight-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.1
-      - run: make lint-backend
-  lint-commits:
-    needs: pre-flight-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - run: make lint-commits
-  lint:
-    runs-on: ubuntu-latest
-    needs: [lint-frontend, lint-backend, lint-commits]
-    steps:
-      - run: echo "done"
-
-# Tests
-  test-frontend:
-    needs: pre-flight-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - run: make test-frontend
-  test-backend:
-    needs: pre-flight-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.1
-      - run: make test-backend
-  test:
-    runs-on: ubuntu-latest
-    needs: [test-frontend, test-backend]
-    steps:
-      - run: echo "done"
 
 # Upload assets for different OS and Architecture
   upload_assets:
     if: ${{ github.event_name == 'release' }}
-    needs: [lint, test, pre-flight-check]
+    needs: [pre-flight-check, release-check]
     strategy:
       matrix:
         platform:
@@ -152,7 +92,7 @@ jobs:
 #            pkg-name: freebsd-arm64-filebrowser
 #            command: build
 
-          # linux - 7
+          # Linux - 7
           - release_for: linux-386
             os: ubuntu-20.04
             target: i686-unknown-linux-gnu
@@ -209,7 +149,7 @@ jobs:
             pkg-name: linux-riscv64-filebrowser
             command: build
 
-          # windows
+          # Windows - 6
           - release_for: windows-386
             os: windows-latest
             target: i686-pc-windows-msvc
@@ -314,15 +254,15 @@ jobs:
         run: go build -ldflags "$LDFLAGS" -o .
         shell: bash
 
-      - name: Copy Artifact (Windows)
+      - name: Copy Asset (Windows)
         if: env.release == 'true' && matrix.platform.os == 'windows-latest'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
           Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ matrix.platform.pkg-name }}
-        shell: bash
+        shell: pwsh
 
-      - name: Copy Artifact (macOS/Linux/RaspberryPi)
+      - name: Copy Asset (macOS/Linux/RaspberryPi)
         if: env.release == 'true' && matrix.platform.os != 'windows-latest'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
@@ -330,7 +270,7 @@ jobs:
           tar -zcvf ${{ matrix.platform.name }} ${{ matrix.platform.pkg-name }}
         shell: bash
 
-      - name: Upload Asset
+      - name: Upload Artifact
         if: env.release == 'true'
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \

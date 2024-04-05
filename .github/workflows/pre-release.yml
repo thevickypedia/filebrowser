@@ -1,0 +1,114 @@
+# Runs linting and tests on the latest version of the code
+# This workflow uses self-hosted runners
+
+name: Lint and Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      build:
+        type: string
+        default: 'true'
+        required: false
+        description: "Boolean flag to disable build process if triggered by a release"
+  workflow_dispatch:
+
+jobs:
+# Linters
+  lint-frontend:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: make lint-frontend
+  lint-backend:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.1
+      - run: make lint-backend
+  lint-commits:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: make lint-commits
+  lint:
+    runs-on: self-hosted
+    needs: [lint-frontend, lint-backend, lint-commits]
+    steps:
+      - run: echo "done"
+
+# Tests
+  test-frontend:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: make test-frontend
+  test-backend:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.1
+      - run: make test-backend
+  test:
+    runs-on: self-hosted
+    needs: [test-frontend, test-backend]
+    steps:
+      - run: echo "done"
+
+# Build
+  build-frontend:
+    if: inputs.build == 'true'
+    runs-on: self-hosted
+    needs: [lint, test]
+    steps:
+      - run: cd frontend && npm ci && npm run build
+        shell: bash
+
+  build-backend:
+    if: inputs.build == 'true'
+    runs-on: self-hosted
+    needs: [lint, test]
+    steps:
+      - run: |
+          SHELL="/usr/bin/env bash"
+          BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+          VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0)
+          VERSION_HASH=$(git rev-parse HEAD)
+          go() {
+              GOGC=off go "$@"
+          }
+          MODULE=$(env GO111MODULE=on go list -m)
+          TOOLS_DIR="$BASE_PATH/tools"
+          TOOLS_BIN="$TOOLS_DIR/bin"
+          mkdir -p "$TOOLS_BIN"
+          export PATH="$TOOLS_BIN:$PATH"
+          LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
+        shell: bash
+
+      - run: go build -ldflags "$LDFLAGS" -o .
+        shell: bash
+
+  build:
+    if: inputs.build == 'true'
+    runs-on: self-hosted
+    needs: [build-frontend, build-backend]
+    steps:
+      - run: echo "done"
