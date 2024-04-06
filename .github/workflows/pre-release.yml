@@ -75,7 +75,7 @@ jobs:
 
 # Build
   build-frontend:
-    if: inputs.build == 'true'
+    if: github.event_name == 'push' || inputs.build == 'true'
     runs-on: self-hosted
     needs: [lint, test]
     steps:
@@ -83,7 +83,7 @@ jobs:
         shell: bash
 
   build-backend:
-    if: inputs.build == 'true'
+    if: github.event_name == 'push' || inputs.build == 'true'
     runs-on: self-hosted
     needs: [lint, test]
     steps:
@@ -107,7 +107,7 @@ jobs:
         shell: bash
 
   build:
-    if: inputs.build == 'true'
+    if: github.event_name == 'push' || inputs.build == 'true'
     runs-on: self-hosted
     needs: [build-frontend, build-backend]
     steps:
