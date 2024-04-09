@@ -9,14 +9,14 @@ on:
       - published
 
 jobs:
-  pre-flight-check:
+  lint-and-test:
     uses:
       ./.github/workflows/pre-release.yml
     with:
       build: 'false'
   release-check:
     runs-on: self-hosted
-    needs: pre-flight-check
+    needs: lint-and-test
     outputs:
       release-id: ${{ steps.get-release-id.outputs.release_id }}
     steps:
@@ -44,7 +44,7 @@ jobs:
 # Upload assets for different OS and Architecture
   upload_assets:
     if: ${{ github.event_name == 'release' }}
-    needs: [pre-flight-check, release-check]
+    needs: release-check
     strategy:
       matrix:
         platform:
@@ -205,25 +205,27 @@ jobs:
     steps:
       - name: Release ID Propagation
         run: |
-          if [ -n "${{ needs.pre-flight-check.outputs.release-id }}" ]; then
-            echo "Release ID propagated: ${{ needs.pre-flight-check.outputs.release-id }}"
+          if [ -n "${{ needs.release-check.outputs.release-id }}" ]; then
+            echo "Release ID propagated: ${{ needs.release-check.outputs.release-id }}"
           else
             echo "Release ID propagation failed. Exiting.."
             exit 1
           fi
         shell: bash
-      - shell: bash
+      - name: Targeted Release
         # checks if the `release_for` is part of a comma separated variable in GitHub
-        # this is to prevent exhausting GH actions, input should be: linux-amd64,darwin-amd64,windows-amd64
+        # this is to prevent exhausting GH actions needlessly
+        # sample input for the gh variable `target_os`: linux-amd64,darwin-amd64,windows-amd64
         run: |
           release=true;
           if [ "${{ vars.target_os }}" ]; then
             if [[ ",${{ vars.target_os }}," != *",${{ matrix.platform.release_for }},"* ]]; then
-              echo "Skipping release for ${{ matrix.platform.release_for }}, expected ${{ vars.target_os }}"
+              echo "Skipping release for ${{ matrix.platform.release_for }}, expected any of [${{ vars.target_os }}]"
               release=false;
             fi
           fi
           echo "release=$release" >> $GITHUB_ENV
+        shell: bash
       - uses: actions/checkout@v4
         if: env.release == 'true'
         with:
@@ -287,5 +289,5 @@ jobs:
           curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @"${{ matrix.platform.name }}" \
-          "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.pre-flight-check.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
+          "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.release-check.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
         shell: bash
