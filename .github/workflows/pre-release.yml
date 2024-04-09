@@ -43,7 +43,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: make lint-commits
+      - run: |
+          npm install --global yarn
+          make lint-commits
   lint:
     runs-on: self-hosted
     needs: [lint-frontend, lint-backend, lint-commits]
