@@ -49,8 +49,8 @@ jobs:
       matrix:
         platform:
           # Naming Convention: {operating_system}-{architecture}-{package_name}.{archive_format}
-          # macOS - 2
-          - release_for: macOS-amd64
+          # darwin - 2
+          - release_for: darwin-amd64
             os: macOS-latest
             target: x86_64-apple-darwin
             bin: filebrowser
@@ -58,7 +58,7 @@ jobs:
             pkg-name: darwin-amd64-filebrowser
             command: build
 
-          - release_for: macOS-arm64
+          - release_for: darwin-arm64
             os: macOS-latest
             target: arm64-apple-darwin
             bin: filebrowser
@@ -203,11 +203,22 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Release ID Propagation
+        run: |
+          if [ -n "${{ needs.pre-flight-check.outputs.release-id }}" ]; then
+            echo "Release ID propagated: ${{ needs.pre-flight-check.outputs.release-id }}"
+          else
+            echo "Release ID propagation failed. Exiting.."
+            exit 1
+          fi
+        shell: bash
       - shell: bash
+        # checks if the `release_for` is part of a comma separated variable in GitHub
+        # this is to prevent exhausting GH actions, input should be: linux-amd64,darwin-amd64,windows-amd64
         run: |
           release=true;
           if [ "${{ vars.target_os }}" ]; then
-            if [ "${{ vars.target_os }}" != "${{ matrix.platform.release_for }}" ]; then
+            if [[ ",${{ vars.target_os }}," != *",${{ matrix.platform.release_for }},"* ]]; then
               echo "Skipping release for ${{ matrix.platform.release_for }}, expected ${{ vars.target_os }}"
               release=false;
             fi
