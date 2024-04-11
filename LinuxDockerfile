@@ -1,0 +1,81 @@
+FROM alpine:latest
+
+RUN apk --update add ca-certificates \
+                     mailcap \
+                     curl \
+                     jq \
+                     git
+
+# Set environment variables for Node.js and Go versions
+ENV NODE_VERSION=18
+ENV GO_VERSION=1.22.1
+
+# Install Node.js, npm, and Yarn
+RUN apk add --no-cache nodejs npm yarn
+
+# Download and install Go
+RUN wget -O go.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz
+
+# Set Go environment variables
+ENV PATH=$PATH:/usr/local/go/bin
+ENV GOPATH=/go
+ENV GOBIN=/go/bin
+
+# Set working directory
+WORKDIR /opt/filebrowser
+
+# Copy all files and folders in current directory to /opt/filebrowser
+COPY . .
+
+# Set base path
+ENV BASE_PATH /opt/filebrowser
+
+# Determine version
+RUN VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0) && \
+    export VERSION
+
+# Determine version hash
+RUN VERSION_HASH=$(git rev-parse HEAD) && \
+    export VERSION_HASH
+
+# Disable GOGC
+ENV GOGC=off
+
+# Determine module
+RUN MODULE=$(env GO111MODULE=on go list -m) && \
+    export MODULE
+
+# Set tools directory
+ENV TOOLS_DIR $BASE_PATH/tools
+
+# Set tools binary directory
+ENV TOOLS_BIN $TOOLS_DIR/bin
+
+# Create tools binary directory
+RUN mkdir -p "$TOOLS_BIN"
+
+# Add tools binary directory to PATH
+ENV PATH="$TOOLS_BIN:$PATH"
+
+# Set LDFLAGS
+ENV LDFLAGS="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
+
+# Build the Go code
+RUN go build -ldflags "$LDFLAGS" -o .
+
+# Build the frontend
+RUN cd frontend &&  \
+    npm ci --verbose &&  \
+    npm run build --verbose &&  \
+    cd ..
+
+RUN chmod +x healthcheck.sh
+HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
+    CMD /opt/filebrowser/healthcheck.sh || exit 1
+
+VOLUME /srv
+EXPOSE 8080
+
+ENTRYPOINT [ "/opt/filebrowser/filebrowser" ]
