@@ -76,6 +76,7 @@ jobs:
       - run: echo "done"
 
 # Build
+# IMPORTANT: frontend can be built in parallel, since the build output doesn't matter
   build-frontend:
     if: github.event_name == 'push' || inputs.build == 'true'
     runs-on: self-hosted

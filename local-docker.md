@@ -10,14 +10,16 @@ rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 docker build --no-cache --progress=plain -f DockerfileScratch -t filebrowser .
 ```
 
+### Run
+```shell
+docker run -p 8080:80 filebrowser
+```
+
+> Refer [this][stackoverflow] for docker port spec
+
 ### Copy Executable
 ```shell
 docker cp $(docker ps -aqf "ancestor=filebrowser"):/opt/filebrowser/filebrowser .
-```
-
-### Run
-```shell
-docker run -p 8080:8080 filebrowser
 ```
 
 ### Post-cleanup
@@ -40,3 +42,5 @@ docker rmi $(docker images -q) -f
 docker builder prune
 ```
 </details>
+
+[stackoverflow]: https://stackoverflow.com/a/62125889

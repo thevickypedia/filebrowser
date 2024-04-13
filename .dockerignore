@@ -1,5 +1,12 @@
-*
-!docker/*
-!healthcheck.sh
-!docker_config.json
-!filebrowser
+##Dockerfile
+#*
+#!docker/*
+#!healthcheck.sh
+#!docker_config.json
+#!filebrowser
+
+##DockerfileScratch
+#filebrowser
+#filebrowser.db
+#frontend/node_modules
+#frontend/dist

@@ -257,6 +257,7 @@ jobs:
           LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
         shell: bash
 
+      # IMPORTANT: frontend should be built first, since it is required when creating the binary
       - name: Build Frontend
         if: env.release == 'true'
         run: cd frontend && npm ci && npm run build

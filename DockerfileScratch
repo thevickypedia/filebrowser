@@ -1,13 +1,23 @@
 FROM alpine:latest
 
+# Set working directory
+WORKDIR /opt/filebrowser
+
+# Copy all files and folders in current directory to /opt/filebrowser
+COPY . .
+
+# todo: move this to docker-compose
+RUN if [ ! -f /opt/filebrowser/docker_config.json ] || [ ! -f /opt/filebrowser/docker_users.json ]; then \
+        echo "Error: Required files are missing!"; \
+        exit 1; \
+    fi
+
 RUN apk --update add ca-certificates \
                      mailcap \
                      curl \
                      jq \
                      git
 
-# Set environment variables for Node.js and Go versions
-ENV NODE_VERSION=18
 ENV GO_VERSION=1.22.1
 
 # Install Node.js, npm, and Yarn
@@ -22,12 +32,6 @@ RUN wget -O go.tar.gz https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz &
 ENV PATH=$PATH:/usr/local/go/bin
 ENV GOPATH=/go
 ENV GOBIN=/go/bin
-
-# Set working directory
-WORKDIR /opt/filebrowser
-
-# Copy all files and folders in current directory to /opt/filebrowser
-COPY . .
 
 # Set base path
 ENV BASE_PATH /opt/filebrowser
@@ -62,20 +66,21 @@ ENV PATH="$TOOLS_BIN:$PATH"
 # Set LDFLAGS
 ENV LDFLAGS="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
 
-# Build the Go code
-RUN go build -ldflags "$LDFLAGS" -o .
-
-# Build the frontend
-RUN cd frontend &&  \
-    npm ci --verbose &&  \
-    npm run build --verbose &&  \
+# IMPORTANT: frontend should be built first, since it is required when creating the binary
+# Build frontend
+RUN cd frontend && \
+    npm install && \
+    npm ci && \
+    npm run build && \
     cd ..
 
-RUN chmod +x healthcheck.sh
-HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
-    CMD /opt/filebrowser/healthcheck.sh || exit 1
+# Build backend
+RUN go build -ldflags "$LDFLAGS" -o .
 
 VOLUME /srv
-EXPOSE 8080
+EXPOSE 80
+
+RUN /opt/filebrowser/filebrowser config import /opt/filebrowser/docker_config.json
+RUN /opt/filebrowser/filebrowser users import /opt/filebrowser/docker_users.json
 
 ENTRYPOINT [ "/opt/filebrowser/filebrowser" ]
