@@ -199,7 +199,9 @@ jobs:
             command: build
 
     name: Upload asset for ${{ matrix.platform.release_for }}
-    runs-on: ${{ matrix.platform.os }}
+    runs-on:
+      - self-hosted
+      - ${{ matrix.platform.os }}
     permissions:
       contents: write
     steps:

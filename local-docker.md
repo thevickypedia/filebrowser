@@ -5,7 +5,6 @@ rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 ```
 
 ### Build
-> :bulb: This step can be replicated for all Operating Systems by modifying the `DockerfileScratch`
 ```shell
 docker build --no-cache --progress=plain -f DockerfileScratch -t filebrowser .
 ```
