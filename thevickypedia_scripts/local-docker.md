@@ -14,6 +14,21 @@ docker build --no-cache --progress=plain -f thevickypedia_scripts/Dockerfile -t 
 docker run -p 8080:80 filebrowser
 ```
 
+### Compose
+```shell
+docker-compose -f thevickypedia_scripts/docker-compose.yml up
+```
+
+### Run with volume attached
+```shell
+docker run -d \
+  --name filebrowser \
+  -p 8080:80 \
+  -v ${DOCKER_VOLUME_STORAGE:-.}:/opt/filebrowser \
+  --restart unless-stopped \
+  filebrowser
+```
+
 > Refer [this][stackoverflow] for docker port spec
 
 ### Copy Executable

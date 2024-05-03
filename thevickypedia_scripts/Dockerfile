@@ -7,7 +7,6 @@ WORKDIR /opt/filebrowser
 COPY . .
 COPY thevickypedia_scripts/run.sh .
 
-# todo: remove these steps and move them to volume mapping
 # Copy config.json if present
 RUN test -f thevickypedia_scripts/config.json && cp thevickypedia_scripts/config.json . || true
 
@@ -36,7 +35,7 @@ ENV GOPATH=/go
 ENV GOBIN=/go/bin
 
 # Set base path
-ENV BASE_PATH /opt/filebrowser
+ENV BASE_PATH $WORKDIR
 
 # Determine version
 RUN VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0) && \
@@ -79,14 +78,8 @@ RUN cd frontend && \
 # Build backend
 RUN go build -ldflags "$LDFLAGS" -o .
 
-# todo: change the run.sh, so that it can pick files from volume
 VOLUME /srv
 EXPOSE 80
-
-# todo: make it so that the installation files get copied separately and installed separately
-#RUN apk add --no-cache python3
-#RUN python3 -c 'import os, shutil; files_to_keep = ["filebrowser", "config.json", "users.json", "run.sh"]; \
-#                [os.remove(file) if os.path.isfile(file) else shutil.rmtree(file) for file in os.listdir() if file not in files_to_keep]'
 
 RUN dos2unix run.sh
 RUN chmod +x run.sh

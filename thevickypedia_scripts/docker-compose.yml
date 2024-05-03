@@ -1,15 +1,10 @@
-version: "3"
-
+# todo: compose and docker run with -v doesn't have access to run.sh
 services:
   filebrowser:
-    image: filebrowser/filebrowser
+    image: filebrowser
     container_name: filebrowser
-    user: 1000:1000
     ports:
-      - 8080:8080
+      - 8080:80
     volumes:
-      - ${DOCKER_VOLUME_STORAGE:-/mnt/docker-volumes}/filebrowser/data:/data
-      - ${DOCKER_VOLUME_STORAGE:-/mnt/docker-volumes}/filebrowser/config:/config
-    environment:
-      - FB_BASEURL=/filebrowser
+      - ${DOCKER_VOLUME_STORAGE:-.}:/opt/filebrowser
     restart: unless-stopped
