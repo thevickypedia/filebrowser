@@ -27,7 +27,7 @@ test-backend: ## Run backend tests
 	$Q $(go) test -v ./...
 
 .PHONY: lint
-lint: lint-frontend lint-backend lint-commits ## Run all linters
+lint: lint-frontend lint-backend ## Run all linters
 
 .PHONY: lint-frontend
 lint-frontend: ## Run frontend linters
@@ -37,20 +37,10 @@ lint-frontend: ## Run frontend linters
 lint-backend: | $(golangci-lint) ## Run backend linters
 	$Q $(golangci-lint) run -v
 
-.PHONY: lint-commits
-lint-commits: $(commitlint) ## Run commit linters
-	$Q ./scripts/commitlint.sh
-
 fmt: $(goimports) ## Format source files
 	$Q $(goimports) -local $(MODULE) -w $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 clean: clean-tools ## Clean
-
-## Release:
-
-.PHONY: bump-version
-bump-version: $(standard-version) ## Bump app version
-	$Q ./scripts/bump_version.sh
 
 ## Help:
 help: ## Show this help

@@ -5,12 +5,14 @@ WORKDIR /opt/filebrowser
 
 # Copy all files and folders in current directory to /opt/filebrowser
 COPY . .
+COPY thevickypedia_scripts/run.sh .
 
-# todo: move this to docker-compose
-RUN if [ ! -f /opt/filebrowser/docker_config.json ] || [ ! -f /opt/filebrowser/docker_users.json ]; then \
-        echo "Error: Required files are missing!"; \
-        exit 1; \
-    fi
+# todo: remove these steps and move them to volume mapping
+# Copy config.json if present
+RUN test -f thevickypedia_scripts/config.json && cp thevickypedia_scripts/config.json . || true
+
+# Copy users.json if present
+RUN test -f thevickypedia_scripts/users.json && cp thevickypedia_scripts/users.json . || true
 
 RUN apk --update add ca-certificates \
                      mailcap \
@@ -18,7 +20,7 @@ RUN apk --update add ca-certificates \
                      jq \
                      git
 
-ENV GO_VERSION=1.22.1
+ENV GO_VERSION=1.22.2
 
 # Install Node.js, npm, and Yarn
 RUN apk add --no-cache nodejs npm yarn
@@ -77,14 +79,19 @@ RUN cd frontend && \
 # Build backend
 RUN go build -ldflags "$LDFLAGS" -o .
 
+# todo: change the run.sh, so that it can pick files from volume
 VOLUME /srv
 EXPOSE 80
 
-RUN apk add --no-cache python3
-RUN python3 -c 'import os, shutil; files_to_keep = ["DockerfileScratch", "filebrowser", "docker_config.json", "docker_users.json"]; \
-                [os.remove(file) if os.path.isfile(file) else shutil.rmtree(file) for file in os.listdir() if file not in files_to_keep]'
+# todo: make it so that the installation files get copied separately and installed separately
+#RUN apk add --no-cache python3
+#RUN python3 -c 'import os, shutil; files_to_keep = ["filebrowser", "config.json", "users.json", "run.sh"]; \
+#                [os.remove(file) if os.path.isfile(file) else shutil.rmtree(file) for file in os.listdir() if file not in files_to_keep]'
 
-RUN /opt/filebrowser/filebrowser config import /opt/filebrowser/docker_config.json
-RUN /opt/filebrowser/filebrowser users import /opt/filebrowser/docker_users.json
+RUN dos2unix run.sh
+RUN chmod +x run.sh
 
-ENTRYPOINT [ "/opt/filebrowser/filebrowser" ]
+RUN pwd
+RUN ls -ltrha
+
+ENTRYPOINT ["/opt/filebrowser/run.sh"]

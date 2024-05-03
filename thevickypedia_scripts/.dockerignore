@@ -1,0 +1,6 @@
+##Dockerfile
+filebrowser
+filebrowser.db
+frontend/node_modules/
+frontend/dist/
+tools/bin/

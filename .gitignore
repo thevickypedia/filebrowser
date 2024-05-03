@@ -48,5 +48,4 @@ Dockerfile.dev
 *.mov
 *.mkv
 *.vtt
-docker_users.json
-docker_config.json
+thevickypedia_scripts/*.json

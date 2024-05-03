@@ -6,7 +6,7 @@ rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 
 ### Build
 ```shell
-docker build --no-cache --progress=plain -f DockerfileScratch -t filebrowser .
+docker build --no-cache --progress=plain -f thevickypedia_scripts/Dockerfile -t filebrowser .
 ```
 
 ### Run
@@ -30,9 +30,9 @@ docker builder prune
 ```
 
 <details>
-<summary><strong>Dangerous Step</strong></summary>
+<summary><strong>Overall Docker Cleanup</strong></summary>
 
-> :warning: Delete all containers, images and build cache
+> :warning: Deletes all containers, images and build cache
 
 ```shell
 docker stop $(docker ps -a -q)

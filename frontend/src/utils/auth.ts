@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/stores/auth";
 import router from "@/router";
 import { JwtPayload, jwtDecode } from "jwt-decode";
-import { baseURL } from "./constants";
+import { baseURL, noAuth } from "./constants";
 import { StatusError } from "@/api/utils";
 import CryptoJS from "crypto-js";
 
@@ -164,5 +164,9 @@ export function logout() {
   authStore.clearUser();
 
   localStorage.setItem("jwt", "");
-  router.push({ path: "/login" });
+  if (noAuth) {
+    window.location.reload();
+  } else {
+    router.push({ path: "/login" });
+  }
 }
