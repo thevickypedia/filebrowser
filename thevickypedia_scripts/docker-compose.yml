@@ -4,15 +4,9 @@ services:
     container_name: filebrowser
     ports:
       - 8080:80
-    volumes:
-      - ${DOCKER_VOLUME_STORAGE:-.}:/srv
+#    volumes:
+#      - ${DOCKER_VOLUME_STORAGE:-/.}/filebrowser/data:/data
+#      - ${DOCKER_VOLUME_STORAGE:-/.}/filebrowser/config:/config
     environment:
       - FB_BASEURL=/filebrowser
     restart: unless-stopped
-    command: sh -c "
-        /filebrowser config import /srv/config.json
-        && /filebrowser users import /srv/users.json
-        && /filebrowser
-      "
-    stdin_open: true
-    tty: true

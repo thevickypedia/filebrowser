@@ -71,7 +71,7 @@ RUN cd frontend && \
 # Build backend
 RUN go build -ldflags "$LDFLAGS" -o .
 
-VOLUME /srv
+#VOLUME /srv
 EXPOSE 80
 
 # COPY runs at start, so use RUN instead
@@ -87,3 +87,6 @@ RUN chmod +x /healthcheck.sh  # Make the script executable
 
 HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
     CMD /healthcheck.sh || exit 1
+
+ENTRYPOINT ["/filebrowser"]
+CMD ["--root=/data", "--address=0.0.0.0", "--port=80", "--database=/config/filebrowser.db"]
