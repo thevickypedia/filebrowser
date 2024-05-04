@@ -7,6 +7,11 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'Dockerfile'
+      - 'Dockerfile.**'
+      - 'thevickypedia_scripts/**'
+      - '**.md'
   workflow_call:
     inputs:
       build:

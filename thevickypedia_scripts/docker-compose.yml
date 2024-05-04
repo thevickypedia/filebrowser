@@ -1,4 +1,3 @@
-# todo: compose and docker run with -v doesn't have access to run.sh
 services:
   filebrowser:
     image: filebrowser
@@ -6,5 +5,14 @@ services:
     ports:
       - 8080:80
     volumes:
-      - ${DOCKER_VOLUME_STORAGE:-.}:/opt/filebrowser
+      - ${DOCKER_VOLUME_STORAGE:-.}:/srv
+    environment:
+      - FB_BASEURL=/filebrowser
     restart: unless-stopped
+    command: sh -c "
+        /filebrowser config import /srv/config.json
+        && /filebrowser users import /srv/users.json
+        && /filebrowser
+      "
+    stdin_open: true
+    tty: true

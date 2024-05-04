@@ -5,13 +5,6 @@ WORKDIR /opt/filebrowser
 
 # Copy all files and folders in current directory to /opt/filebrowser
 COPY . .
-COPY thevickypedia_scripts/run.sh .
-
-# Copy config.json if present
-RUN test -f thevickypedia_scripts/config.json && cp thevickypedia_scripts/config.json . || true
-
-# Copy users.json if present
-RUN test -f thevickypedia_scripts/users.json && cp thevickypedia_scripts/users.json . || true
 
 RUN apk --update add ca-certificates \
                      mailcap \
@@ -81,10 +74,16 @@ RUN go build -ldflags "$LDFLAGS" -o .
 VOLUME /srv
 EXPOSE 80
 
-RUN dos2unix run.sh
-RUN chmod +x run.sh
+# COPY runs at start, so use RUN instead
+RUN cp docker_config.json /filebrowser.json
+RUN cp filebrowser /filebrowser
 
-RUN pwd
-RUN ls -ltrha
+RUN rm -rf /opt
 
-ENTRYPOINT ["/opt/filebrowser/run.sh"]
+WORKDIR /
+
+COPY healthcheck.sh /healthcheck.sh
+RUN chmod +x /healthcheck.sh  # Make the script executable
+
+HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
+    CMD /healthcheck.sh || exit 1
