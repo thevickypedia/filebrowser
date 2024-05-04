@@ -52,6 +52,7 @@ jobs:
           # darwin - 2
           - release_for: darwin-amd64
             os: macOS-latest
+            system: darwin
             target: x86_64-apple-darwin
             bin: filebrowser
             name: darwin-amd64-filebrowser.tar.gz
@@ -60,6 +61,7 @@ jobs:
 
           - release_for: darwin-arm64
             os: macOS-latest
+            system: darwin
             target: arm64-apple-darwin
             bin: filebrowser
             name: darwin-arm64-filebrowser.tar.gz
@@ -70,6 +72,7 @@ jobs:
 #          # freebsd - 3
 #          - release_for: freebsd-386
 #            os: freebsd-latest
+#            system: freebsd
 #            target: i386-unknown-freebsd
 #            bin: filebrowser
 #            name: freebsd-386-filebrowser.tar.gz
@@ -78,6 +81,7 @@ jobs:
 #
 #          - release_for: freebsd-amd64
 #            os: freebsd-latest
+#            system: freebsd
 #            target: x86_64-unknown-freebsd
 #            bin: filebrowser
 #            name: freebsd-amd64-filebrowser.tar.gz
@@ -86,6 +90,7 @@ jobs:
 #
 #          - release_for: freebsd-arm64
 #            os: freebsd-latest
+#            system: freebsd
 #            target: aarch64-unknown-freebsd
 #            bin: filebrowser
 #            name: freebsd-arm64-filebrowser.tar.gz
@@ -94,7 +99,8 @@ jobs:
 
           # Linux - 7
           - release_for: linux-386
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: i686-unknown-linux-gnu
             bin: filebrowser
             name: linux-386-filebrowser.tar.gz
@@ -102,7 +108,8 @@ jobs:
             command: build
 
           - release_for: linux-amd64
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: x86_64-unknown-linux-gnu
             bin: filebrowser
             name: linux-amd64-filebrowser.tar.gz
@@ -110,7 +117,8 @@ jobs:
             command: build
 
           - release_for: linux-arm64
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: aarch64-unknown-linux-gnu
             bin: filebrowser
             name: linux-arm64-filebrowser.tar.gz
@@ -118,7 +126,8 @@ jobs:
             command: build
 
           - release_for: linux-armv5
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: armv5te-unknown-linux-gnueabi
             bin: filebrowser
             name: linux-armv5-filebrowser.tar.gz
@@ -126,7 +135,8 @@ jobs:
             command: build
 
           - release_for: linux-armv6
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: armv6-unknown-linux-gnueabihf
             bin: filebrowser
             name: linux-armv6-filebrowser.tar.gz
@@ -134,7 +144,8 @@ jobs:
             command: build
 
           - release_for: linux-armv7
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: armv7-unknown-linux-gnueabihf
             bin: filebrowser
             name: linux-armv7-filebrowser.tar.gz
@@ -142,7 +153,8 @@ jobs:
             command: build
 
           - release_for: linux-riscv64
-            os: ubuntu-20.04
+            os: ubuntu-latest
+            system: ubuntu
             target: riscv64gc-unknown-linux-gnu
             bin: filebrowser
             name: linux-riscv64-filebrowser.tar.gz
@@ -152,6 +164,7 @@ jobs:
           # Windows - 6
           - release_for: windows-386
             os: windows-latest
+            system: windows
             target: i686-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-386-filebrowser.zip
@@ -160,6 +173,7 @@ jobs:
 
           - release_for: windows-amd64
             os: windows-latest
+            system: windows
             target: x86_64-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-amd64-filebrowser.zip
@@ -168,6 +182,7 @@ jobs:
 
           - release_for: windows-arm64
             os: windows-latest
+            system: windows
             target: arm64-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-arm64-filebrowser.zip
@@ -176,6 +191,7 @@ jobs:
 
           - release_for: windows-armv5
             os: windows-latest
+            system: windows
             target: armv5-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-armv5-filebrowser.zip
@@ -184,6 +200,7 @@ jobs:
 
           - release_for: windows-armv6
             os: windows-latest
+            system: windows
             target: armv6-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-armv6-filebrowser.zip
@@ -192,6 +209,7 @@ jobs:
 
           - release_for: windows-armv7
             os: windows-latest
+            system: windows
             target: armv7-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-armv7-filebrowser.zip
@@ -202,6 +220,7 @@ jobs:
     runs-on:
       - self-hosted
       - ${{ matrix.platform.os }}
+      - ${{ matrix.platform.system }}
     permissions:
       contents: write
     steps:
@@ -217,12 +236,12 @@ jobs:
       - name: Targeted Release
         # checks if the `release_for` is part of a comma separated variable in GitHub
         # this is to prevent exhausting GH actions needlessly
-        # sample input for the gh variable `target_os`: linux-amd64,darwin-amd64,windows-amd64
+        # sample input for the gh variable `release_for`: linux-amd64,darwin-amd64,windows-amd64
         run: |
           release=true;
-          if [ "${{ vars.target_os }}" ]; then
-            if [[ ",${{ vars.target_os }}," != *",${{ matrix.platform.release_for }},"* ]]; then
-              echo "Skipping release for ${{ matrix.platform.release_for }}, expected any of [${{ vars.target_os }}]"
+          if [ "${{ vars.release_for }}" ]; then
+            if [[ ",${{ vars.release_for }}," != *",${{ matrix.platform.release_for }},"* ]]; then
+              echo "Skipping release for ${{ matrix.platform.release_for }}, expected any of [${{ vars.release_for }}]"
               release=false;
             fi
           fi
