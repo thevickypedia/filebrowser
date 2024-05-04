@@ -42,187 +42,41 @@ jobs:
           fi
 
 # Upload assets for different OS and Architecture
-  upload_assets:
+  build-and-upload:
     if: ${{ github.event_name == 'release' }}
     needs: release-check
     strategy:
       matrix:
         platform:
           # Naming Convention: {operating_system}-{architecture}-{package_name}.{archive_format}
-          # darwin - 2
           - release_for: darwin-amd64
-            os: macOS-latest
-            system: darwin
+            os: darwin
             target: x86_64-apple-darwin
             bin: filebrowser
             name: darwin-amd64-filebrowser.tar.gz
             pkg-name: darwin-amd64-filebrowser
             command: build
 
-          - release_for: darwin-arm64
-            os: macOS-latest
-            system: darwin
-            target: arm64-apple-darwin
-            bin: filebrowser
-            name: darwin-arm64-filebrowser.tar.gz
-            pkg-name: darwin-arm64-filebrowser
-            command: build
-
-# # GitHub doesn't have runners available for FreeBSD: https://github.com/actions/runner/issues/385
-#          # freebsd - 3
-#          - release_for: freebsd-386
-#            os: freebsd-latest
-#            system: freebsd
-#            target: i386-unknown-freebsd
-#            bin: filebrowser
-#            name: freebsd-386-filebrowser.tar.gz
-#            pkg-name: freebsd-386-filebrowser
-#            command: build
-#
-#          - release_for: freebsd-amd64
-#            os: freebsd-latest
-#            system: freebsd
-#            target: x86_64-unknown-freebsd
-#            bin: filebrowser
-#            name: freebsd-amd64-filebrowser.tar.gz
-#            pkg-name: freebsd-amd64-filebrowser
-#            command: build
-#
-#          - release_for: freebsd-arm64
-#            os: freebsd-latest
-#            system: freebsd
-#            target: aarch64-unknown-freebsd
-#            bin: filebrowser
-#            name: freebsd-arm64-filebrowser.tar.gz
-#            pkg-name: freebsd-arm64-filebrowser
-#            command: build
-
-          # Linux - 7
-          - release_for: linux-386
-            os: ubuntu-latest
-            system: ubuntu
-            target: i686-unknown-linux-gnu
-            bin: filebrowser
-            name: linux-386-filebrowser.tar.gz
-            pkg-name: linux-386-filebrowser
-            command: build
-
           - release_for: linux-amd64
-            os: ubuntu-latest
-            system: ubuntu
+            os: ubuntu
             target: x86_64-unknown-linux-gnu
             bin: filebrowser
             name: linux-amd64-filebrowser.tar.gz
             pkg-name: linux-amd64-filebrowser
             command: build
 
-          - release_for: linux-arm64
-            os: ubuntu-latest
-            system: ubuntu
-            target: aarch64-unknown-linux-gnu
-            bin: filebrowser
-            name: linux-arm64-filebrowser.tar.gz
-            pkg-name: linux-arm64-filebrowser
-            command: build
-
-          - release_for: linux-armv5
-            os: ubuntu-latest
-            system: ubuntu
-            target: armv5te-unknown-linux-gnueabi
-            bin: filebrowser
-            name: linux-armv5-filebrowser.tar.gz
-            pkg-name: linux-armv5-filebrowser
-            command: build
-
-          - release_for: linux-armv6
-            os: ubuntu-latest
-            system: ubuntu
-            target: armv6-unknown-linux-gnueabihf
-            bin: filebrowser
-            name: linux-armv6-filebrowser.tar.gz
-            pkg-name: linux-armv6-filebrowser
-            command: build
-
-          - release_for: linux-armv7
-            os: ubuntu-latest
-            system: ubuntu
-            target: armv7-unknown-linux-gnueabihf
-            bin: filebrowser
-            name: linux-armv7-filebrowser.tar.gz
-            pkg-name: linux-armv7-filebrowser
-            command: build
-
-          - release_for: linux-riscv64
-            os: ubuntu-latest
-            system: ubuntu
-            target: riscv64gc-unknown-linux-gnu
-            bin: filebrowser
-            name: linux-riscv64-filebrowser.tar.gz
-            pkg-name: linux-riscv64-filebrowser
-            command: build
-
-          # Windows - 6
-          - release_for: windows-386
-            os: windows-latest
-            system: windows
-            target: i686-pc-windows-msvc
-            bin: filebrowser.exe
-            name: windows-386-filebrowser.zip
-            pkg-name: windows-386-filebrowser
-            command: build
-
           - release_for: windows-amd64
-            os: windows-latest
-            system: windows
+            os: windows
             target: x86_64-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-amd64-filebrowser.zip
             pkg-name: windows-amd64-filebrowser
             command: build
 
-          - release_for: windows-arm64
-            os: windows-latest
-            system: windows
-            target: arm64-pc-windows-msvc
-            bin: filebrowser.exe
-            name: windows-arm64-filebrowser.zip
-            pkg-name: windows-arm64-filebrowser
-            command: build
-
-          - release_for: windows-armv5
-            os: windows-latest
-            system: windows
-            target: armv5-pc-windows-msvc
-            bin: filebrowser.exe
-            name: windows-armv5-filebrowser.zip
-            pkg-name: windows-armv5-filebrowser
-            command: build
-
-          - release_for: windows-armv6
-            os: windows-latest
-            system: windows
-            target: armv6-pc-windows-msvc
-            bin: filebrowser.exe
-            name: windows-armv6-filebrowser.zip
-            pkg-name: windows-armv6-filebrowser
-            command: build
-
-          - release_for: windows-armv7
-            os: windows-latest
-            system: windows
-            target: armv7-pc-windows-msvc
-            bin: filebrowser.exe
-            name: windows-armv7-filebrowser.zip
-            pkg-name: windows-armv7-filebrowser
-            command: build
-
     name: Upload asset for ${{ matrix.platform.release_for }}
     runs-on:
       - self-hosted
-      - ${{ matrix.platform.system }}
-# Uncomment for GH actions' runner
-#    runs-on:
-#      - ${{ matrix.platform.os }}
+      - ${{ matrix.platform.os }}
     permissions:
       contents: write
     steps:
@@ -234,36 +88,19 @@ jobs:
             echo "Release ID propagation failed. Exiting.."
             exit 1
           fi
-        shell: bash
-      - name: Targeted Release
-        # checks if the `release_for` is part of a comma separated variable in GitHub
-        # this is to prevent exhausting GH actions needlessly
-        # sample input for the gh variable `release_for`: linux-amd64,darwin-amd64,windows-amd64
-        run: |
-          release=true;
-          if [ "${{ vars.release_for }}" ]; then
-            if [[ ",${{ vars.release_for }}," != *",${{ matrix.platform.release_for }},"* ]]; then
-              echo "Skipping release for ${{ matrix.platform.release_for }}, expected any of [${{ vars.release_for }}]"
-              release=false;
-            fi
-          fi
-          echo "release=$release" >> $GITHUB_ENV
+          echo "start_time=$(date +%s)" >> "$GITHUB_ENV"
         shell: bash
       - uses: actions/checkout@v4
-        if: env.release == 'true'
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v5
-        if: env.release == 'true'
         with:
-          go-version: 1.22.1
+          go-version: 1.22.2
       - uses: actions/setup-node@v4
-        if: env.release == 'true'
         with:
           node-version: '18'
 
       - name: Build Essentials
-        if: env.release == 'true'
         run: |
           SHELL="/usr/bin/env bash"
           BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
@@ -282,17 +119,15 @@ jobs:
 
       # IMPORTANT: frontend should be built first, since it is required when creating the binary
       - name: Build Frontend
-        if: env.release == 'true'
         run: cd frontend && npm ci && npm run build
         shell: bash
 
       - name: Build Backend
-        if: env.release == 'true'
         run: go build -ldflags "$LDFLAGS" -o .
         shell: bash
 
       - name: Copy Asset (Windows)
-        if: env.release == 'true' && matrix.platform.system == 'windows'
+        if: matrix.platform.os == 'windows'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -300,7 +135,7 @@ jobs:
         shell: pwsh
 
       - name: Copy Asset (macOS/Linux/RaspberryPi)
-        if: env.release == 'true' && matrix.platform.system != 'windows'
+        if: matrix.platform.os != 'windows'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -308,10 +143,16 @@ jobs:
         shell: bash
 
       - name: Upload Artifact
-        if: env.release == 'true'
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @"${{ matrix.platform.name }}" \
           "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.release-check.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
         shell: bash
+
+      - name: Runtime Analyzer
+        run: |
+          start=${{ env.start_time }}
+          end=$(date +%s)
+          time_taken=$((end-start))
+          echo "Time taken for ${{ matrix.platform.os }}: $time_taken s"
