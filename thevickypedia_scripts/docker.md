@@ -24,7 +24,9 @@ docker-compose -f thevickypedia_scripts/docker-compose.yml up
 docker run -d \
   --name filebrowser \
   -p 8080:80 \
-  -v ${DOCKER_VOLUME_STORAGE:-.}:/opt/filebrowser \
+  -v ${DOCKER_VOLUME_STORAGE:-/.}/data:/data \
+  -v ${DOCKER_VOLUME_STORAGE:-/.}/config:/config \
+  -e FB_BASEURL=/filebrowser \
   --restart unless-stopped \
   filebrowser
 ```

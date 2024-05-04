@@ -1,3 +1,5 @@
+# https://github.com/hurlenko/filebrowser-docker/tree/master
+# https://github.com/Haxxnet/Compose-Examples/blob/main/examples/filebrowser/docker-compose.yml
 services:
   filebrowser:
     image: filebrowser
@@ -5,8 +7,8 @@ services:
     ports:
       - 8080:80
 #    volumes:
-#      - ${DOCKER_VOLUME_STORAGE:-/.}/filebrowser/data:/data
-#      - ${DOCKER_VOLUME_STORAGE:-/.}/filebrowser/config:/config
+#      - ${DOCKER_VOLUME_STORAGE:-/.}/data:/data
+#      - ${DOCKER_VOLUME_STORAGE:-/.}/config:/config
     environment:
       - FB_BASEURL=/filebrowser
     restart: unless-stopped
