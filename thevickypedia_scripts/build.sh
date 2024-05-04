@@ -2,6 +2,10 @@
 
 set -e
 
+# Set parent directory as current working directory
+parent="$(dirname "$PWD")"
+cd "$parent"
+
 cleanup() {
   rm -rf filebrowser filebrowser.db frontend/node_modules
   rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
@@ -25,9 +29,7 @@ mkdir -p "$TOOLS_BIN"
 export PATH="$TOOLS_BIN:$PATH"
 LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
 
-CURRENT_DIR="$(pwd)"
-
 cd frontend && npm ci && npm run build
 
 # Run on a new shell to avoid segmentation error
-bash -c "cd $CURRENT_DIR && go build -ldflags \"$LDFLAGS\" -o ."
+bash -c "cd $parent && go build -ldflags \"$LDFLAGS\" -o ."

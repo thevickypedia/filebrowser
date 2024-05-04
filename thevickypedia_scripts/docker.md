@@ -1,6 +1,6 @@
 ### Pre-cleanup
 ```shell
-rm -rf filebrowser filebrowser.db frontend/node_modules
+rm -rf filebrowser filebrowser.db frontend/node_modules tools/bin
 rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 ```
 
