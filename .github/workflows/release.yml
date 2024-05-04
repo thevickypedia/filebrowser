@@ -4,6 +4,12 @@
 name: Build and Upload Artifact
 
 on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: Release ID to upload assets
+        required: true
+        type: string
   release:
     types:
       - published
@@ -156,3 +162,4 @@ jobs:
           end=$(date +%s)
           time_taken=$((end-start))
           echo "Time taken for ${{ matrix.platform.os }}: $time_taken s"
+        shell: bash
