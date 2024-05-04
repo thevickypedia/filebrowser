@@ -219,8 +219,10 @@ jobs:
     name: Upload asset for ${{ matrix.platform.release_for }}
     runs-on:
       - self-hosted
-      - ${{ matrix.platform.os }}
       - ${{ matrix.platform.system }}
+# Uncomment for GH actions' runner
+#    runs-on:
+#      - ${{ matrix.platform.os }}
     permissions:
       contents: write
     steps:
@@ -290,7 +292,7 @@ jobs:
         shell: bash
 
       - name: Copy Asset (Windows)
-        if: env.release == 'true' && matrix.platform.os == 'windows-latest'
+        if: env.release == 'true' && matrix.platform.system == 'windows'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -298,7 +300,7 @@ jobs:
         shell: pwsh
 
       - name: Copy Asset (macOS/Linux/RaspberryPi)
-        if: env.release == 'true' && matrix.platform.os != 'windows-latest'
+        if: env.release == 'true' && matrix.platform.system != 'windows'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
