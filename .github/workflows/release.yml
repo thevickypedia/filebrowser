@@ -58,27 +58,21 @@ jobs:
           # Naming Convention: {operating_system}-{architecture}-{package_name}.{archive_format}
           - release_for: darwin-amd64
             os: darwin
-            target: x86_64-apple-darwin
             bin: filebrowser
             name: darwin-amd64-filebrowser.tar.gz
             pkg-name: darwin-amd64-filebrowser
-            command: build
 
           - release_for: linux-amd64
             os: ubuntu
-            target: x86_64-unknown-linux-gnu
             bin: filebrowser
             name: linux-amd64-filebrowser.tar.gz
             pkg-name: linux-amd64-filebrowser
-            command: build
 
           - release_for: windows-amd64
             os: windows
-            target: x86_64-pc-windows-msvc
             bin: filebrowser.exe
             name: windows-amd64-filebrowser.zip
             pkg-name: windows-amd64-filebrowser
-            command: build
 
     name: Upload asset for ${{ matrix.platform.release_for }}
     runs-on:
@@ -107,30 +101,13 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Build Essentials
-        run: |
-          SHELL="/usr/bin/env bash"
-          BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-          VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0)
-          VERSION_HASH=$(git rev-parse HEAD)
-          go() {
-              GOGC=off go "$@"
-          }
-          MODULE=$(env GO111MODULE=on go list -m)
-          TOOLS_DIR="$BASE_PATH/tools"
-          TOOLS_BIN="$TOOLS_DIR/bin"
-          mkdir -p "$TOOLS_BIN"
-          export PATH="$TOOLS_BIN:$PATH"
-          LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
-        shell: bash
-
       # IMPORTANT: frontend should be built first, since it is required when creating the binary
       - name: Build Frontend
-        run: cd frontend && npm ci && npm run build
+        run: make build-frontend
         shell: bash
 
       - name: Build Backend
-        run: go build -ldflags "$LDFLAGS" -o .
+        run: make build-backend
         shell: bash
 
       - name: Copy Asset (Windows)
