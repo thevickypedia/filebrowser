@@ -43,7 +43,7 @@ jobs:
     runs-on: self-hosted
     needs: [lint-frontend, lint-backend]
     steps:
-      - run: echo "done"
+      - run: echo "Finished Linting"
 
 # Tests
   test-frontend:
@@ -66,7 +66,7 @@ jobs:
     runs-on: self-hosted
     needs: [test-frontend, test-backend]
     steps:
-      - run: echo "done"
+      - run: echo "Finished Testing"
 
 # Build
 # IMPORTANT: frontend can be built in parallel, since the build output doesn't matter
@@ -79,7 +79,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: cd frontend && npm ci && npm run build
+      - run: make build-frontend
         shell: bash
 
   build-backend:
@@ -91,23 +91,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.22.2
-      - run: |
-          SHELL="/usr/bin/env bash"
-          BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-          VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0)
-          VERSION_HASH=$(git rev-parse HEAD)
-          go() {
-              GOGC=off go "$@"
-          }
-          MODULE=$(env GO111MODULE=on go list -m)
-          TOOLS_DIR="$BASE_PATH/tools"
-          TOOLS_BIN="$TOOLS_DIR/bin"
-          mkdir -p "$TOOLS_BIN"
-          export PATH="$TOOLS_BIN:$PATH"
-          LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
-        shell: bash
-
-      - run: go build -ldflags "$LDFLAGS" -o .
+      - run: make build-backend
         shell: bash
 
   build:
@@ -115,4 +99,4 @@ jobs:
     runs-on: self-hosted
     needs: [build-frontend, build-backend]
     steps:
-      - run: echo "done"
+      - run: echo "Finished Building"
