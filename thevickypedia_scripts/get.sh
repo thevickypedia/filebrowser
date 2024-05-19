@@ -27,7 +27,7 @@ install_filebrowser()
 	# See https://en.wikipedia.org/wiki/Uname
 	unamem="$(uname -m)"
 	case $unamem in
-	*aarch64*)
+  *aarch64*|arm64)
 		filebrowser_arch="arm64";;
 	*64*)
 		filebrowser_arch="amd64";;
@@ -80,8 +80,8 @@ install_filebrowser()
 		return 7
 	fi
 
-  filebrowser_file="$filebrowser_os-$filebrowser_arch-filebrowser$filebrowser_dl_ext"
   filebrowser_dir="$filebrowser_os-$filebrowser_arch-filebrowser"
+  filebrowser_file="$filebrowser_dir$filebrowser_dl_ext"
   # shellcheck disable=SC2153
   git_token="$GIT_TOKEN"
   if [ -z "$git_token" ]; then

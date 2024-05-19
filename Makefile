@@ -35,7 +35,8 @@ lint-frontend: ## Run frontend linters
 
 .PHONY: lint-backend
 lint-backend: | $(golangci-lint) ## Run backend linters
-	$Q $(golangci-lint) run -v
+    ## https://github.com/golangci/golangci-lint/issues/825
+	$Q go mod tidy && go mod vendor && $(golangci-lint) run -v
 
 fmt: $(goimports) ## Format source files
 	$Q $(goimports) -local $(MODULE) -w $$(find . -type f -name '*.go' -not -path "./vendor/*")

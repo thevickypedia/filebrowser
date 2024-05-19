@@ -1,5 +1,5 @@
 # Builds for all operating system platforms, and uploads executable to the release
-# This workflow uses both self-hosted, and GitHub action runners
+# This workflow uses both self-hosted runners
 
 name: Build and Upload Artifact
 
@@ -21,7 +21,7 @@ jobs:
     with:
       build: 'false'
   release-check:
-    runs-on: self-hosted
+    runs-on: thevickypedia-default
     needs: lint-and-test
     outputs:
       release-id: ${{ steps.get-release-id.outputs.release_id }}
@@ -57,27 +57,27 @@ jobs:
         platform:
           # Naming Convention: {operating_system}-{architecture}-{package_name}.{archive_format}
           - release_for: darwin-amd64
-            os: darwin
             bin: filebrowser
             name: darwin-amd64-filebrowser.tar.gz
             pkg-name: darwin-amd64-filebrowser
 
+          - release_for: darwin-arm64
+            bin: filebrowser
+            name: darwin-arm64-filebrowser.tar.gz
+            pkg-name: darwin-arm64-filebrowser
+
           - release_for: linux-amd64
-            os: ubuntu
             bin: filebrowser
             name: linux-amd64-filebrowser.tar.gz
             pkg-name: linux-amd64-filebrowser
 
           - release_for: windows-amd64
-            os: windows
             bin: filebrowser.exe
             name: windows-amd64-filebrowser.zip
             pkg-name: windows-amd64-filebrowser
 
     name: Upload asset for ${{ matrix.platform.release_for }}
-    runs-on:
-      - self-hosted
-      - ${{ matrix.platform.os }}
+    runs-on: ${{ matrix.platform.release_for }}
     permissions:
       contents: write
     steps:
@@ -111,7 +111,7 @@ jobs:
         shell: bash
 
       - name: Copy Asset (Windows)
-        if: matrix.platform.os == 'windows'
+        if: matrix.platform.release_for == 'windows*'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -119,7 +119,7 @@ jobs:
         shell: pwsh
 
       - name: Copy Asset (macOS/Linux/RaspberryPi)
-        if: matrix.platform.os != 'windows'
+        if: matrix.platform.release_for != 'windows*'
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -139,5 +139,5 @@ jobs:
           start=${{ env.start_time }}
           end=$(date +%s)
           time_taken=$((end-start))
-          echo "Time taken for ${{ matrix.platform.os }}: $time_taken s"
+          echo "Time taken for ${{ matrix.platform.release_for }}: $time_taken s"
         shell: bash

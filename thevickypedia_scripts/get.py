@@ -60,7 +60,7 @@ class Executable:
             f"Aborted, unsupported or unknown OS: {system}"
         )
 
-    if "aarch64" in machine:
+    if "aarch64" in machine or "arm64" in machine:
         filebrowser_arch: str = "arm64"
     elif "64" in machine:
         filebrowser_arch: str = "amd64"
