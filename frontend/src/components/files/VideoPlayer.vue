@@ -88,8 +88,8 @@ const getOptions = (...srcOpt: any[]) => {
   const options = {
     controlBar: {
       skipButtons: {
-        forward: 5,
-        backward: 5,
+        forward: 10,
+        backward: 10,
       },
     },
     html5: {
