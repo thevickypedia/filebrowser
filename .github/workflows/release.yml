@@ -4,12 +4,6 @@
 name: Build and Upload Artifact
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_id:
-        description: Release ID to upload assets
-        required: true
-        type: string
   release:
     types:
       - published
@@ -25,13 +19,15 @@ jobs:
     needs: lint-and-test
     outputs:
       release-id: ${{ steps.get-release-id.outputs.release_id }}
+      release-tag: ${{ steps.get-release-id.outputs.release_tag }}
     steps:
       - name: Check Release ID
         id: get-release-id
         run: |
           if [ -n "${{ github.event.release.id }}" ]; then
             echo "Release ID: ${{ github.event.release.id }}"
-            echo "release_id=${{ github.event.release.id }}" >> "$GITHUB_OUTPUT"
+            echo "release_id=${{ github.event.release.id }}" >> $GITHUB_OUTPUT
+            echo "release_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           else
             echo "Failed to fetch current release id, trying to fetch externally"
             release_id=$(curl -s -X GET \
@@ -39,16 +35,17 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/releases/latest" | \
               jq -r ".id")
             if [ -n "$release_id" ]; then
-              echo "Release ID: ${{ github.event.release.id }}"
-              echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+              echo "Release ID: $release_id"
+              echo "release_id=$release_id" >> $GITHUB_OUTPUT
+              echo "release_tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
             else
-              echo "Release ID not available in the event."
+              echo "::error title=Failed::Release ID not available in the event"
               exit 1
             fi
           fi
         shell: bash
 
-# Upload assets for different OS and Architecture
+  # Upload assets for different OS and Architecture
   build-and-upload:
     if: ${{ github.event_name == 'release' }}
     needs: release-check
@@ -111,7 +108,7 @@ jobs:
         shell: bash
 
       - name: Copy Asset (Windows)
-        if: matrix.platform.release_for == 'windows*'
+        if: startsWith(matrix.platform.release_for, 'windows')
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -119,7 +116,7 @@ jobs:
         shell: pwsh
 
       - name: Copy Asset (macOS/Linux/RaspberryPi)
-        if: matrix.platform.release_for != 'windows*'
+        if: "!startsWith(matrix.platform.release_for, 'windows')"
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
           cp ${{ matrix.platform.bin }} ${{ matrix.platform.pkg-name }}/${{ matrix.platform.bin }}
@@ -139,5 +136,7 @@ jobs:
           start=${{ env.start_time }}
           end=$(date +%s)
           time_taken=$((end-start))
-          echo "Time taken for ${{ matrix.platform.release_for }}: $time_taken s"
+          url="${{ github.server_url }}/${{ github.repository }}/releases/download/${{ needs.release-check.outputs.release-tag }}/${{ matrix.platform.name }}"
+          hyperlink="[${{ matrix.platform.release_for }}]($url)"
+          echo "🚀 Built for $hyperlink in $time_taken seconds" >> $GITHUB_STEP_SUMMARY
         shell: bash
