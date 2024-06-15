@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,18 +28,84 @@ type JSONAuth struct {
 	ReCaptcha *ReCaptcha `json:"recaptcha" yaml:"recaptcha"`
 }
 
+func decodeUnicodeEscape(value string) (string, error) {
+	// First, wrap the string in double quotes to make it a valid JSON string
+	quotedValue := fmt.Sprintf(`"%s"`, value)
+	// Use json.Unmarshal to decode the Unicode escape sequences
+	var decodedValue string
+	err := json.Unmarshal([]byte(quotedValue), &decodedValue)
+	if err != nil {
+		return "", err
+	}
+	return decodedValue, nil
+}
+
+func decodeBase64(value string) (string, error) {
+	// Decode base64
+	decodedAuth, err := base64.StdEncoding.DecodeString(value)
+	if err != nil {
+		return "", err
+	}
+	return string(decodedAuth), nil
+}
+
+func getCredentialParts(value string) ([]string, error) {
+	// Break down credentials into username, signature and recaptcha
+	// Decode each of them separately using unicode escape
+	parts := make([]string, 0, 3)
+	unicodeParts := strings.Split(value, ",")
+	for i, part := range unicodeParts {
+		decodedUnicode, err := decodeUnicodeEscape(part)
+		if err != nil {
+			if i == 2 {
+				formatError := fmt.Sprintf("ReCaptcha is null: %s", err)
+				log.Print(formatError)
+				parts = append(parts, "")
+			} else {
+				log.Fatal("error: decodeAuth:", err)
+				return nil, err
+			}
+		}
+		parts = append(parts, decodedUnicode)
+	}
+	return parts, nil
+}
+
+func extractCredentials(value string) (*jsonCred, error) {
+	decodedAuth, err := decodeBase64(value)
+	if err != nil {
+		return nil, err
+	}
+	// Convert decoded byte array to string
+	unicodeString := string(decodedAuth)
+	parts, err := getCredentialParts(unicodeString)
+	if err != nil {
+		return nil, err
+	}
+	// Check if we have enough parts
+	if len(parts) < 3 {
+		return nil, fmt.Errorf("insufficient parts extracted from the decoded string")
+	}
+	// Create jsonCred struct with the extracted values
+	authDetails := &jsonCred{
+		Username:  parts[0],
+		Password:  parts[1],
+		ReCaptcha: parts[2],
+	}
+	return authDetails, nil
+}
+
 // Auth authenticates the user via a json in authorization header.
 func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, srv *settings.Server) (*users.User, error) {
-	var cred jsonCred
-
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		return nil, os.ErrPermission
 	}
 
-	err := json.NewDecoder(strings.NewReader(authHeader)).Decode(&cred)
+	cred, err := extractCredentials(authHeader)
 	if err != nil {
-		return nil, os.ErrPermission
+		log.Fatal("error:", err)
+		return nil, err
 	}
 
 	// If ReCaptcha is enabled, check the code.

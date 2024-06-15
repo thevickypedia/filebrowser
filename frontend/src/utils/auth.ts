@@ -1,9 +1,8 @@
 import { useAuthStore } from "@/stores/auth";
 import router from "@/router";
-import { JwtPayload, jwtDecode } from "jwt-decode";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 import { baseURL, noAuth } from "./constants";
 import { StatusError } from "@/api/utils";
-import CryptoJS from "crypto-js";
 
 export function parseToken(token: string) {
   // falsy or malformed jwt will throw InvalidTokenError
@@ -46,18 +45,6 @@ export async function validateLogin() {
   }
 }
 
-export async function getProxyFlag() {
-  const name = "pyproxy";
-  const cookies = document.cookie.split(";");
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.indexOf(name + "=") === 0) {
-      return cookie.substring(name.length + 1, cookie.length);
-    }
-  }
-  return "off";
-}
-
 export async function ConvertStringToHex(str: string) {
   const arr = [];
   for (let i = 0; i < str.length; i++) {
@@ -66,41 +53,15 @@ export async function ConvertStringToHex(str: string) {
   return "\\u" + arr.join("\\u");
 }
 
-async function CalculateHash(message: string) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(message);
-  if (crypto.subtle === undefined) {
-    const wordArray = CryptoJS.lib.WordArray.create(data);
-    const hash = CryptoJS.SHA512(wordArray);
-    // Convert the hash to a hexadecimal string and return it
-    return hash.toString(CryptoJS.enc.Hex);
-  } else {
-    const hashBuffer = await crypto.subtle.digest("SHA-512", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    // Convert each byte to a hexadecimal string, pad with zeros, and join them to form the final hash
-    return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
-  }
-}
-
 export async function login(
   username: string,
   password: string,
   recaptcha: string
 ) {
-  const proxy_status = await getProxyFlag();
-  let payload;
-  if (proxy_status === "on") {
-    const hex_user = await ConvertStringToHex(username);
-    const signature = await CalculateHash(password);
-    const hex_recaptcha = await ConvertStringToHex(recaptcha);
-    payload = btoa(hex_user + "," + signature + "," + hex_recaptcha) // eslint-disable-line
-  } else {
-    console.warn(
-      "pyproxy is turned off! auth header will be sent as plain text"
-    );
-    payload = JSON.stringify({ username, password, recaptcha });
-  }
-
+  const hex_user = await ConvertStringToHex(username);
+  const hex_pass = await ConvertStringToHex(password);
+  const hex_recaptcha = await ConvertStringToHex(recaptcha);
+  let payload = btoa(hex_user + "," + hex_pass + "," + hex_recaptcha) // eslint-disable-line
   const res = await fetch(`${baseURL}/api/login`, {
     method: "POST",
     headers: {
