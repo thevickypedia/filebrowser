@@ -28,9 +28,11 @@ type JSONAuth struct {
 	ReCaptcha *ReCaptcha `json:"recaptcha" yaml:"recaptcha"`
 }
 
+// decodeUnicodeEscape decodes Unicode escape sequences in a string
 func decodeUnicodeEscape(value string) (string, error) {
-	// First, wrap the string in double quotes to make it a valid JSON string
-	quotedValue := fmt.Sprintf("%q", value)
+	// Wrap the string in double quotes to make it a valid JSON string
+	// quotedValue := fmt.Sprintf(`"%s"`, value) //nolint:govet
+	quotedValue := `"` + value + `"`
 	// Use json.Unmarshal to decode the Unicode escape sequences
 	var decodedValue string
 	err := json.Unmarshal([]byte(quotedValue), &decodedValue)
@@ -49,20 +51,22 @@ func decodeBase64(value string) (string, error) {
 	return string(decodedAuth), nil
 }
 
+// getCredentialParts breaks down the credentials into parts and decodes them
 func getCredentialParts(value string) ([]string, error) {
-	// Break down credentials into username, signature and recaptcha
-	// Decode each of them separately using unicode escape
+	// Split the input string by commas
 	parts := make([]string, 0, 3)
 	unicodeParts := strings.Split(value, ",")
 	for i, part := range unicodeParts {
+		// Decode each part using unicode escape
 		decodedUnicode, err := decodeUnicodeEscape(part)
 		if err != nil {
 			if i == 2 {
+				// Handle the special case for the third part (recaptcha)
 				formatError := fmt.Sprintf("ReCaptcha is null: %s", err)
 				log.Print(formatError)
 				parts = append(parts, "")
 			} else {
-				log.Fatal("error: decodeAuth:", err)
+				log.Fatalf("error: decodeAuth: %s", err)
 				return nil, err
 			}
 		}
@@ -122,6 +126,8 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 
 	u, err := usr.Get(srv.Root, cred.Username)
 	if err != nil || !users.CheckPwd(cred.Password, u.Password) {
+		log.Print("Username received: ", cred.Username)
+		log.Print("Password received: ", cred.Password)
 		return nil, os.ErrPermission
 	}
 
