@@ -30,7 +30,7 @@ type JSONAuth struct {
 
 func decodeUnicodeEscape(value string) (string, error) {
 	// First, wrap the string in double quotes to make it a valid JSON string
-	quotedValue := fmt.Sprintf(`"%s"`, value)
+	quotedValue := fmt.Sprintf("%q", value)
 	// Use json.Unmarshal to decode the Unicode escape sequences
 	var decodedValue string
 	err := json.Unmarshal([]byte(quotedValue), &decodedValue)
@@ -77,8 +77,7 @@ func extractCredentials(value string) (*jsonCred, error) {
 		return nil, err
 	}
 	// Convert decoded byte array to string
-	unicodeString := string(decodedAuth)
-	parts, err := getCredentialParts(unicodeString)
+	parts, err := getCredentialParts(decodedAuth)
 	if err != nil {
 		return nil, err
 	}
