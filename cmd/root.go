@@ -181,7 +181,32 @@ user created with the credentials from options "username" and "password".`,
 
 		defer listener.Close()
 
-		log.Println("Listening on", listener.Addr().String())
+		listenerString := listener.Addr().String()
+		log.Printf("Adding %s to allowed origins", listenerString)
+		server.AllowedOrigins = append(server.AllowedOrigins, listenerString)
+
+		if server.AllowPrivateIP {
+			privateIP, err := GetLocalIP()
+			if err != nil {
+				log.Printf("Failed to get local IP: %v", err)
+			} else if privateIP != server.Address {
+				log.Printf("Adding local IP address '%s' to allowed origins", privateIP)
+				server.AllowedOrigins = append(server.AllowedOrigins, privateIP)
+			}
+		}
+
+		if server.AllowPublicIP {
+			publicIP := GetPublicIP()
+			if publicIP == "" {
+				log.Printf("Failed to get public IP")
+			} else if publicIP != server.Address {
+				log.Printf("Adding public IP address '%s' to allowed origins", publicIP)
+				server.AllowedOrigins = append(server.AllowedOrigins, publicIP)
+			}
+		}
+
+		log.Printf("%s", server.AllowedOrigins)
+		log.Println("Listening on", listenerString)
 		//nolint: gosec
 		if err := http.Serve(listener, handler); err != nil {
 			log.Fatal(err)

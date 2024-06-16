@@ -38,6 +38,8 @@ func (s *Settings) GetRules() []rules.Rule {
 type Server struct {
 	Root                  string   `json:"root"`
 	AllowedOrigins        []string `json:"allowedOrigins"`
+	AllowPrivateIP        bool     `json:"allowPrivateIP"`
+	AllowPublicIP         bool     `json:"allowPublicIP"`
 	BaseURL               string   `json:"baseURL"`
 	Socket                string   `json:"socket"`
 	TLSKey                string   `json:"tlsKey"`
