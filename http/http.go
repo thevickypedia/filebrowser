@@ -26,20 +26,6 @@ func NewHandler(
 
 	r := mux.NewRouter()
 
-	// fixthis: currently not used, but may be in the future
-	// Middleware to check the origin IP address
-	// r.Use(func(next http.Handler) http.Handler {
-	// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 		if checkAllowedOrigins(r.Host, server) {
-	// 			next.ServeHTTP(w, r)
-	// 		} else {
-	// 			errorMessage := fmt.Sprintf("Forbidden: '%s' is not allowed", r.Host)
-	// 			log.Print(errorMessage)
-	// 			http.Error(w, errorMessage, http.StatusForbidden)
-	// 		}
-	// 	})
-	// })
-
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Security-Policy", `default-src 'self'; style-src 'unsafe-inline';`)

@@ -211,6 +211,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 
 	u, err := usr.Get(srv.Root, cred.Username)
 	if err != nil || !users.CheckPwd(cred.Password, u.Password) {
+		log.Printf("Login error for %s - %s", cred.Username, err)
 		handleAuthError(r)
 		return nil, os.ErrPermission
 	}

@@ -131,6 +131,7 @@ func getStaticHandlers(store *storage.Storage, server *settings.Server, assetsFs
 			return http.StatusForbidden, nil
 		}
 
+		logConnection(r)
 		w.Header().Set("x-xss-protection", "1; mode=block")
 		return handleWithStaticData(w, r, d, assetsFs, "public/index.html", "text/html; charset=utf-8")
 	}, "", store, server)
