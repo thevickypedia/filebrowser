@@ -14,3 +14,7 @@ type Auther interface {
 	// LoginPage indicates if this auther needs a login page.
 	LoginPage() bool
 }
+
+func DataBase() {
+	initializeDatabase()
+}
