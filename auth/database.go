@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var db *sql.DB
@@ -20,7 +21,6 @@ func initializeDatabase() {
 	}
 
 	// Create the table "auth_errors"
-	// fixthis: unable to use the columns created - no such columns
 	err = createTable("auth_errors", []string{"host TEXT", "block_until INTEGER"})
 	if err != nil {
 		log.Fatalf("Failed to create table: %v", err)
@@ -62,7 +62,7 @@ func createTable(tableName string, columns []string) error {
 }
 
 func joinColumns(columns []string) string {
-	return fmt.Sprintf("%s", columns)
+	return strings.Join(columns, ", ")
 }
 
 func getRecord(host string) (int64, error) {
@@ -82,11 +82,15 @@ func getRecord(host string) (int64, error) {
 func putRecord(host string, blockUntil int64) {
 	query := "INSERT INTO auth_errors (host, block_until) VALUES (?, ?)"
 	_, err := db.Exec(query, host, blockUntil)
-	log.Printf("Failed to put block_until [%d] for host [%s] in auth_errors table - %s", blockUntil, host, err)
+	if err != nil {
+		log.Printf("Failed to put block_until [%d] for host [%s] in auth_errors table - %s", blockUntil, host, err)
+	}
 }
 
 func removeRecord(host string) {
 	query := "DELETE FROM auth_errors WHERE host = ?"
 	_, err := db.Exec(query, host)
-	log.Printf("Failed to remove host [%s] from auth_errors table - %s", host, err)
+	if err != nil {
+		log.Printf("Failed to remove host [%s] from auth_errors table - %s", host, err)
+	}
 }

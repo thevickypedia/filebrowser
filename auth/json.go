@@ -112,7 +112,6 @@ func handleAuthError(r *http.Request) {
 		log.Printf("Failed auth, attempt #%d for %s", authCounter[r.Host], r.Host)
 		attempt := authCounter[r.Host]
 		if attempt >= 10 {
-			// fixthis: epoch is messed up - 103112524380 at 1718542143
 			epoch := time.Now().Unix()
 			until := epoch + 2_592_000
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
@@ -139,8 +138,7 @@ func handleAuthError(r *http.Request) {
 				minutes = 60 // Default to 1 hour
 			}
 			epoch := time.Now().Unix()
-			// fixthis: epoch is messed up - 103112524380 at 1718542143
-			until := (epoch + int64(minutes)) * 60
+			until := epoch + int64(minutes*60)
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
 			log.Printf("%s is blocked (for %d minutes) until %s", r.Host, minutes, formattedTime)
 			removeRecord(r.Host)
@@ -176,14 +174,14 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 	if block {
 		timestamp, err := getRecord(r.Host)
 		if err != nil {
+			log.Printf("Unable to check if %s was forbidden, allowing..", r.Host)
+		} else {
 			epoch := time.Now().Unix()
 			if timestamp > epoch {
 				formattedTime := time.Unix(timestamp, 0).Format("2006-01-02 15:04:05 MST")
 				log.Printf("%s is forbidden until %s due to repeated login failures", r.Host, formattedTime)
 				return nil, os.ErrPermission
 			}
-		} else {
-			log.Printf("Unable to check if %s was forbidden, allowing..", r.Host)
 		}
 	}
 
