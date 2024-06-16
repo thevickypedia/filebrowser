@@ -99,10 +99,36 @@ func handleWithStaticData(w http.ResponseWriter, _ *http.Request, d *data, fSys 
 	return 0, nil
 }
 
+// allowRequest checks if requesting host is allowed to connect
+// Allows the hosted server by default
+func allowRequest(host string, server *settings.Server) bool {
+	if host == fmt.Sprintf("%s:%s", server.Address, server.Port) {
+		return true
+	}
+	for _, allowedHost := range server.AllowedOrigins {
+		if host == allowedHost {
+			return true
+		}
+	}
+	return false
+}
+
 func getStaticHandlers(store *storage.Storage, server *settings.Server, assetsFs fs.FS) (index, static http.Handler) {
 	index = handle(func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
 		if r.Method != http.MethodGet {
 			return http.StatusNotFound, nil
+		}
+
+		if !allowRequest(r.Host, server) {
+			errorMessage := fmt.Sprintf("Forbidden: '%s' is not allowed", r.Host)
+			log.Print(errorMessage)
+			w.Header().Set("Content-Type", "text/plain")
+			errorMessage += "\n"
+			_, err := w.Write([]byte(errorMessage))
+			if err != nil {
+				log.Printf("Error writing response: %v", err)
+			}
+			return http.StatusForbidden, nil
 		}
 
 		w.Header().Set("x-xss-protection", "1; mode=block")

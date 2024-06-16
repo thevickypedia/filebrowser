@@ -1,9 +1,7 @@
 package http
 
 import (
-	"fmt"
 	"io/fs"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -15,16 +13,6 @@ import (
 type modifyRequest struct {
 	What  string   `json:"what"`  // Answer to: what data type?
 	Which []string `json:"which"` // Answer to: which fields?
-}
-
-// CheckAllowedOrigins checks if any of the hosts in the request are allowed.
-func checkAllowedOrigins(host string, allowedOrigins []string) bool {
-	for _, allowedHost := range allowedOrigins {
-		if host == allowedHost {
-			return true
-		}
-	}
-	return false
 }
 
 func NewHandler(
@@ -39,20 +27,17 @@ func NewHandler(
 	r := mux.NewRouter()
 
 	// Middleware to check the origin IP address
-	// logic has to be changed for allowed origins,
-	//	since at this point the login page is rendered already
-	// this logic will still be useful for brute force protection
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if checkAllowedOrigins(r.Host, server.AllowedOrigins) {
-				next.ServeHTTP(w, r)
-			} else {
-				errorMessage := fmt.Sprintf("Unauthorized: '%s' is not allowed", r.Host)
-				log.Print(errorMessage)
-				http.Error(w, errorMessage, http.StatusForbidden)
-			}
-		})
-	})
+	// r.Use(func(next http.Handler) http.Handler {
+	// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 		if checkAllowedOrigins(r.Host, server) {
+	// 			next.ServeHTTP(w, r)
+	// 		} else {
+	// 			errorMessage := fmt.Sprintf("Forbidden: '%s' is not allowed", r.Host)
+	// 			log.Print(errorMessage)
+	// 			http.Error(w, errorMessage, http.StatusForbidden)
+	// 		}
+	// 	})
+	// })
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
