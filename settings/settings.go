@@ -38,6 +38,7 @@ func (s *Settings) GetRules() []rules.Rule {
 type Server struct {
 	Root                  string   `json:"root"`
 	AllowedOrigins        []string `json:"allowedOrigins"`
+	RefreshAllowedOrigins int16    `json:"refreshAllowedOrigins"`
 	AllowPrivateIP        bool     `json:"allowPrivateIP"`
 	AllowPublicIP         bool     `json:"allowPublicIP"`
 	BaseURL               string   `json:"baseURL"`

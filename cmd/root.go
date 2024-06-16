@@ -3,7 +3,6 @@ package cmd
 import (
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"log"
@@ -187,36 +186,18 @@ user created with the credentials from options "username" and "password".`,
 		log.Printf("Adding listener address [%s] to allowed origins", listenerString)
 		server.AllowedOrigins = append(server.AllowedOrigins, listenerString)
 
-		if server.AllowPrivateIP {
-			privateIP, err := GetLocalIP()
-			if err != nil {
-				log.Printf("Failed to get local IP: %v", err)
-			} else {
-				privateIPString := fmt.Sprintf("%s:%s", privateIP, server.Port)
-				if !existsAlready(privateIPString, server.AllowedOrigins) {
-					log.Printf("Adding local IP address [%s] to allowed origins", privateIPString)
-					server.AllowedOrigins = append(server.AllowedOrigins, privateIPString)
-				}
-			}
-		}
-
-		if server.AllowPublicIP {
-			publicIP := GetPublicIP()
-			if publicIP == "" {
-				log.Printf("Failed to get public IP")
-			} else {
-				publicIPString := fmt.Sprintf("%s:%s", publicIP, server.Port)
-				if !existsAlready(publicIPString, server.AllowedOrigins) {
-					log.Printf("Adding public IP address [%s] to allowed origins", publicIPString)
-					server.AllowedOrigins = append(server.AllowedOrigins, publicIPString)
-				}
-			}
-		}
-
-		log.Printf("%s", server.AllowedOrigins)
 		log.Println("Listening on", listenerString)
+		refreshAllowedOrigins(server)
+		refreshCondition := server.RefreshAllowedOrigins != 0 && (server.AllowPrivateIP || server.AllowPublicIP)
+		var done chan bool
+		if refreshCondition {
+			done = startBackgroundTask(server)
+		}
 		//nolint: gosec
 		if err := http.Serve(listener, handler); err != nil {
+			if refreshCondition {
+				done <- true
+			}
 			log.Fatal(err)
 		}
 	}, pythonConfig{allowNoDB: true}),

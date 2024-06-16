@@ -8,6 +8,9 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"time"
+
+	"github.com/thevickypedia/filebrowser/v2/settings"
 )
 
 // GetLocalIP returns the first non-loopback IPv4 address of the host machine.
@@ -90,4 +93,57 @@ func existsAlready(addr string, addrArray []string) bool {
 		}
 	}
 	return false
+}
+
+func refreshAllowedOrigins(server *settings.Server) {
+	if server.AllowPrivateIP {
+		privateIP, err := GetLocalIP()
+		if err != nil {
+			log.Printf("Failed to get local IP: %v", err)
+		} else {
+			privateIPString := fmt.Sprintf("%s:%s", privateIP, server.Port)
+			if !existsAlready(privateIPString, server.AllowedOrigins) {
+				log.Printf("Adding local IP address [%s] to allowed origins", privateIPString)
+				server.AllowedOrigins = append(server.AllowedOrigins, privateIPString)
+			}
+		}
+	}
+	if server.AllowPublicIP {
+		publicIP := GetPublicIP()
+		if publicIP == "" {
+			log.Printf("Failed to get public IP")
+		} else {
+			publicIPString := fmt.Sprintf("%s:%s", publicIP, server.Port)
+			if !existsAlready(publicIPString, server.AllowedOrigins) {
+				log.Printf("Adding public IP address [%s] to allowed origins", publicIPString)
+				server.AllowedOrigins = append(server.AllowedOrigins, publicIPString)
+			}
+		}
+	}
+}
+
+// Function to start the background task with arguments
+func startBackgroundTask(server *settings.Server) chan bool {
+	log.Printf("Allowed origins will be refreshed every %d seconds", server.RefreshAllowedOrigins)
+	ticker := time.NewTicker(time.Duration(server.RefreshAllowedOrigins) * time.Second)
+	// Channel to signal the goroutine to stop
+	done := make(chan bool)
+
+	// Use a goroutine to handle the ticker
+	go func() {
+		for {
+			select {
+			case t := <-ticker.C:
+				log.Printf("Refreshing allowed origins at %s", t.Format("2006-01-02 15:04:05 MST"))
+				refreshAllowedOrigins(server)
+			case <-done:
+				// Stop the ticker and exit the goroutine
+				ticker.Stop()
+				log.Print("Stopping Goroutine to refresh origins")
+				return
+			}
+		}
+	}()
+
+	return done
 }
