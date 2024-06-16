@@ -3,6 +3,7 @@ package cmd
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"log"
@@ -181,17 +182,21 @@ user created with the credentials from options "username" and "password".`,
 
 		defer listener.Close()
 
+		// Adds the listener address to allowed origins by default
 		listenerString := listener.Addr().String()
-		log.Printf("Adding %s to allowed origins", listenerString)
+		log.Printf("Adding listener address [%s] to allowed origins", listenerString)
 		server.AllowedOrigins = append(server.AllowedOrigins, listenerString)
 
 		if server.AllowPrivateIP {
 			privateIP, err := GetLocalIP()
 			if err != nil {
 				log.Printf("Failed to get local IP: %v", err)
-			} else if privateIP != server.Address {
-				log.Printf("Adding local IP address '%s' to allowed origins", privateIP)
-				server.AllowedOrigins = append(server.AllowedOrigins, privateIP)
+			} else {
+				privateIPString := fmt.Sprintf("%s:%s", privateIP, server.Port)
+				if !existsAlready(privateIPString, server.AllowedOrigins) {
+					log.Printf("Adding local IP address [%s] to allowed origins", privateIPString)
+					server.AllowedOrigins = append(server.AllowedOrigins, privateIPString)
+				}
 			}
 		}
 
@@ -199,9 +204,12 @@ user created with the credentials from options "username" and "password".`,
 			publicIP := GetPublicIP()
 			if publicIP == "" {
 				log.Printf("Failed to get public IP")
-			} else if publicIP != server.Address {
-				log.Printf("Adding public IP address '%s' to allowed origins", publicIP)
-				server.AllowedOrigins = append(server.AllowedOrigins, publicIP)
+			} else {
+				publicIPString := fmt.Sprintf("%s:%s", publicIP, server.Port)
+				if !existsAlready(publicIPString, server.AllowedOrigins) {
+					log.Printf("Adding public IP address [%s] to allowed origins", publicIPString)
+					server.AllowedOrigins = append(server.AllowedOrigins, publicIPString)
+				}
 			}
 		}
 

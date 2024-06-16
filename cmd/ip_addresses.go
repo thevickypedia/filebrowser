@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -21,21 +22,21 @@ func GetLocalIP() (string, error) {
 			return "", err
 		}
 		for _, addr := range addrs {
-			switch v := addr.(type) {
-			case *net.IPNet:
+			if ipNet, ok := addr.(*net.IPNet); ok {
 				// Check if it's not a loopback address and is IPv4
-				if !v.IP.IsLoopback() && v.IP.To4() != nil {
-					return v.IP.String(), nil
+				if !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
+					return ipNet.IP.String(), nil
 				}
 			}
 		}
 	}
-	return "", nil
+	return "", fmt.Errorf("no suitable IP address found")
 }
 
 func GetPublicIP() string {
 	// Regular expression to match IP address
-	ipRegex := regexp.MustCompile(`^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$`)
+	r := `^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$`
+	ipRegex := regexp.MustCompile(r)
 
 	// Define functions for handling different API responses
 	opt1 := func(body []byte) string {
@@ -65,12 +66,12 @@ func GetPublicIP() string {
 
 	// Iterate over each URL and try to fetch public IP
 	for url, handler := range mapping {
-		resp, err := http.Get(url)
+		resp, err := http.Get(url) //nolint:gosec
 		if err != nil {
 			continue
 		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		defer resp.Body.Close() //nolint:gocritic
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			continue
 		}
@@ -80,4 +81,13 @@ func GetPublicIP() string {
 		}
 	}
 	return ""
+}
+
+func existsAlready(addr string, addrArray []string) bool {
+	for _, eachAddr := range addrArray {
+		if addr == eachAddr {
+			return true
+		}
+	}
+	return false
 }
