@@ -100,24 +100,18 @@ func refreshAllowedOrigins(server *settings.Server) {
 		privateIP, err := GetLocalIP()
 		if err != nil {
 			log.Printf("Warning: Failed to get local IP: %v", err)
-		} else {
-			privateIPString := fmt.Sprintf("%s:%s", privateIP, server.Port)
-			if !existsAlready(privateIPString, server.AllowedOrigins) {
-				log.Printf("Adding local IP address [%s] to allowed origins", privateIPString)
-				server.AllowedOrigins = append(server.AllowedOrigins, privateIPString)
-			}
+		} else if !existsAlready(privateIP, server.AllowedOrigins) {
+			log.Printf("Adding local IP address [%s] to allowed origins", privateIP)
+			server.AllowedOrigins = append(server.AllowedOrigins, privateIP)
 		}
 	}
 	if server.AllowPublicIP {
 		publicIP := GetPublicIP()
 		if publicIP == "" {
 			log.Printf("Warning: Failed to get public IP")
-		} else {
-			publicIPString := fmt.Sprintf("%s:%s", publicIP, server.Port)
-			if !existsAlready(publicIPString, server.AllowedOrigins) {
-				log.Printf("Adding public IP address [%s] to allowed origins", publicIPString)
-				server.AllowedOrigins = append(server.AllowedOrigins, publicIPString)
-			}
+		} else if !existsAlready(publicIP, server.AllowedOrigins) {
+			log.Printf("Adding public IP address [%s] to allowed origins", publicIP)
+			server.AllowedOrigins = append(server.AllowedOrigins, publicIP)
 		}
 	}
 }

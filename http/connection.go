@@ -34,7 +34,8 @@ func logConnection(r *http.Request) {
 		}
 	} else {
 		sessionInfo[r.Host] = r.URL.Path
-		logStatment := fmt.Sprintf("Connection received from client-host: %s, host-header: %s", r.Host, getHostAddress(r))
+		logStatment := fmt.Sprintf("Connection received from %s client-host: %s, host-header: %s",
+			strings.Split(r.Host, ":")[0], r.Host, getHostAddress(r))
 		xFwdHost := r.Header.Get("x-forwarded-host")
 		if xFwdHost != "" {
 			logStatment += fmt.Sprintf(", x-fwd-host: %s", xFwdHost)
