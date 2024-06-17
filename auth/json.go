@@ -65,7 +65,7 @@ func getCredentialParts(value string) ([]string, error) {
 				// Handle the special case for the third part (recaptcha)
 				parts = append(parts, "")
 			} else {
-				log.Printf("error: decodeAuth: %s", err)
+				log.Printf("Warning: %s", err)
 				return nil, err
 			}
 		}
@@ -97,6 +97,10 @@ func extractCredentials(value string) (*jsonCred, error) {
 	return authDetails, nil
 }
 
+func rHost(r *http.Request) string {
+	return strings.Split(r.Host, ":")[0]
+}
+
 // mutex to handle concurrent access to the errors map
 // var mutex = &sync.Mutex{}
 
@@ -107,46 +111,47 @@ var authCounter = make(map[string]int)
 var forbidden []string
 
 func handleAuthError(r *http.Request) {
-	if count, exists := authCounter[r.Host]; exists {
-		authCounter[r.Host] = count + 1
-		log.Printf("Failed auth, attempt #%d for %s", authCounter[r.Host], r.Host)
-		attempt := authCounter[r.Host]
+	host := rHost(r)
+	if count, exists := authCounter[host]; exists {
+		authCounter[host] = count + 1
+		log.Printf("Failed auth, attempt #%d for %s", authCounter[host], host)
+		attempt := authCounter[host]
 		if attempt >= 10 {
 			epoch := time.Now().Unix()
 			until := epoch + 2_592_000
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
-			log.Printf("%s is blocked until %s", r.Host, formattedTime)
-			removeRecord(r.Host)
-			putRecord(r.Host, until)
+			log.Printf("%s is blocked until %s", host, formattedTime)
+			removeRecord(host)
+			putRecord(host, until)
 		} else if attempt > 3 {
 			var alreadyBlocked bool
 			alreadyBlocked = false
 			for _, blocked := range forbidden {
-				if r.Host == blocked {
+				if host == blocked {
 					alreadyBlocked = true
 					break
 				}
 			}
 			if !alreadyBlocked {
-				forbidden = append(forbidden, r.Host)
+				forbidden = append(forbidden, host)
 			}
 
 			mapped := map[int]int{4: 5, 5: 10, 6: 20, 7: 40, 8: 80, 9: 160, 10: 220}
 			minutes, ok := mapped[attempt]
 			if !ok {
-				log.Printf("Something went horribly wrong for %dth attempt", attempt)
+				log.Printf("Warning: Something went horribly wrong for %dth attempt", attempt)
 				minutes = 60 // Default to 1 hour
 			}
 			epoch := time.Now().Unix()
 			until := epoch + int64(minutes*60)
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
-			log.Printf("%s is blocked (for %d minutes) until %s", r.Host, minutes, formattedTime)
-			removeRecord(r.Host)
-			putRecord(r.Host, until)
+			log.Printf("%s is blocked (for %d minutes) until %s", host, minutes, formattedTime)
+			removeRecord(host)
+			putRecord(host, until)
 		}
 	} else {
-		log.Printf("Failed auth, attempt #1 for %s", r.Host)
-		authCounter[r.Host] = 1
+		log.Printf("Failed auth, attempt #1 for %s", host)
+		authCounter[host] = 1
 	}
 }
 
@@ -165,21 +170,22 @@ func removeItem(slice []string, item string) []string {
 func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, srv *settings.Server) (*users.User, error) {
 	var block bool
 	block = false
+	host := rHost(r)
 	for _, blocked := range forbidden {
-		if r.Host == blocked {
+		if host == blocked {
 			block = true
 			break
 		}
 	}
 	if block {
-		timestamp, err := getRecord(r.Host)
+		timestamp, err := getRecord(host)
 		if err != nil {
-			log.Printf("Unable to check if %s was forbidden, allowing..", r.Host)
+			log.Printf("Warning: Unable to check if %s was forbidden, allowing..", host)
 		} else {
 			epoch := time.Now().Unix()
 			if timestamp > epoch {
 				formattedTime := time.Unix(timestamp, 0).Format("2006-01-02 15:04:05 MST")
-				log.Printf("%s is forbidden until %s due to repeated login failures", r.Host, formattedTime)
+				log.Printf("%s is forbidden until %s due to repeated login failures", host, formattedTime)
 				return nil, os.ErrPermission
 			}
 		}
@@ -192,7 +198,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 
 	cred, err := extractCredentials(authHeader)
 	if err != nil {
-		log.Fatal("error:", err)
+		log.Printf("Warning: %s", err)
 		return nil, err
 	}
 
@@ -216,7 +222,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 		return nil, os.ErrPermission
 	}
 
-	forbidden = removeItem(forbidden, r.Host)
+	forbidden = removeItem(forbidden, host)
 	return u, nil
 }
 

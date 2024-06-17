@@ -181,12 +181,7 @@ user created with the credentials from options "username" and "password".`,
 
 		defer listener.Close()
 
-		// Adds the listener address to allowed origins by default
-		listenerString := listener.Addr().String()
-		log.Printf("Adding listener address [%s] to allowed origins", listenerString)
-		server.AllowedOrigins = append(server.AllowedOrigins, listenerString)
-
-		log.Println("Listening on", listenerString)
+		log.Println("Listening on", listener.Addr().String())
 		refreshAllowedOrigins(server)
 		refreshCondition := server.RefreshAllowedOrigins != 0 && (server.AllowPrivateIP || server.AllowPublicIP)
 		var done chan bool

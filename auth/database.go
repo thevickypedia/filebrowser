@@ -73,7 +73,7 @@ func getRecord(host string) (int64, error) {
 		if err == sql.ErrNoRows {
 			return 0, nil // No record found
 		}
-		log.Printf("Failed to get blocked records for host [%s] from auth_errors table - %s", host, err)
+		log.Printf("Warning: Failed to get blocked records for host [%s] from auth_errors table - %s", host, err)
 		return 0, err
 	}
 	return blockUntil, nil
@@ -83,7 +83,7 @@ func putRecord(host string, blockUntil int64) {
 	query := "INSERT INTO auth_errors (host, block_until) VALUES (?, ?)"
 	_, err := db.Exec(query, host, blockUntil)
 	if err != nil {
-		log.Printf("Failed to put block_until [%d] for host [%s] in auth_errors table - %s", blockUntil, host, err)
+		log.Printf("Warning: Failed to put block_until [%d] for host [%s] in auth_errors table - %s", blockUntil, host, err)
 	}
 }
 
@@ -91,6 +91,6 @@ func removeRecord(host string) {
 	query := "DELETE FROM auth_errors WHERE host = ?"
 	_, err := db.Exec(query, host)
 	if err != nil {
-		log.Printf("Failed to remove host [%s] from auth_errors table - %s", host, err)
+		log.Printf("Warning: Failed to remove host [%s] from auth_errors table - %s", host, err)
 	}
 }

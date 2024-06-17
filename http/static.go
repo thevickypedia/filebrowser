@@ -102,7 +102,7 @@ func handleWithStaticData(w http.ResponseWriter, _ *http.Request, d *data, fSys 
 // allowRequest checks if requesting host is allowed to connect
 // Allows the hosted server by default
 func allowRequest(host string, server *settings.Server) bool {
-	if host == fmt.Sprintf("%s:%s", server.Address, server.Port) {
+	if host == server.Address {
 		return true
 	}
 	for _, allowedHost := range server.AllowedOrigins {
@@ -119,14 +119,15 @@ func getStaticHandlers(store *storage.Storage, server *settings.Server, assetsFs
 			return http.StatusNotFound, nil
 		}
 
-		if !allowRequest(r.Host, server) {
-			errorMessage := fmt.Sprintf("Forbidden: '%s' is not allowed", r.Host)
+		host := strings.Split(r.Host, ":")[0]
+		if !allowRequest(host, server) {
+			errorMessage := fmt.Sprintf("Forbidden: '%s' is not allowed", host)
 			log.Print(errorMessage)
 			w.Header().Set("Content-Type", "text/plain")
 			errorMessage += "\n"
 			_, err := w.Write([]byte(errorMessage))
 			if err != nil {
-				log.Printf("Error writing response: %v", err)
+				log.Printf("Warning: Error writing response: %v", err)
 			}
 			return http.StatusForbidden, nil
 		}

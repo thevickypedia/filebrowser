@@ -11,10 +11,18 @@ var sessionInfo = make(map[string]string)
 
 func getUserAgent(r *http.Request) string {
 	userAgent := r.UserAgent()
-	if userAgent == "" {
-		userAgent = r.Header.Get("user-agent")
+	if userAgent != "" {
+		return userAgent
 	}
-	return userAgent
+	return r.Header.Get("user-agent")
+}
+
+func getHostAddress(r *http.Request) string {
+	hostAddress := r.Header.Get("host")
+	if hostAddress != "" {
+		return hostAddress
+	}
+	return r.RemoteAddr
 }
 
 // Logs the connection information
@@ -26,19 +34,12 @@ func logConnection(r *http.Request) {
 		}
 	} else {
 		sessionInfo[r.Host] = r.URL.Path
-		logStatment := fmt.Sprintf("Connection received from client-host: %s", r.Host)
-		hostHeader := r.Header.Get("host")
+		logStatment := fmt.Sprintf("Connection received from client-host: %s, host-header: %s", r.Host, getHostAddress(r))
 		xFwdHost := r.Header.Get("x-forwarded-host")
-		if hostHeader != "" {
-			logStatment += fmt.Sprintf(", host-header: %s", hostHeader)
-		}
 		if xFwdHost != "" {
 			logStatment += fmt.Sprintf(", x-fwd-host: %s", xFwdHost)
 		}
 		log.Print(logStatment)
-		userAgent := getUserAgent(r)
-		if userAgent != "" {
-			log.Printf("user-agent: %s", userAgent)
-		}
+		log.Printf("user-agent: %s", getUserAgent(r))
 	}
 }
