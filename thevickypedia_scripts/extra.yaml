@@ -1,0 +1,7 @@
+---
+server:
+  allowedOrigins:
+    - mysub.example.com
+  refreshAllowedOrigins: 300
+  allowPrivateIP: true
+  allowPublicIP: true
