@@ -114,13 +114,13 @@ func handleAuthError(r *http.Request) {
 	host := rHost(r)
 	if count, exists := authCounter[host]; exists {
 		authCounter[host] = count + 1
-		log.Printf("Failed auth, attempt #%d for %s", authCounter[host], host)
+		log.Printf("Warning: Failed auth, attempt #%d for %s", authCounter[host], host)
 		attempt := authCounter[host]
 		if attempt >= 10 {
 			epoch := time.Now().Unix()
 			until := epoch + 2_592_000
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
-			log.Printf("%s is blocked until %s", host, formattedTime)
+			log.Printf("Warning: %s is blocked until %s", host, formattedTime)
 			removeRecord(host)
 			putRecord(host, until)
 		} else if attempt > 3 {
@@ -145,12 +145,12 @@ func handleAuthError(r *http.Request) {
 			epoch := time.Now().Unix()
 			until := epoch + int64(minutes*60)
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
-			log.Printf("%s is blocked (for %d minutes) until %s", host, minutes, formattedTime)
+			log.Printf("Warning: %s is blocked (for %d minutes) until %s", host, minutes, formattedTime)
 			removeRecord(host)
 			putRecord(host, until)
 		}
 	} else {
-		log.Printf("Failed auth, attempt #1 for %s", host)
+		log.Printf("Warning: Failed auth, attempt #1 for %s", host)
 		authCounter[host] = 1
 	}
 }
@@ -185,7 +185,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 			epoch := time.Now().Unix()
 			if timestamp > epoch {
 				formattedTime := time.Unix(timestamp, 0).Format("2006-01-02 15:04:05 MST")
-				log.Printf("%s is forbidden until %s due to repeated login failures", host, formattedTime)
+				log.Printf("Warning: %s is forbidden until %s due to repeated login failures", host, formattedTime)
 				return nil, os.ErrPermission
 			}
 		}
@@ -217,7 +217,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 
 	u, err := usr.Get(srv.Root, cred.Username)
 	if err != nil || !users.CheckPwd(cred.Password, u.Password) {
-		log.Printf("Login error for %s - %s", cred.Username, err)
+		log.Printf("Warning: Login error for %s - %s", cred.Username, err)
 		handleAuthError(r)
 		return nil, os.ErrPermission
 	}

@@ -13,6 +13,7 @@ export function parseToken(token: string) {
     path: "/",
     secure: true, // Ensures the cookie is sent only over HTTPS
     httpOnly: true, // Prevents JavaScript from accessing the cookie
+    SameSite: "Strict", // Prevents CORS exploits, and cross-site leaks
   };
 
   // Constructing the cookie string

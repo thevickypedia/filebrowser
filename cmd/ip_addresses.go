@@ -128,7 +128,7 @@ func startBackgroundTask(server *settings.Server) chan bool {
 		for {
 			select {
 			case t := <-ticker.C:
-				log.Printf("Refreshing allowed origins at %s", t.Format("2006-01-02 15:04:05 MST"))
+				log.Printf("Debug: Refreshing allowed origins at %s", t.Format("2006-01-02 15:04:05 MST"))
 				refreshAllowedOrigins(server)
 			case <-done:
 				// Stop the ticker and exit the goroutine

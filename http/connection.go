@@ -28,9 +28,14 @@ func getHostAddress(r *http.Request) string {
 // Logs the connection information
 func logConnection(r *http.Request) {
 	if path, exists := sessionInfo[r.Host]; exists {
-		// following condition prevents long videos from spamming the logs
-		if path != r.URL.Path {
-			log.Printf("%s %s", strings.ToUpper(r.Method), path)
+		if path != r.URL.Path && // streaming content
+			r.URL.Path != "/api/renew" && // page refresh
+			!strings.HasPrefix(r.URL.Path, "/files") && // duplicate, since path is /files
+			!strings.HasPrefix(r.URL.Path, "/thumb") && // thumbnails for images
+			!strings.HasPrefix(r.URL.Path, "/big") && // actual images redundant to path
+			!strings.HasPrefix(r.URL.Path, "assets") { // internal calls to fetch JS
+			log.Printf("%s %s", r.Method, r.URL.Path)
+			sessionInfo[r.Host] = r.URL.Path
 		}
 	} else {
 		sessionInfo[r.Host] = r.URL.Path

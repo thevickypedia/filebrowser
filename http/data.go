@@ -66,6 +66,7 @@ func handle(fn handleFunc, prefix string, store *storage.Storage, server *settin
 			server:   server,
 		})
 
+		logConnection(r)
 		if status >= 400 || err != nil {
 			clientIP := realip.FromRequest(r)
 			log.Printf("%s: %v %s %v", r.URL.Path, status, clientIP, err)
