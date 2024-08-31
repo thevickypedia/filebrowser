@@ -12,7 +12,7 @@ RUN apk --update add ca-certificates \
                      jq \
                      git
 
-ENV GO_VERSION=1.22.2
+ENV GO_VERSION=1.23.0
 
 # Install Node.js, npm, and Yarn
 RUN apk add --no-cache nodejs npm yarn
