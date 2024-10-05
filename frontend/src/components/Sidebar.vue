@@ -101,7 +101,7 @@
           href="https://github.com/thevickypedia/filebrowser"
           >File Browser</a
         >
-        <span> {{ version }}</span>
+        <span> {{ " " }} {{ version }}</span>
       </span>
       <span>
         <a @click="help">{{ $t("sidebar.help") }}</a>
