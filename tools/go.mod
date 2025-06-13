@@ -1,6 +1,6 @@
 module github.com/thevickypedia/filebrowser/v2/tools
 
-go 1.23.0
+go 1.23
 
 require (
 	github.com/golangci/golangci-lint v1.60.3
