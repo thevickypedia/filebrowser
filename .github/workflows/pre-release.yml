@@ -27,9 +27,14 @@ jobs:
     runs-on: thevickypedia-lite
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: "frontend/package.json"
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "22.x"
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make lint-frontend
         shell: bash
   # Avoid running linters on Windows (False positives for CRLF sequence)
@@ -55,9 +60,14 @@ jobs:
     runs-on: thevickypedia-lite
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: "frontend/package.json"
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "22.x"
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make test-frontend
         shell: bash
   test-backend:
@@ -82,10 +92,14 @@ jobs:
     runs-on: thevickypedia-lite
     needs: [lint, test]
     steps:
-      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: "frontend/package.json"
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "22.x"
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make build-frontend
         shell: bash
 
