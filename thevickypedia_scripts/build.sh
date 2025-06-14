@@ -6,6 +6,13 @@ set -e
 parent="$(dirname "$PWD")"
 cd "$parent"
 
+printer() {
+  echo "************************************************************************************************************************************************"
+  echo "$1"
+  echo "************************************************************************************************************************************************"
+  echo ""
+}
+
 cleanup() {
   rm -rf filebrowser filebrowser.db frontend/node_modules
   rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
@@ -29,7 +36,11 @@ mkdir -p "$TOOLS_BIN"
 export PATH="$TOOLS_BIN:$PATH"
 LDFLAGS+="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.CommitSHA=$VERSION_HASH\""
 
-cd frontend && npm ci && npm run build
+printer "Building filebrowser frontend..."
+cd frontend && pnpm install --frozen-lockfile && pnpm run build
 
 # Run on a new shell to avoid segmentation error
+printer "Building filebrowser backend..."
 bash -c "cd $parent && go build -ldflags \"$LDFLAGS\" -o ."
+
+printer "Completed build..."

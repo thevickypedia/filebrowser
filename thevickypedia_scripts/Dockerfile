@@ -63,9 +63,9 @@ ENV LDFLAGS="-X \"$MODULE/version.Version=$VERSION\" -X \"$MODULE/version.Commit
 # IMPORTANT: frontend should be built first, since it is required when creating the binary
 # Build frontend
 RUN cd frontend && \
-    npm install && \
-    npm ci && \
-    npm run build && \
+    npm install -g pnpm && \
+    pnpm install --frozen-lockfile && \
+    pnpm run build && \
     cd ..
 
 # Build backend
