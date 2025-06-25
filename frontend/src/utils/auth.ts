@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/stores/auth";
 import router from "@/router";
-import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { baseURL, noAuth } from "./constants";
 import { StatusError } from "@/api/utils";
 
@@ -9,26 +9,8 @@ export function parseToken(token: string) {
   // falsy or malformed jwt will throw InvalidTokenError
   const data = jwtDecode<JwtPayload & { user: IUser }>(token);
 
-  // Setting cookie options
-  const cookieOptions = {
-    path: "/",
-    secure: true, // Ensures the cookie is sent only over HTTPS
-    httpOnly: true, // Prevents JavaScript from accessing the cookie
-    SameSite: "Strict", // Prevents CORS exploits, and cross-site leaks
-  };
+  document.cookie = `auth=${token}; Path=/; SameSite=Strict;`;
 
-  // Constructing the cookie string
-  let cookieString = `auth=${token};`;
-
-  // Adding additional options
-  for (const [key, value] of Object.entries(cookieOptions)) {
-    cookieString += ` ${key}=${value};`;
-  }
-
-  // Setting the cookie
-  document.cookie = cookieString;
-
-  // Setting token in localStorage and Vuex store
   localStorage.setItem("jwt", token);
 
   const authStore = useAuthStore();
@@ -42,17 +24,9 @@ export async function validateLogin() {
       await renew(<string>localStorage.getItem("jwt"));
     }
   } catch (error) {
-    console.warn("Invalid JWT token in storage"); // eslint-disable-line
+    console.warn("Invalid JWT token in storage");
     throw error;
   }
-}
-
-export async function ConvertStringToHex(str: string) {
-  const arr = [];
-  for (let i = 0; i < str.length; i++) {
-    arr[i] = ("00" + str.charCodeAt(i).toString(16)).slice(-4);
-  }
-  return "\\u" + arr.join("\\u");
 }
 
 export async function login(
@@ -60,16 +34,14 @@ export async function login(
   password: string,
   recaptcha: string
 ) {
-  const hex_user = await ConvertStringToHex(username);
-  const hex_pass = await ConvertStringToHex(password);
-  const hex_recaptcha = await ConvertStringToHex(recaptcha);
-  let payload = btoa(hex_user + "," + hex_pass + "," + hex_recaptcha) // eslint-disable-line
+  const data = { username, password, recaptcha };
+
   const res = await fetch(`${baseURL}/api/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: payload,
     },
+    body: JSON.stringify(data),
   });
 
   const body = await res.text();

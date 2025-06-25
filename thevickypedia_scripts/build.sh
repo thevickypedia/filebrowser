@@ -2,10 +2,6 @@
 
 set -e
 
-# Set parent directory as current working directory
-parent="$(dirname "$PWD")"
-cd "$parent"
-
 printer() {
   echo "************************************************************************************************************************************************"
   echo "$1"
@@ -14,14 +10,19 @@ printer() {
 }
 
 cleanup() {
-  rm -rf filebrowser filebrowser.db frontend/node_modules
-  rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
+  rm -f filebrowser filebrowser.db filebrowser.exe
+  rm -rf frontend/node_modules frontend/dist
+  mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 }
+
+# Set parent directory as current working directory
+CURRENT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_PATH="$(dirname $CURRENT_PATH)"
+cd "$BASE_PATH"
 
 cleanup
 
 SHELL="/usr/bin/env bash"
-BASE_PATH="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0)
 VERSION_HASH=$(git rev-parse HEAD)
 
@@ -41,6 +42,6 @@ cd frontend && pnpm install --frozen-lockfile && pnpm run build
 
 # Run on a new shell to avoid segmentation error
 printer "Building filebrowser backend..."
-bash -c "cd $parent && go build -ldflags \"$LDFLAGS\" -o ."
+bash -c "cd ${BASE_PATH} && go build -ldflags \"$LDFLAGS\" -o ."
 
 printer "Completed build..."
