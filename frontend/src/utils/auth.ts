@@ -29,19 +29,30 @@ export async function validateLogin() {
   }
 }
 
+export async function ConvertStringToHex(str: string) {
+  const arr = [];
+  for (let i = 0; i < str.length; i++) {
+    arr[i] = ("00" + str.charCodeAt(i).toString(16)).slice(-4);
+  }
+  return "\\u" + arr.join("\\u");
+}
+
 export async function login(
   username: string,
   password: string,
   recaptcha: string
 ) {
-  const data = { username, password, recaptcha };
+  const hex_user = await ConvertStringToHex(username);
+  const hex_pass = await ConvertStringToHex(password);
+  const hex_recaptcha = await ConvertStringToHex(recaptcha);
+  const payload = btoa(hex_user + "," + hex_pass + "," + hex_recaptcha) // eslint-disable-line
 
   const res = await fetch(`${baseURL}/api/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: payload,
     },
-    body: JSON.stringify(data),
   });
 
   const body = await res.text();

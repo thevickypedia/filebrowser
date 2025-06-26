@@ -182,8 +182,17 @@ user created with the credentials from options "username" and "password".`,
 		defer listener.Close()
 
 		log.Println("Listening on", listener.Addr().String())
+		refreshAllowedOrigins(server)
+		refreshCondition := server.RefreshAllowedOrigins != 0 && (server.AllowPrivateIP || server.AllowPublicIP)
+		var done chan bool
+		if refreshCondition {
+			done = startBackgroundTask(server)
+		}
 		//nolint: gosec
 		if err := http.Serve(listener, handler); err != nil {
+			if refreshCondition {
+				done <- true
+			}
 			log.Fatal(err)
 		}
 	}, pythonConfig{allowNoDB: true}),
