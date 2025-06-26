@@ -33,8 +33,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make lint-frontend
         shell: bash
   # Avoid running linters on Windows (False positives for CRLF sequence)
@@ -66,8 +64,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make test-frontend
         shell: bash
   test-backend:
@@ -98,8 +94,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make build-frontend
         shell: bash
 

@@ -100,8 +100,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
 
       # IMPORTANT: frontend should be built first, since it is required when creating the binary
       - name: Build Frontend
