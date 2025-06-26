@@ -101,8 +101,6 @@ jobs:
         with:
           package_json_file: "frontend/package.json"
           dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
 
       # IMPORTANT: frontend should be built first, since it is required when creating the binary
       - name: Build Frontend

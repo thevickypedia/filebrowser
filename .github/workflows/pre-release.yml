@@ -34,8 +34,6 @@ jobs:
         with:
           package_json_file: "frontend/package.json"
           dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make lint-frontend
         shell: bash
   # Avoid running linters on Windows (False positives for CRLF sequence)
@@ -68,8 +66,6 @@ jobs:
         with:
           package_json_file: "frontend/package.json"
           dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make test-frontend
         shell: bash
   test-backend:
@@ -101,8 +97,6 @@ jobs:
         with:
           package_json_file: "frontend/package.json"
           dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make build-frontend
         shell: bash
 
