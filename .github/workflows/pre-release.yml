@@ -33,6 +33,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: "frontend/package.json"
+          dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make lint-frontend
@@ -66,6 +67,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: "frontend/package.json"
+          dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make test-frontend
@@ -98,6 +100,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: "frontend/package.json"
+          dest: ${{ runner.temp }}/setup-pnpm-${{ github.job }}-${{ github.run_id }}
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make build-frontend
