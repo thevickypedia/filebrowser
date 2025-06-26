@@ -27,12 +27,12 @@ jobs:
     runs-on: thevickypedia-lite
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          package_json_file: "frontend/package.json"
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: "frontend/package.json"
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make lint-frontend
@@ -60,12 +60,12 @@ jobs:
     runs-on: thevickypedia-lite
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          package_json_file: "frontend/package.json"
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: "frontend/package.json"
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make test-frontend
@@ -92,12 +92,12 @@ jobs:
     runs-on: thevickypedia-lite
     needs: [lint, test]
     steps:
-      - uses: pnpm/action-setup@v4
-        with:
-          package_json_file: "frontend/package.json"
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: "frontend/package.json"
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
       - run: make build-frontend
