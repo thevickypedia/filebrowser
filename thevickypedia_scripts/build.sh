@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -e
 
@@ -9,18 +9,10 @@ printer() {
   echo ""
 }
 
-cleanup() {
-  rm -f filebrowser filebrowser.db filebrowser.exe
-  rm -rf frontend/node_modules frontend/dist
-  mkdir -p frontend/dist && touch frontend/dist/.gitkeep
-}
-
 # Set parent directory as current working directory
 CURRENT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_PATH="$(dirname $CURRENT_PATH)"
 cd "$BASE_PATH"
-
-cleanup
 
 SHELL="/usr/bin/env bash"
 VERSION=$(git describe --tags --always --match=v* 2> /dev/null || cat "$BASE_PATH/.version" 2> /dev/null || echo v0)

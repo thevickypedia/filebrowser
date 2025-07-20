@@ -2,28 +2,29 @@
   <img src="https://raw.githubusercontent.com/filebrowser/logo/master/banner.png" width="550"/>
 </p>
 
-![Preview](https://user-images.githubusercontent.com/5447088/50716739-ebd26700-107a-11e9-9817-14230c53efd2.gif)
+[![Build](https://github.com/thevickypedia/filebrowser/actions/workflows/release.yml/badge.svg)](https://github.com/thevickypedia/filebrowser/actions/workflows/main.yaml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/thevickypedia/filebrowser)](https://goreportcard.com/report/github.com/thevickypedia/filebrowser)
+[![Documentation](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/thevickypedia/filebrowser)
+[![Version](https://img.shields.io/github/release/filebrowser/filebrowser.svg)](https://github.com/thevickypedia/filebrowser/releases/latest)
 
-`filebrowser` provides a file managing interface within a specified directory, and it can be used to upload, delete, preview, rename and edit your files. It allows the creation of multiple users and each user can have their own directory. It can be used as a standalone app.
+File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview and edit your files. It is a **create-your-own-cloud**-kind of software where you can just install it on your server, direct it to a path and access your files through a nice web interface.
 
-## Demo
+## Documentation
 
-url: https://demo.filebrowser.org/
+Documentation on how to install, configure, and contribute to this project is hosted at [filebrowser.org](https://filebrowser.org).
 
-credentials: `demo`/`demo`
+## Authentication Changes & Security Enhancements
 
-## Features
+This project is a fork of the [filebrowser](https://github.com/filebrowser/filebrowser) project.  It incorporates significant changes to the JSON authentication method, prioritizing security.
 
-Please refer to our docs at [https://filebrowser.org/features](https://filebrowser.org/features)
+**Key Changes:**
 
-## Install
+* **Improved JSON Authentication:**  The JSON authentication method has been redesigned to leverage HTTP headers for authentication, instead of relying solely on the JSON payload. This improves security by reducing potential exposure of authentication credentials in the request body.
+* **Transit Protection:** Added measures to protect data in transit using `base64` and unicode encoding.
+* **Enhanced Security:** These changes significantly improve the security posture of a authentication mechanism.
 
-For installation instructions please refer to our docs at [https://filebrowser.org/installation](https://filebrowser.org/installation).
+**File Details:**
 
-## Configuration
+* [`auth.ts`](https://github.com/thevickypedia/filebrowser/blob/8fbbf07/frontend/src/utils/auth.ts): Contains the updated authentication logic.  Review this file for details on the implementation.
 
-[Authentication Method](https://filebrowser.org/configuration/authentication-method) - You can change the way the user authenticates with the filebrowser server
-
-[Command Runner](https://filebrowser.org/configuration/command-runner) - The command runner is a feature that enables you to execute any shell command you want before or after a certain event.
-
-[Custom Branding](https://filebrowser.org/configuration/custom-branding) - You can customize your File Browser installation by change its name to any other you want, by adding a global custom style sheet and by using your own logotype if you want.
+**Original Filebrowser Repo:** [https://github.com/filebrowser/filebrowser](https://github.com/filebrowser/filebrowser)
