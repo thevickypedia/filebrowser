@@ -169,10 +169,6 @@ user created with the credentials from options "username" and "password".`,
 			checkErr(err)
 		}
 
-		// sigc := make(chan os.Signal, 1)
-		// signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
-		// go cleanupHandler(listener, sigc)
-
 		assetsFs, err := fs.Sub(frontend.Assets(), "dist")
 		if err != nil {
 			panic(err)
@@ -208,9 +204,9 @@ user created with the credentials from options "username" and "password".`,
 
 		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
-		<-sigc
+		go cleanupHandler(listener, sigc)
 
-		shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second) //nolint:mnd
+		shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 		defer shutdownRelease()
 
 		if err := srv.Shutdown(shutdownCtx); err != nil {
@@ -220,7 +216,7 @@ user created with the credentials from options "username" and "password".`,
 	}, pythonConfig{allowNoDB: true}),
 }
 
-func cleanupHandler(listener net.Listener, c chan os.Signal) { //nolint:interfacer
+func cleanupHandler(listener net.Listener, c chan os.Signal) {
 	sig := <-c
 	log.Printf("Caught signal %s: shutting down.", sig)
 	listener.Close()

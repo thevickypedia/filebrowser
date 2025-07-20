@@ -113,6 +113,7 @@ func allowRequest(host string, server *settings.Server) bool {
 	return false
 }
 
+//nolint:gocyclo
 func getStaticHandlers(store *storage.Storage, server *settings.Server, assetsFs fs.FS) (index, static http.Handler) {
 	index = handle(func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
 		if r.Method != http.MethodGet {
