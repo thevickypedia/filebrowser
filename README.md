@@ -21,7 +21,14 @@ This project is a fork of the [filebrowser](https://github.com/filebrowser/fileb
 
 * **Improved JSON Authentication:**  The JSON authentication method has been redesigned to leverage HTTP headers for authentication, instead of relying solely on the JSON payload. This improves security by reducing potential exposure of authentication credentials in the request body.
 * **Transit Protection:** Added measures to protect data in transit using `base64` and unicode encoding.
-* **Enhanced Security:** These changes significantly improve the security posture of a authentication mechanism.
+* **Brute force Protection:** Includes protection against repeated login failures with exponential backoff and progressive lockout.
+* **IP allow-list:** Includes IP allow listing techniques by leveraging the following environment variables.
+- `allowedOrigins` - Sequence of IP address/hostname to allow.
+- `refreshAllowedOrigins` - Interval in seconds to auto refresh origins.
+- `allowPrivateIP` - Boolean flag to allow private IP address of the host machine.
+- `allowPublicIP`- Boolean flag to allow public IP address of the host machine.
+
+> These changes significantly improve the security posture of a basic authentication mechanism.
 
 **File Details:**
 
