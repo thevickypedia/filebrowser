@@ -204,7 +204,7 @@ user created with the credentials from options "username" and "password".`,
 
 		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
-		go cleanupHandler(listener, sigc)
+		<-sigc
 
 		shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 		defer shutdownRelease()
@@ -214,13 +214,6 @@ user created with the credentials from options "username" and "password".`,
 		}
 		log.Println("Graceful shutdown complete.")
 	}, pythonConfig{allowNoDB: true}),
-}
-
-func cleanupHandler(listener net.Listener, c chan os.Signal) {
-	sig := <-c
-	log.Printf("Caught signal %s: shutting down.", sig)
-	listener.Close()
-	os.Exit(0)
 }
 
 //nolint:gocyclo
