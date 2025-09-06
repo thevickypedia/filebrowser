@@ -128,7 +128,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/filebrowser/filebrowser
+        - github.com/thevickypedia/filebrowser
   exclusions:
     generated: lax
     paths:
