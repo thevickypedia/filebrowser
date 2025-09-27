@@ -7,11 +7,9 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'Dockerfile'
-      - 'Dockerfile.**'
-      - 'thevickypedia_scripts/**'
-      - '**.md'
+    paths:
+      - '**.go'
+      - '**.ts'
   workflow_call:
     inputs:
       build:
@@ -24,7 +22,7 @@ on:
 jobs:
 # Linters
   lint-frontend:
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,14 +47,14 @@ jobs:
       - run: make lint-backend
         shell: bash
   lint:
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     needs: [lint-frontend, lint-backend]
     steps:
       - run: echo "Finished Linting"
 
 # Tests
   test-frontend:
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -69,7 +67,7 @@ jobs:
       - run: make test-frontend
         shell: bash
   test-backend:
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -78,7 +76,7 @@ jobs:
       - run: make test-backend
         shell: bash
   test:
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     needs: [test-frontend, test-backend]
     steps:
       - run: echo "Finished Testing"
@@ -87,7 +85,7 @@ jobs:
 # IMPORTANT: frontend can be built in parallel, since the build output doesn't matter
   build-frontend:
     if: github.event_name == 'push' || inputs.build == 'true'
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     needs: [lint, test]
     steps:
       - uses: actions/setup-node@v4
@@ -102,7 +100,7 @@ jobs:
 
   build-backend:
     if: github.event_name == 'push' || inputs.build == 'true'
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     needs: [lint, test]
     steps:
       - uses: actions/checkout@v4
@@ -114,7 +112,7 @@ jobs:
 
   build:
     if: github.event_name == 'push' || inputs.build == 'true'
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     needs: [build-frontend, build-backend]
     steps:
       - run: echo "Finished Building"
