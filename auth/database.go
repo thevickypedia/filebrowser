@@ -12,24 +12,26 @@ import (
 var db *sql.DB
 var err error
 
+var authDB = "auth.db"
+var authErrTable = "auth_errors"
+var authErrColumns = []string{"host TEXT", "block_until INTEGER"}
+
 func initializeDatabase() {
 	// Initialize the database connection and create the table in the init function
-	datastore := "auth.db"
-	db, err = makeDBConnection(datastore)
+	db, err = makeDBConnection()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// Create the table "auth_errors"
-	err = createTable("auth_errors", []string{"host TEXT", "block_until INTEGER"})
+	err = createTable(authErrTable, authErrColumns)
 	if err != nil {
 		log.Fatalf("Failed to create table: %v", err)
 	}
 }
 
-func makeDBConnection(datastore string) (*sql.DB, error) {
+func makeDBConnection() (*sql.DB, error) {
 	// Check if datastore path is valid
-	absPath, err := filepath.Abs(datastore)
+	absPath, err := filepath.Abs(authDB)
 	if err != nil {
 		return nil, err
 	}
@@ -65,32 +67,32 @@ func joinColumns(columns []string) string {
 	return strings.Join(columns, ", ")
 }
 
-func getRecord(host string) (int64, error) {
+func getForbiddenRecord(host string) (int64, error) {
 	var blockUntil int64
-	query := "SELECT block_until FROM auth_errors WHERE host = ?"
+	query := fmt.Sprintf("SELECT block_until FROM %s WHERE host = ?", authErrTable) //nolint:gosec
 	err := db.QueryRow(query, host).Scan(&blockUntil)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return 0, nil // No record found
 		}
-		log.Printf("Warning: Failed to get blocked records for host [%s] from auth_errors table - %s", host, err)
+		log.Printf("Warning: Failed to get blocked records for host [%s] from %s table - %s", host, authErrTable, err)
 		return 0, err
 	}
 	return blockUntil, nil
 }
 
-func putRecord(host string, blockUntil int64) {
-	query := "INSERT INTO auth_errors (host, block_until) VALUES (?, ?)"
+func putForbiddenRecord(host string, blockUntil int64) {
+	query := fmt.Sprintf("INSERT INTO %s (host, block_until) VALUES (?, ?)", authErrTable) //nolint:gosec
 	_, err := db.Exec(query, host, blockUntil)
 	if err != nil {
-		log.Printf("Warning: Failed to put block_until [%d] for host [%s] in auth_errors table - %s", blockUntil, host, err)
+		log.Printf("Warning: Failed to put block_until [%d] for host [%s] in %s table - %s", blockUntil, host, authErrTable, err)
 	}
 }
 
-func removeRecord(host string) {
-	query := "DELETE FROM auth_errors WHERE host = ?"
+func removeForbiddenRecord(host string) {
+	query := fmt.Sprintf("DELETE FROM %s WHERE host = ?", authErrTable) //nolint:gosec
 	_, err := db.Exec(query, host)
 	if err != nil {
-		log.Printf("Warning: Failed to remove host [%s] from auth_errors table - %s", host, err)
+		log.Printf("Warning: Failed to remove host [%s] from %s table - %s", host, authErrTable, err)
 	}
 }

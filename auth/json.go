@@ -121,8 +121,8 @@ func handleAuthError(r *http.Request) {
 			until := epoch + 2_592_000
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
 			log.Printf("Warning: %s is blocked until %s", host, formattedTime)
-			removeRecord(host)
-			putRecord(host, until)
+			removeForbiddenRecord(host)
+			putForbiddenRecord(host, until)
 		} else if attempt > 3 {
 			var alreadyBlocked bool
 			alreadyBlocked = false
@@ -146,8 +146,8 @@ func handleAuthError(r *http.Request) {
 			until := epoch + int64(minutes*60)
 			formattedTime := time.Unix(until, 0).Format("2006-01-02 15:04:05 MST")
 			log.Printf("Warning: %s is blocked (for %d minutes) until %s", host, minutes, formattedTime)
-			removeRecord(host)
-			putRecord(host, until)
+			removeForbiddenRecord(host)
+			putForbiddenRecord(host, until)
 		}
 	} else {
 		log.Printf("Warning: Failed auth, attempt #1 for %s", host)
@@ -178,7 +178,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 		}
 	}
 	if block {
-		timestamp, err := getRecord(host)
+		timestamp, err := getForbiddenRecord(host)
 		if err != nil {
 			log.Printf("Warning: Unable to check if %s was forbidden, allowing..", host)
 		} else {
