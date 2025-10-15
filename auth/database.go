@@ -118,9 +118,9 @@ func GetAllowedJWT() []string {
 	var tokens []string
 	for rows.Next() {
 		var token string
-		err := rows.Scan(&token)
-		if err != nil {
-			log.Printf("Warning: Failed to scan token from %s table - %s", tokenTracker, err)
+		rowErr := rows.Scan(&token)
+		if rowErr != nil {
+			log.Printf("Warning: Failed to scan token from %s table - %s", tokenTracker, rowErr)
 			continue
 		}
 		tokens = append(tokens, token)
@@ -130,25 +130,23 @@ func GetAllowedJWT() []string {
 		log.Printf("Warning: Error occurred during rows iteration from %s table - %s", tokenTracker, err)
 	}
 
-	log.Printf("Allowed JWTs: %d", len(tokens))
 	return tokens
 }
 
-func PutAllowedJWT(token string) {
-	log.Printf("Putting allowed JWT: %s", token)
+func PutAllowedJWT(token string) error {
 	query := fmt.Sprintf("INSERT INTO %s (token) VALUES (?)", tokenTracker) //nolint:gosec
 	_, err := db.Exec(query, token)
 	if err != nil {
 		log.Printf("Warning: Failed to put token in %s: %v", tokenTracker, err)
 	}
+	return err
 }
 
-func RemoveAllowedJWT(token string) {
-	log.Printf("Removing allowed JWT: %s", token)
-	query := fmt.Sprintf("DELETE FROM %s WHERE token = ?", authErrTable) //nolint:gosec
+func RemoveAllowedJWT(token string) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE token = ?", tokenTracker) //nolint:gosec
 	_, err := db.Exec(query, token)
 	if err != nil {
-		// TODO: Check error: no such column: token
 		log.Printf("Warning: Failed to remove token from %s: %v", tokenTracker, err)
 	}
+	return err
 }
