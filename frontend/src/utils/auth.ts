@@ -123,9 +123,8 @@ export async function logout(reason?: string) {
   const res = await fetch(`${baseURL}/api/logout`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "X-Auth": localStorage.getItem("jwt") || "",
     },
-    body: JSON.stringify(localStorage.getItem("jwt")),
   });
 
   if (res.status !== 200) {

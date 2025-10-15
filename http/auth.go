@@ -62,9 +62,9 @@ func (e extractor) ExtractToken(r *http.Request) (string, error) {
 		return token, nil
 	}
 
-	auth := r.URL.Query().Get("auth")
-	if auth != "" && strings.Count(auth, ".") == 2 {
-		return auth, nil
+	authParam := r.URL.Query().Get("auth")
+	if authParam != "" && strings.Count(authParam, ".") == 2 {
+		return authParam, nil
 	}
 
 	if r.Method == http.MethodGet {
@@ -110,21 +110,22 @@ func withUser(fn handleFunc) handleFunc {
 	}
 }
 
-// TODO: Send different status messages
-var logoutHandler = func(_ http.ResponseWriter, r *http.Request, d *data) (int, error) {
+var logoutHandler = func(_ http.ResponseWriter, r *http.Request, _ *data) (int, error) {
 	if r.Body == nil {
 		log.Printf("Warning: No token received for logout")
 		return http.StatusBadRequest, nil
 	}
 	defer r.Body.Close()
 
-	var token string
-	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
-		log.Printf("Warning: Failed to decode logout token: %v", err)
-		return http.StatusBadRequest, err
+	token := r.Header.Get("X-Auth")
+	if token == "" {
+		log.Printf("Warning: Missing X-Auth header")
+		return http.StatusBadRequest, errors.New("missing auth token")
 	}
 
-	auth.RemoveAllowedJWT(token)
+	if err := auth.RemoveAllowedJWT(token); err != nil {
+		return http.StatusInternalServerError, err
+	}
 	return http.StatusOK, nil
 }
 
@@ -249,7 +250,9 @@ func printToken(w http.ResponseWriter, _ *http.Request, d *data, user *users.Use
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
-	auth.PutAllowedJWT(signed)
+	if err := auth.PutAllowedJWT(signed); err != nil {
+		return http.StatusInternalServerError, err
+	}
 
 	w.Header().Set("Content-Type", "text/plain")
 	if _, err := w.Write([]byte(signed)); err != nil {
