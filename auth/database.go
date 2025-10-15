@@ -13,8 +13,12 @@ var db *sql.DB
 var err error
 
 var authDB = "auth.db"
+
 var authErrTable = "auth_errors"
 var authErrColumns = []string{"host TEXT", "block_until INTEGER"}
+
+var tokenTracker = "token_tracker"
+var tokenTrackerColumns = []string{"token TEXT"}
 
 func initializeDatabase() {
 	// Initialize the database connection and create the table in the init function
@@ -25,7 +29,12 @@ func initializeDatabase() {
 
 	err = createTable(authErrTable, authErrColumns)
 	if err != nil {
-		log.Fatalf("Failed to create table: %v", err)
+		log.Fatalf("Failed to create table [%s]: %v", authErrTable, err)
+	}
+
+	err = createTable(tokenTracker, tokenTrackerColumns)
+	if err != nil {
+		log.Fatalf("Failed to create table [%s]: %v", tokenTracker, err)
 	}
 }
 
@@ -94,5 +103,52 @@ func removeForbiddenRecord(host string) {
 	_, err := db.Exec(query, host)
 	if err != nil {
 		log.Printf("Warning: Failed to remove host [%s] from %s table - %s", host, authErrTable, err)
+	}
+}
+
+func GetAllowedJWT() []string {
+	query := fmt.Sprintf("SELECT * FROM %s", tokenTracker) //nolint:gosec
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Printf("Warning: Failed to get allowed JWTs from %s table - %s", tokenTracker, err)
+		return []string{}
+	}
+	defer rows.Close()
+
+	var tokens []string
+	for rows.Next() {
+		var token string
+		err := rows.Scan(&token)
+		if err != nil {
+			log.Printf("Warning: Failed to scan token from %s table - %s", tokenTracker, err)
+			continue
+		}
+		tokens = append(tokens, token)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Warning: Error occurred during rows iteration from %s table - %s", tokenTracker, err)
+	}
+
+	log.Printf("Allowed JWTs: %d", len(tokens))
+	return tokens
+}
+
+func PutAllowedJWT(token string) {
+	log.Printf("Putting allowed JWT: %s", token)
+	query := fmt.Sprintf("INSERT INTO %s (token) VALUES (?)", tokenTracker) //nolint:gosec
+	_, err := db.Exec(query, token)
+	if err != nil {
+		log.Printf("Warning: Failed to put token in %s: %v", tokenTracker, err)
+	}
+}
+
+func RemoveAllowedJWT(token string) {
+	log.Printf("Removing allowed JWT: %s", token)
+	query := fmt.Sprintf("DELETE FROM %s WHERE token = ?", authErrTable) //nolint:gosec
+	_, err := db.Exec(query, token)
+	if err != nil {
+		// TODO: Check error: no such column: token
+		log.Printf("Warning: Failed to remove token from %s: %v", tokenTracker, err)
 	}
 }

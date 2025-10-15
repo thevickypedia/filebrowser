@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/golang-jwt/jwt/v4/request"
 
+	"github.com/thevickypedia/filebrowser/v2/auth"
 	fbErrors "github.com/thevickypedia/filebrowser/v2/errors"
 	"github.com/thevickypedia/filebrowser/v2/users"
 )
@@ -40,6 +41,16 @@ type authToken struct {
 }
 
 type extractor []string
+
+func contains(slice []string, item string) bool {
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+
+	_, ok := set[item]
+	return ok
+}
 
 func (e extractor) ExtractToken(r *http.Request) (string, error) {
 	token, _ := request.HeaderExtractor{"X-Auth"}.ExtractToken(r)
@@ -84,6 +95,11 @@ func withUser(fn handleFunc) handleFunc {
 
 		if expired || updated {
 			w.Header().Add("X-Renew-Token", "true")
+		} else {
+			var allowedJWT = auth.GetAllowedJWT()
+			if allowedJWT == nil || !contains(allowedJWT, token.Raw) {
+				return http.StatusUnauthorized, nil
+			}
 		}
 
 		d.user, err = d.store.Users.Get(d.server.Root, tk.User.ID)
@@ -92,6 +108,24 @@ func withUser(fn handleFunc) handleFunc {
 		}
 		return fn(w, r, d)
 	}
+}
+
+// TODO: Send different status messages
+var logoutHandler = func(_ http.ResponseWriter, r *http.Request, d *data) (int, error) {
+	if r.Body == nil {
+		log.Printf("Warning: No token received for logout")
+		return http.StatusBadRequest, nil
+	}
+	defer r.Body.Close()
+
+	var token string
+	if err := json.NewDecoder(r.Body).Decode(&token); err != nil {
+		log.Printf("Warning: Failed to decode logout token: %v", err)
+		return http.StatusBadRequest, err
+	}
+
+	auth.RemoveAllowedJWT(token)
+	return http.StatusOK, nil
 }
 
 func withAdmin(fn handleFunc) handleFunc {
@@ -215,6 +249,7 @@ func printToken(w http.ResponseWriter, _ *http.Request, d *data, user *users.Use
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	auth.PutAllowedJWT(signed)
 
 	w.Header().Set("Content-Type", "text/plain")
 	if _, err := w.Write([]byte(signed)); err != nil {

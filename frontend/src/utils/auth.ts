@@ -114,11 +114,23 @@ export async function signup(username: string, password: string) {
   }
 }
 
-export function logout(reason?: string) {
+export async function logout(reason?: string) {
   document.cookie = "auth=; Max-Age=0; Path=/; SameSite=Strict;";
 
   const authStore = useAuthStore();
   authStore.clearUser();
+
+  const res = await fetch(`${baseURL}/api/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(localStorage.getItem("jwt")),
+  });
+
+  if (res.status !== 200) {
+    throw new StatusError(`${res.status} ${res.statusText}`, res.status);
+  }
 
   localStorage.setItem("jwt", "");
   if (noAuth) {
