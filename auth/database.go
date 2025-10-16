@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 var db *sql.DB
@@ -19,6 +20,19 @@ var authErrColumns = []string{"host TEXT", "block_until INTEGER"}
 
 var tokenTracker = "token_tracker"
 var tokenTrackerColumns = []string{"token TEXT"}
+
+var (
+	forbiddenCache = struct {
+		sync.RWMutex
+		data map[string]int64
+	}{data: make(map[string]int64)}
+
+	jwtCache = struct {
+		sync.RWMutex
+		data  []string
+		valid bool
+	}{}
+)
 
 func initializeDatabase() {
 	// Initialize the database connection and create the table in the init function
@@ -77,7 +91,13 @@ func joinColumns(columns []string) string {
 }
 
 func getForbiddenRecord(host string) (int64, error) {
-	var blockUntil int64
+	forbiddenCache.RLock()
+	blockUntil, found := forbiddenCache.data[host]
+	forbiddenCache.RUnlock()
+	if found {
+		return blockUntil, nil
+	}
+
 	query := fmt.Sprintf("SELECT block_until FROM %s WHERE host = ?", authErrTable) //nolint:gosec
 	err := db.QueryRow(query, host).Scan(&blockUntil)
 	if err != nil {
@@ -87,6 +107,11 @@ func getForbiddenRecord(host string) (int64, error) {
 		log.Printf("Warning: Failed to get blocked records for host [%s] from %s table - %s", host, authErrTable, err)
 		return 0, err
 	}
+
+	forbiddenCache.Lock()
+	forbiddenCache.data[host] = blockUntil
+	forbiddenCache.Unlock()
+
 	return blockUntil, nil
 }
 
@@ -95,7 +120,12 @@ func putForbiddenRecord(host string, blockUntil int64) {
 	_, err := db.Exec(query, host, blockUntil)
 	if err != nil {
 		log.Printf("Warning: Failed to put block_until [%d] for host [%s] in %s table - %s", blockUntil, host, authErrTable, err)
+		return
 	}
+
+	forbiddenCache.Lock()
+	forbiddenCache.data[host] = blockUntil
+	forbiddenCache.Unlock()
 }
 
 func removeForbiddenRecord(host string) {
@@ -103,10 +133,24 @@ func removeForbiddenRecord(host string) {
 	_, err := db.Exec(query, host)
 	if err != nil {
 		log.Printf("Warning: Failed to remove host [%s] from %s table - %s", host, authErrTable, err)
+		return
 	}
+
+	forbiddenCache.Lock()
+	delete(forbiddenCache.data, host)
+	forbiddenCache.Unlock()
 }
 
 func GetAllowedJWT() []string {
+	jwtCache.RLock()
+	if jwtCache.valid {
+		cached := make([]string, len(jwtCache.data))
+		copy(cached, jwtCache.data)
+		jwtCache.RUnlock()
+		return cached
+	}
+	jwtCache.RUnlock()
+
 	query := fmt.Sprintf("SELECT * FROM %s", tokenTracker) //nolint:gosec
 	rows, err := db.Query(query)
 	if err != nil {
@@ -128,7 +172,13 @@ func GetAllowedJWT() []string {
 
 	if err = rows.Err(); err != nil {
 		log.Printf("Warning: Error occurred during rows iteration from %s table - %s", tokenTracker, err)
+		return []string{}
 	}
+
+	jwtCache.Lock()
+	jwtCache.data = tokens
+	jwtCache.valid = true
+	jwtCache.Unlock()
 
 	return tokens
 }
@@ -138,8 +188,14 @@ func PutAllowedJWT(token string) error {
 	_, err := db.Exec(query, token)
 	if err != nil {
 		log.Printf("Warning: Failed to put token in %s: %v", tokenTracker, err)
+		return err
 	}
-	return err
+
+	jwtCache.Lock()
+	jwtCache.valid = false
+	jwtCache.Unlock()
+
+	return nil
 }
 
 func RemoveAllowedJWT(token string) error {
@@ -147,6 +203,12 @@ func RemoveAllowedJWT(token string) error {
 	_, err := db.Exec(query, token)
 	if err != nil {
 		log.Printf("Warning: Failed to remove token from %s: %v", tokenTracker, err)
+		return err
 	}
-	return err
+
+	jwtCache.Lock()
+	jwtCache.valid = false
+	jwtCache.Unlock()
+
+	return nil
 }
