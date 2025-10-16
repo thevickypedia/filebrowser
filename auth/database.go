@@ -19,7 +19,7 @@ var authErrTable = "auth_errors"
 var authErrColumns = []string{"host TEXT", "block_until INTEGER"}
 
 var tokenTracker = "token_tracker"
-var tokenTrackerColumns = []string{"token TEXT"}
+var tokenTrackerColumns = []string{"token TEXT UNIQUE"}
 
 var (
 	forbiddenCache = struct {
@@ -29,8 +29,7 @@ var (
 
 	jwtCache = struct {
 		sync.RWMutex
-		data  []string
-		valid bool
+		data []string
 	}{}
 )
 
@@ -116,7 +115,7 @@ func getForbiddenRecord(host string) (int64, error) {
 }
 
 func putForbiddenRecord(host string, blockUntil int64) {
-	query := fmt.Sprintf("INSERT INTO %s (host, block_until) VALUES (?, ?)", authErrTable) //nolint:gosec
+	query := fmt.Sprintf("INSERT OR REPLACE INTO %s (host, block_until) VALUES (?, ?)", authErrTable) //nolint:gosec
 	_, err := db.Exec(query, host, blockUntil)
 	if err != nil {
 		log.Printf("Warning: Failed to put block_until [%d] for host [%s] in %s table - %s", blockUntil, host, authErrTable, err)
@@ -143,7 +142,8 @@ func removeForbiddenRecord(host string) {
 
 func GetAllowedJWT() []string {
 	jwtCache.RLock()
-	if jwtCache.valid {
+	// Return cached tokens if available
+	if len(jwtCache.data) > 0 {
 		cached := make([]string, len(jwtCache.data))
 		copy(cached, jwtCache.data)
 		jwtCache.RUnlock()
@@ -177,14 +177,13 @@ func GetAllowedJWT() []string {
 
 	jwtCache.Lock()
 	jwtCache.data = tokens
-	jwtCache.valid = true
 	jwtCache.Unlock()
 
 	return tokens
 }
 
 func PutAllowedJWT(token string) error {
-	query := fmt.Sprintf("INSERT INTO %s (token) VALUES (?)", tokenTracker) //nolint:gosec
+	query := fmt.Sprintf("INSERT OR IGNORE INTO %s (token) VALUES (?)", tokenTracker) //nolint:gosec
 	_, err := db.Exec(query, token)
 	if err != nil {
 		log.Printf("Warning: Failed to put token in %s: %v", tokenTracker, err)
@@ -192,7 +191,13 @@ func PutAllowedJWT(token string) error {
 	}
 
 	jwtCache.Lock()
-	jwtCache.valid = false
+	for _, t := range jwtCache.data {
+		if t == token {
+			jwtCache.Unlock()
+			return nil // already present
+		}
+	}
+	jwtCache.data = append(jwtCache.data, token)
 	jwtCache.Unlock()
 
 	return nil
@@ -207,7 +212,13 @@ func RemoveAllowedJWT(token string) error {
 	}
 
 	jwtCache.Lock()
-	jwtCache.valid = false
+	filtered := jwtCache.data[:0]
+	for _, t := range jwtCache.data {
+		if t != token {
+			filtered = append(filtered, t)
+		}
+	}
+	jwtCache.data = filtered
 	jwtCache.Unlock()
 
 	return nil
