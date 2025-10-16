@@ -53,6 +53,9 @@ export async function login(
   password: string,
   recaptcha: string
 ) {
+  if (!username || !password) {
+    throw new StatusError("Username and password are required", 400);
+  }
   const hex_user = await ConvertStringToHex(username);
   const hex_pass = await ConvertStringToHex(password);
   const hex_recaptcha = await ConvertStringToHex(recaptcha);
@@ -115,11 +118,6 @@ export async function signup(username: string, password: string) {
 }
 
 export async function logout(reason?: string) {
-  document.cookie = "auth=; Max-Age=0; Path=/; SameSite=Strict;";
-
-  const authStore = useAuthStore();
-  authStore.clearUser();
-
   const res = await fetch(`${baseURL}/api/logout`, {
     method: "POST",
     headers: {
@@ -128,8 +126,18 @@ export async function logout(reason?: string) {
   });
 
   if (res.status !== 200) {
-    throw new StatusError(`${res.status} ${res.statusText}`, res.status);
+    console.log(`${res.status} ${res.statusText}`);
+    // reason will be `reason: [object PointerEvent]` for logout clicks
+    if (reason !== "inactivity") {
+      // Just alert the user instead of throwing an error
+      alert(`Server side token invalidation failed:\n\n${res.status} ${res.statusText}`);
+    }
   }
+
+  document.cookie = "auth=; Max-Age=0; Path=/; SameSite=Strict;";
+
+  const authStore = useAuthStore();
+  authStore.clearUser();
 
   localStorage.setItem("jwt", "");
   if (noAuth) {

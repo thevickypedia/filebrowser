@@ -65,7 +65,7 @@ func getCredentialParts(value string) ([]string, error) {
 				// Handle the special case for the third part (recaptcha)
 				parts = append(parts, "")
 			} else {
-				log.Printf("Warning: %s", err)
+				log.Printf("Warning: Failed to get credential parts. %s", err)
 				return nil, err
 			}
 		}
@@ -198,7 +198,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 
 	cred, err := extractCredentials(authHeader)
 	if err != nil {
-		log.Printf("Warning: %s", err)
+		log.Printf("Warning: Failed to extract credentials. %s", err)
 		return nil, err
 	}
 

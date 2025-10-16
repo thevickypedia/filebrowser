@@ -131,7 +131,7 @@ var terminateHandler = withAdmin(func(_ http.ResponseWriter, _ *http.Request, d 
 	return http.StatusOK, nil
 })
 
-var logoutHandler = withAdmin(func(_ http.ResponseWriter, r *http.Request, _ *data) (int, error) {
+var logoutHandler = func(_ http.ResponseWriter, r *http.Request, _ *data) (int, error) {
 	token := r.Header.Get("X-Auth")
 	if token == "" {
 		log.Printf("Warning: Missing X-Auth header")
@@ -142,7 +142,7 @@ var logoutHandler = withAdmin(func(_ http.ResponseWriter, r *http.Request, _ *da
 		return http.StatusInternalServerError, err
 	}
 	return http.StatusOK, nil
-})
+}
 
 func withAdmin(fn handleFunc) handleFunc {
 	return withUser(func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
@@ -158,6 +158,7 @@ func loginHandler(tokenExpireTime time.Duration) handleFunc {
 	return func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
 		auther, err := d.store.Auth.Get(d.settings.AuthMethod)
 		if err != nil {
+			log.Printf("Error: Failed to get auth method. %v", err)
 			return http.StatusInternalServerError, err
 		}
 
@@ -166,6 +167,7 @@ func loginHandler(tokenExpireTime time.Duration) handleFunc {
 		case errors.Is(err, os.ErrPermission):
 			return http.StatusForbidden, nil
 		case err != nil:
+			log.Printf("Error: Failed to get auth object. %v", err)
 			return http.StatusInternalServerError, err
 		}
 
