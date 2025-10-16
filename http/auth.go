@@ -110,13 +110,28 @@ func withUser(fn handleFunc) handleFunc {
 	}
 }
 
-var logoutHandler = func(_ http.ResponseWriter, r *http.Request, _ *data) (int, error) {
-	if r.Body == nil {
-		log.Printf("Warning: No token received for logout")
-		return http.StatusBadRequest, nil
+var terminateHandler = withAdmin(func(_ http.ResponseWriter, _ *http.Request, d *data) (int, error) {
+	// Only admin users can terminate all sessions
+	if d.user == nil {
+		log.Printf("Warning: Unauthorized terminate attempt")
+		return http.StatusUnauthorized, nil
 	}
-	defer r.Body.Close()
 
+	if !d.user.Perm.Admin {
+		log.Printf("Warning: Non-admin user [%s] attempted to terminate all sessions", d.user.Username)
+		return http.StatusForbidden, nil
+	}
+
+	if err := auth.RemoveAllJWT(); err != nil {
+		log.Printf("Error: Failed to terminate all sessions: %v", err)
+		return http.StatusInternalServerError, err
+	}
+
+	log.Printf("All sessions terminated by admin user [%s]", d.user.Username)
+	return http.StatusOK, nil
+})
+
+var logoutHandler = withAdmin(func(_ http.ResponseWriter, r *http.Request, _ *data) (int, error) {
 	token := r.Header.Get("X-Auth")
 	if token == "" {
 		log.Printf("Warning: Missing X-Auth header")
@@ -127,7 +142,7 @@ var logoutHandler = func(_ http.ResponseWriter, r *http.Request, _ *data) (int, 
 		return http.StatusInternalServerError, err
 	}
 	return http.StatusOK, nil
-}
+})
 
 func withAdmin(fn handleFunc) handleFunc {
 	return withUser(func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {

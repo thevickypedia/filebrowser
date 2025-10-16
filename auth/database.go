@@ -223,3 +223,18 @@ func RemoveAllowedJWT(token string) error {
 
 	return nil
 }
+
+func RemoveAllJWT() error {
+	query := fmt.Sprintf("DELETE FROM %s", tokenTracker) //nolint:gosec
+	_, err := db.Exec(query)
+	if err != nil {
+		log.Printf("Warning: Failed to remove all tokens from %s: %v", tokenTracker, err)
+		return err
+	}
+
+	jwtCache.Lock()
+	jwtCache.data = []string{}
+	jwtCache.Unlock()
+
+	return nil
+}
