@@ -132,7 +132,9 @@ export async function logout(reason?: string) {
     // reason will be `reason: [object PointerEvent]` for logout clicks
     if (reason !== "inactivity") {
       // Just alert the user instead of throwing an error
-      alert(`Server side token invalidation failed:\n\n${res.status} ${res.statusText}`);
+      alert(
+        `Server side token invalidation failed:\n\n${res.status} ${res.statusText}`
+      );
     }
   }
 
