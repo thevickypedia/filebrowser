@@ -30,8 +30,9 @@
         :placeholder="t('login.passwordConfirm')"
       />
 
-      <!-- MFA / OTP code (optional; user enters if configured) -->
+      <!-- MFA / OTP code (shown only if backend indicates OTP is enabled) -->
       <input
+        v-if="otpRequired"
         class="input input--block"
         type="text"
         v-model="otp"
@@ -63,6 +64,7 @@ import {
   recaptcha,
   recaptchaKey,
   signup,
+  otpRequired,
 } from "@/utils/constants";
 import { inject, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";

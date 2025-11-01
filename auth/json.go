@@ -66,10 +66,9 @@ func getCredentialParts(value string) ([]string, error) {
 				// Handle the special case for the third part (recaptcha)
 				parts = append(parts, "")
 				continue // prevent double append shifting indices
-			} else {
-				log.Printf("Warning: Failed to get credential parts. %s", err)
-				return nil, err
 			}
+			log.Printf("Warning: Failed to get credential parts. %s", err)
+			return nil, err
 		}
 		parts = append(parts, decodedUnicode)
 	}
@@ -231,7 +230,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 		return nil, os.ErrPermission
 	}
 
-	if cred.Otp != "hello" {
+	if !users.CheckOtp(cred.Otp) {
 		log.Printf("Warning: Login error for %s - invalid otp: [%s]", cred.Username, cred.Otp)
 		handleAuthError(r)
 		return nil, os.ErrPermission

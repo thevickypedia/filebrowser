@@ -2,7 +2,7 @@ import { useAuthStore } from "@/stores/auth";
 import router from "@/router";
 import type { JwtPayload } from "jwt-decode";
 import { jwtDecode } from "jwt-decode";
-import { baseURL, noAuth } from "./constants";
+import { baseURL, noAuth, otpRequired } from "./constants";
 import { StatusError } from "@/api/utils";
 import { setSafeTimeout } from "@/api/utils";
 
@@ -56,13 +56,18 @@ export async function login(
   recaptcha: string,
   otp: string
 ) {
-  if (!username || !password || !otp) {
-    throw new StatusError("Username, password, and OTP are required", 400);
+  // Username and password are always required. OTP only required if backend indicates it's enabled.
+  if (!username || !password || (otpRequired && !otp)) {
+    const msg = otpRequired
+      ? "Username, password, and OTP are required"
+      : "Username and password are required";
+    throw new StatusError(msg, 400);
   }
   const hex_user = await ConvertStringToHex(username);
   const hex_pass = await ConvertStringToHex(password);
   const hex_recaptcha = await ConvertStringToHex(recaptcha);
-  const hex_otp = await ConvertStringToHex(otp);
+  const effectiveOtp = otpRequired ? otp : ""; // send empty if not required
+  const hex_otp = await ConvertStringToHex(effectiveOtp);
   // Preserve existing comma-separated encoding, append otp if provided
   const payload = btoa(
     hex_user + "," + hex_pass + "," + hex_recaptcha + "," + hex_otp

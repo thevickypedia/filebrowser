@@ -18,6 +18,8 @@ const enableExec: boolean = window.FileBrowser.EnableExec;
 const tusSettings = window.FileBrowser.TusSettings;
 const origin = window.location.origin;
 const tusEndpoint = `/api/tus`;
+// OTP required flag injected from backend static data (window.FileBrowser.Otp)
+const otpRequired: boolean = window.FileBrowser.Otp;
 
 export {
   name,
@@ -39,4 +41,5 @@ export {
   tusSettings,
   origin,
   tusEndpoint,
+  otpRequired,
 };
