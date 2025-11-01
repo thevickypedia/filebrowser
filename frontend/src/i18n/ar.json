@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "إنشاء حساب جديد",
     "loginInstead": "هل لديك حساب",
+    "otpPlaceholder": "رمز لمرة واحدة",
     "password": "كلمة المرور",
     "passwordConfirm": "تأكيد كلمة المرور",
     "passwordsDontMatch": "كلمة المرور غير متطابقة",

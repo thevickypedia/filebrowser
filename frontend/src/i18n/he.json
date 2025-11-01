@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "צור חשבון",
     "loginInstead": "כבר יש לי חשבון",
+    "otpPlaceholder": "קוד חד פעמי",
     "password": "סיסמא",
     "passwordConfirm": "אימות סיסמא",
     "passwordsDontMatch": "הסיסמאות אינן תואמות",

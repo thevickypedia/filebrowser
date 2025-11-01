@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Crează cont",
     "loginInstead": "Am deja cont",
+    "otpPlaceholder": "Cod de unică folosință",
     "password": "Parola",
     "passwordConfirm": "Confirmă parola",
     "passwordsDontMatch": "Parolele nu se potrivesc",

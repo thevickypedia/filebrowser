@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Skapa ett konto",
     "loginInstead": "Du har redan ett konto",
+    "otpPlaceholder": "Engångskod",
     "password": "Lösenord",
     "passwordConfirm": "Bekräfta lösenord",
     "passwordsDontMatch": "Lösenord matchar inte",

@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Δημιουργία λογαριασμού",
     "loginInstead": "Έχετε ήδη λογαριασμό",
+    "otpPlaceholder": "Κωδικός μίας χρήσης",
     "password": "Κωδικός πρόσβασης",
     "passwordConfirm": "Επιβεβαίωση κωδικού πρόσβασης",
     "passwordsDontMatch": "Οι κωδικοί πρόσβασης δεν ταιριάζουν",

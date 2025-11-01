@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "创建用户",
     "loginInstead": "已有用户登录",
+    "otpPlaceholder": "一次性密码",
     "password": "密码",
     "passwordConfirm": "确认密码",
     "passwordsDontMatch": "密码不一致",

@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Bir hesap oluşturun",
     "loginInstead": "Zaten hesabınız var mı",
+    "otpPlaceholder": "Tek kullanımlık kod",
     "password": "Şifre",
     "passwordConfirm": "Şifre tekrarı",
     "passwordsDontMatch": "Şifreler uyuşmuyor",

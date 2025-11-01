@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Crear un compte",
     "loginInstead": "Usuari ja existent",
+    "otpPlaceholder": "Codi d'un sol ús",
     "password": "Contrasenya",
     "passwordConfirm": "Confirmació de contrasenya",
     "passwordsDontMatch": "Les contrasenyes no coincideixen",

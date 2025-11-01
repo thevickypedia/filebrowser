@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Create an account",
     "loginInstead": "Already have an account",
+    "otpPlaceholder": "One-time code",
     "password": "Password",
     "passwordConfirm": "Password Confirmation",
     "passwordsDontMatch": "Passwords don't match",

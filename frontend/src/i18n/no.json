@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Opprett ein konto",
     "loginInstead": "Du har allerede ein konto",
+    "otpPlaceholder": "Einmalige kode",
     "password": "Passord",
     "passwordConfirm": "Passordbekreftelse",
     "passwordsDontMatch": "Passordene samsvarer ikkje",

@@ -94,6 +94,7 @@
   "login": {
     "createAnAccount": "Búa til nýjan aðgang",
     "loginInstead": "Þú ert þegar með aðgang",
+    "otpPlaceholder": "Einnota kóði",
     "password": "Lykilorð",
     "passwordConfirm": "Staðfesting lykilorðs",
     "passwordsDontMatch": "Lykilorð eru mismunandi",
