@@ -52,3 +52,5 @@ thevickypedia_scripts/*.json
 
 # Result of the command 'go mod vendor'
 vendor/
+venv/
+*.png

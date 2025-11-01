@@ -78,10 +78,8 @@ func handleWithStaticData(w http.ResponseWriter, _ *http.Request, d *data, fSys 
 			data["ReCaptchaKey"] = auther.ReCaptcha.Key
 		}
 
-		//nolint:godox // reason: placeholder until real TOTP added
-		// TODO: This should be using TOTP library for real OTP validation.
 		// If AUTHENTICATOR_TOKEN environment variable is set, enable OTP on frontend.
-		if os.Getenv("AUTHENTICATOR_TOKEN") != "" {
+		if settings.AuthenticatorToken != "" {
 			data["Otp"] = true
 		}
 	}

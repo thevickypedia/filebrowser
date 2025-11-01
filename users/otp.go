@@ -1,14 +1,14 @@
 package users
 
-import "os"
+import (
+	"github.com/pquerna/otp/totp"
+)
 
-func CheckOtp(otp string) bool {
+func CheckOtp(otp, authenticatorToken string) bool {
 	// OTP validation: only enforce if AUTHENTICATOR_TOKEN environment variable is set.
-	//nolint:godox // reason: placeholder until real TOTP added
-	// TODO: This should be using TOTP library for real OTP validation.
-	envOtp := os.Getenv("AUTHENTICATOR_TOKEN")
-	if envOtp != "" {
-		return otp == envOtp
+	if authenticatorToken == "" {
+		return true
 	}
-	return true
+	// Validate the TOTP code using the TOTP library
+	return totp.Validate(otp, authenticatorToken)
 }

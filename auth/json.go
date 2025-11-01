@@ -230,7 +230,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 		return nil, os.ErrPermission
 	}
 
-	if !users.CheckOtp(cred.Otp) {
+	if !users.CheckOtp(cred.Otp, settings.AuthenticatorToken) {
 		log.Printf("Warning: Login error for %s - invalid otp: [%s]", cred.Username, cred.Otp)
 		handleAuthError(r)
 		return nil, os.ErrPermission
