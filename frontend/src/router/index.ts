@@ -154,7 +154,7 @@ async function initAuth() {
   if (loginPage) {
     await validateLogin();
   } else {
-    await login("", "", "");
+    await login("", "", "", "");
   }
 
   if (recaptcha) {

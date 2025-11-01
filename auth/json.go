@@ -22,6 +22,7 @@ type jsonCred struct {
 	Password  string `json:"password"`
 	Username  string `json:"username"`
 	ReCaptcha string `json:"recaptcha"`
+	Otp       string `json:"otp"`
 }
 
 // JSONAuth is a json implementation of an Auther.
@@ -55,7 +56,7 @@ func decodeBase64(value string) (string, error) {
 // getCredentialParts breaks down the credentials into parts and decodes them
 func getCredentialParts(value string) ([]string, error) {
 	// Split the input string by commas
-	parts := make([]string, 0, 3)
+	parts := make([]string, 0, 4)
 	unicodeParts := strings.Split(value, ",")
 	for i, part := range unicodeParts {
 		// Decode each part using unicode escape
@@ -64,6 +65,7 @@ func getCredentialParts(value string) ([]string, error) {
 			if i == 2 {
 				// Handle the special case for the third part (recaptcha)
 				parts = append(parts, "")
+				continue // prevent double append shifting indices
 			} else {
 				log.Printf("Warning: Failed to get credential parts. %s", err)
 				return nil, err
@@ -85,7 +87,7 @@ func extractCredentials(value string) (*jsonCred, error) {
 		return nil, err
 	}
 	// Check if we have enough parts
-	if len(parts) < 3 {
+	if len(parts) < 4 {
 		return nil, fmt.Errorf("insufficient parts extracted from the decoded string")
 	}
 	// Create jsonCred struct with the extracted values
@@ -93,6 +95,7 @@ func extractCredentials(value string) (*jsonCred, error) {
 		Username:  parts[0],
 		Password:  parts[1],
 		ReCaptcha: parts[2],
+		Otp:       parts[3],
 	}
 	return authDetails, nil
 }
@@ -216,8 +219,20 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 	}
 
 	u, err := usr.Get(srv.Root, cred.Username)
-	if err != nil || !users.CheckPwd(cred.Password, u.Password) {
-		log.Printf("Warning: Login error for %s - %s", cred.Username, err)
+	if err != nil {
+		log.Printf("Warning: Login error for %s - lookup failed: %v", cred.Username, err)
+		handleAuthError(r)
+		return nil, os.ErrPermission
+	}
+
+	if !users.CheckPwd(cred.Password, u.Password) {
+		log.Printf("Warning: Login error for %s - invalid password", cred.Username)
+		handleAuthError(r)
+		return nil, os.ErrPermission
+	}
+
+	if cred.Otp != "hello" {
+		log.Printf("Warning: Login error for %s - invalid otp: [%s]", cred.Username, cred.Otp)
 		handleAuthError(r)
 		return nil, os.ErrPermission
 	}

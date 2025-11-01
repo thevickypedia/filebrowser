@@ -30,6 +30,16 @@
         :placeholder="t('login.passwordConfirm')"
       />
 
+      <!-- MFA / OTP code (optional; user enters if configured) -->
+      <input
+        class="input input--block"
+        type="text"
+        v-model="otp"
+        :placeholder="t('login.otpPlaceholder')"
+        autocomplete="one-time-code"
+        inputmode="numeric"
+      />
+
       <div v-if="recaptcha" id="recaptcha"></div>
       <input
         class="button button--block"
@@ -64,6 +74,7 @@ const error = ref<string>("");
 const username = ref<string>("");
 const password = ref<string>("");
 const passwordConfirm = ref<string>("");
+const otp = ref<string>("");
 
 const route = useRoute();
 const router = useRouter();
@@ -103,7 +114,7 @@ const submit = async (event: Event) => {
       await auth.signup(username.value, password.value);
     }
 
-    await auth.login(username.value, password.value, captcha);
+    await auth.login(username.value, password.value, captcha, otp.value);
     router.push({ path: redirect });
   } catch (e: any) {
     // console.error(e);

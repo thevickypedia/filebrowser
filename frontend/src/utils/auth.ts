@@ -53,15 +53,20 @@ export async function ConvertStringToHex(str: string) {
 export async function login(
   username: string,
   password: string,
-  recaptcha: string
+  recaptcha: string,
+  otp: string
 ) {
-  if (!username || !password) {
-    throw new StatusError("Username and password are required", 400);
+  if (!username || !password || !otp) {
+    throw new StatusError("Username, password, and OTP are required", 400);
   }
   const hex_user = await ConvertStringToHex(username);
   const hex_pass = await ConvertStringToHex(password);
   const hex_recaptcha = await ConvertStringToHex(recaptcha);
-  const payload = btoa(hex_user + "," + hex_pass + "," + hex_recaptcha) // eslint-disable-line
+  const hex_otp = await ConvertStringToHex(otp);
+  // Preserve existing comma-separated encoding, append otp if provided
+  const payload = btoa(
+    hex_user + "," + hex_pass + "," + hex_recaptcha + "," + hex_otp
+  );
 
   const res = await fetch(`${baseURL}/api/login`, {
     method: "POST",
