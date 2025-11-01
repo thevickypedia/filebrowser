@@ -27,7 +27,8 @@ type jsonCred struct {
 
 // JSONAuth is a json implementation of an Auther.
 type JSONAuth struct {
-	ReCaptcha *ReCaptcha `json:"recaptcha" yaml:"recaptcha"`
+	ReCaptcha          *ReCaptcha `json:"recaptcha" yaml:"recaptcha"`
+	AuthenticatorToken string     `json:"authenticator_token" yaml:"authenticator_token"`
 }
 
 // decodeUnicodeEscape decodes Unicode escape sequences in a string
@@ -230,7 +231,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 		return nil, os.ErrPermission
 	}
 
-	if !users.CheckOtp(cred.Otp, settings.AuthenticatorToken) {
+	if !users.CheckOtp(cred.Otp, a.AuthenticatorToken) {
 		log.Printf("Warning: Login error for %s - invalid otp: [%s]", cred.Username, cred.Otp)
 		handleAuthError(r)
 		return nil, os.ErrPermission

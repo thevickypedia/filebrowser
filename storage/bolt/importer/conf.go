@@ -163,6 +163,7 @@ func importConf(db *storm.DB, path string, sto *storage.Storage) error {
 				Key:    cfg.ReCaptcha.Key,
 				Secret: cfg.ReCaptcha.Secret,
 			},
+			AuthenticatorToken: "",
 		}
 		s.AuthMethod = auth.MethodJSONAuth
 	}

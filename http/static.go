@@ -78,8 +78,7 @@ func handleWithStaticData(w http.ResponseWriter, _ *http.Request, d *data, fSys 
 			data["ReCaptchaKey"] = auther.ReCaptcha.Key
 		}
 
-		// If AUTHENTICATOR_TOKEN environment variable is set, enable OTP on frontend.
-		if settings.AuthenticatorToken != "" {
+		if auther.AuthenticatorToken != "" {
 			data["Otp"] = true
 		}
 	}

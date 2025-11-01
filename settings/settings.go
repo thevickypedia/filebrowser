@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"io/fs"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -15,14 +14,6 @@ const DefaultUsersHomeBasePath = "/users"
 const DefaultMinimumPasswordLength = 12
 const DefaultFileMode = 0640
 const DefaultDirMode = 0750
-
-// Use env variable instead of config/database to easily override as/when needed.
-var AuthenticatorToken = func(a, b string) string {
-	if a != "" {
-		return a
-	}
-	return b
-}(os.Getenv("AUTHENTICATOR_TOKEN"), os.Getenv("authenticator_token"))
 
 // AuthMethod describes an authentication method.
 type AuthMethod string
