@@ -134,8 +134,10 @@ var logoutHandler = func(_ http.ResponseWriter, r *http.Request, _ *data) (int, 
 	}
 
 	if err := auth.RemoveAllowedJWT(token); err != nil {
+		log.Printf("Error: Failed to remove allowed JWT: %v", err)
 		return http.StatusInternalServerError, err
 	}
+	log.Printf("User logged out successfully, token invalidated")
 	return http.StatusOK, nil
 }
 

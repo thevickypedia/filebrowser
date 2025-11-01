@@ -62,8 +62,8 @@ func getCredentialParts(value string) ([]string, error) {
 		// Decode each part using unicode escape
 		decodedUnicode, err := decodeUnicodeEscape(part)
 		if err != nil {
-			if i == 2 {
-				// Handle the special case for the third part (recaptcha)
+			if i == 2 || i == 3 {
+				// Handle the special case for the third and fourth part (recaptcha and otp)
 				parts = append(parts, "")
 				continue // prevent double append shifting indices
 			}
