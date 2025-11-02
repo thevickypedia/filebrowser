@@ -5,7 +5,7 @@ import (
 )
 
 func CheckOtp(otp, authenticatorToken string) bool {
-	// OTP validation: only enforce if AUTHENTICATOR_TOKEN environment variable is set.
+	// OTP validation: only enforce if authenticatorToken is set in the database (filebrowser config)
 	if authenticatorToken == "" {
 		return true
 	}
