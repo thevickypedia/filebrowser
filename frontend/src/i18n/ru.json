@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Создать аккаунт",
     "loginInstead": "Уже есть аккаунт",
-    "otpPlaceholder": "Код одноразового использования",
+    "otpPlaceholder": "Одноразовый код доступа",
     "password": "Пароль",
     "passwordConfirm": "Подтверждение пароля",
     "passwordsDontMatch": "Пароли не совпадают",

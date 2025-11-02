@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Utwórz konto",
     "loginInstead": "Mam już konto",
-    "otpPlaceholder": "Kod jednorazowy",
+    "otpPlaceholder": "Jednorazowy kod dostępu",
     "password": "Hasło",
     "passwordConfirm": "Potwierdzenie hasła",
     "passwordsDontMatch": "Hasła nie pasują do siebie",

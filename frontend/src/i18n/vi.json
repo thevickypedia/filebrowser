@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Tạo tài khoản",
     "loginInstead": "Đã có tài khoản",
-    "otpPlaceholder": "Mã OTP",
+    "otpPlaceholder": "Mã truy cập một lần",
     "password": "Mật khẩu",
     "passwordConfirm": "Xác nhận mật khẩu",
     "passwordsDontMatch": "Mật khẩu không khớp",

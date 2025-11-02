@@ -93,7 +93,7 @@
   },
   "login": {
     "createAnAccount": "Stvori korisnički račun",
-    "otpPlaceholder": "Jednokratni kod",
+    "otpPlaceholder": "Jednokratni pristupni kod",
     "loginInstead": "Imam korisnički račun",
     "password": "Lozinka",
     "passwordConfirm": "Potvrda lozinke",

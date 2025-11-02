@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Criar uma conta",
     "loginInstead": "Já possui uma conta",
-    "otpPlaceholder": "Código de uso único",
+    "otpPlaceholder": "Código de acesso único",
     "password": "Senha",
     "passwordConfirm": "Confirmação de senha",
     "passwordsDontMatch": "As senhas não coincidem",

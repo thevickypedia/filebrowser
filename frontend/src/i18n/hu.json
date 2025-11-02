@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Fiók létrehozása",
     "loginInstead": "Már van fiókom",
-    "otpPlaceholder": "Egyszer használatos kód",
+    "otpPlaceholder": "Egyszer használatos hozzáférési kód",
     "password": "Jelszó",
     "passwordConfirm": "Jelszó megerősítése",
     "passwordsDontMatch": "A jelszavak nem egyeznek",

@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Account erstellen",
     "loginInstead": "Account besteht bereits",
-    "otpPlaceholder": "Einmal-Code",
+    "otpPlaceholder": "Einmal-Passcode",
     "password": "Passwort",
     "passwordConfirm": "Passwort Bestätigung",
     "passwordsDontMatch": "Passwörter stimmen nicht überein",

@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "新建賬戶",
     "loginInstead": "已有賬戶登錄",
-    "otpPlaceholder": "一次性密碼",
+    "otpPlaceholder": "一次性訪問碼",
     "password": "密碼",
     "passwordConfirm": "確認密碼",
     "passwordsDontMatch": "密碼不匹配",

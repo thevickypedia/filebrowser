@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Account aanmaken",
     "loginInstead": "Heeft al een account",
-    "otpPlaceholder": "Eenmalige code",
+    "otpPlaceholder": "Eenmalige toegangscode",
     "password": "Wachtwoord",
     "passwordConfirm": "Wachtwoordbevestiging ",
     "passwordsDontMatch": "Wachtwoorden komen niet overeen",

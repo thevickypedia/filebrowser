@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Crea un account",
     "loginInstead": "Hai già un account",
-    "otpPlaceholder": "Codice monouso",
+    "otpPlaceholder": "Codice di accesso monouso",
     "password": "Password",
     "passwordConfirm": "Conferma password",
     "passwordsDontMatch": "Le password non corrispondono",

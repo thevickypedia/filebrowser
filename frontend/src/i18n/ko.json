@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "계정 생성",
     "loginInstead": "이미 계정이 있습니다",
-    "otpPlaceholder": "일회용 코드",
+    "otpPlaceholder": "일회용 접근 코드",
     "password": "비밀번호",
     "passwordConfirm": "비밀번호 확인",
     "passwordsDontMatch": "비밀번호가 일치하지 않습니다",

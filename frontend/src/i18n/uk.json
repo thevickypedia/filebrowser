@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Створити обліковий запис",
     "loginInstead": "Вже є обліковий запис",
-    "otpPlaceholder": "Одноразовий код",
+    "otpPlaceholder": "Одноразовий код доступу",
     "password": "Пароль",
     "passwordConfirm": "Підтвердження паролю",
     "passwordsDontMatch": "Паролі не співпадають",

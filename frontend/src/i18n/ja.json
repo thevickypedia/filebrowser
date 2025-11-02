@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "アカウントを作成",
     "loginInstead": "ログインする",
-    "otpPlaceholder": "ワンタイムコード",
+    "otpPlaceholder": "ワンタイムパスコード",
     "password": "パスワード",
     "passwordConfirm": "パスワード（確認用）",
     "passwordsDontMatch": "パスワードが一致しません",

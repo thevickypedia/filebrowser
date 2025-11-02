@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "ایجاد کاربر",
     "loginInstead": "کاربر تکراری",
-    "otpPlaceholder": "کد یکبار مصرف",
+    "otpPlaceholder": "رمز عبور یکبار مصرف",
     "password": "رمز عبور",
     "passwordConfirm": "تایید رمز",
     "passwordsDontMatch": "عدم تطابق رمزها",

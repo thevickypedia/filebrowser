@@ -94,7 +94,7 @@
   "login": {
     "createAnAccount": "Vytvoriť účet",
     "loginInstead": "Už mám účet",
-    "otpPlaceholder": "Jednorazový kód",
+    "otpPlaceholder": "Jednorazový prístupový kód",
     "password": "Heslo",
     "passwordConfirm": "Potvrdenie hesla",
     "passwordsDontMatch": "Heslá nesúhlasia",
