@@ -58,7 +58,7 @@ def display_secret() -> None:
     print(
         f"\n{base}\n"
         f"\nYour TOTP secret key is: {config.secret}"
-        f"\nStore this key as the environment variable `authenticator_token`\n"
+        f"\n\n./filebrowser config set --authenticatorToken {config.secret}\n\n"
         f"\nQR code saved as {config.qr_filename!r} (you can scan this with your Authenticator app).\n"
         f"\n{base}",
     )
@@ -66,14 +66,6 @@ def display_secret() -> None:
 
 def generate_qr() -> None:
     """Generates a QR code for TOTP setup."""
-    if getenv("authenticator_token"):
-        warnings.warn(
-            "\n\nAuthenticator token already set — skipping OTP setup. "
-            "To create a new one, remove the 'authenticator_token' environment variable.\n",
-            UserWarning,
-        )
-        return
-
     # STEP 1: Generate a new secret key for the user (store this securely!)
     secret = pyotp.random_base32()
 

@@ -28,7 +28,7 @@ type jsonCred struct {
 // JSONAuth is a json implementation of an Auther.
 type JSONAuth struct {
 	ReCaptcha          *ReCaptcha `json:"recaptcha" yaml:"recaptcha"`
-	AuthenticatorToken string     `json:"authenticator_token" yaml:"authenticator_token"`
+	AuthenticatorToken string     `json:"authenticatorToken" yaml:"authenticatorToken"`
 }
 
 // decodeUnicodeEscape decodes Unicode escape sequences in a string
