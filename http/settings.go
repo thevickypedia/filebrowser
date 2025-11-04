@@ -6,6 +6,7 @@ import (
 
 	"github.com/thevickypedia/filebrowser/v2/rules"
 	"github.com/thevickypedia/filebrowser/v2/settings"
+	"github.com/thevickypedia/filebrowser/v2/version"
 )
 
 type settingsData struct {
@@ -19,6 +20,14 @@ type settingsData struct {
 	Tus                   settings.Tus          `json:"tus"`
 	Shell                 []string              `json:"shell"`
 	Commands              map[string][]string   `json:"commands"`
+}
+
+func versionHandler(w http.ResponseWriter, _ *http.Request, _ *data) (int, error) {
+	w.Header().Set("Content-Type", "text/plain")
+	if _, err := w.Write([]byte(version.Version)); err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return 0, nil
 }
 
 var settingsGetHandler = withAdmin(func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
