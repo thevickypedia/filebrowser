@@ -9,12 +9,11 @@ import (
 
 	"github.com/thevickypedia/filebrowser/v2/auth"
 	"github.com/thevickypedia/filebrowser/v2/cmd"
-	"github.com/thevickypedia/filebrowser/v2/errors"
 )
 
 func main() {
 	auth.DataBase()
 	if err := cmd.Execute(); err != nil {
-		os.Exit(errors.GetExitCode(err))
+		os.Exit(1)
 	}
 }

@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: "24.x"
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: "frontend/package.json"
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.25'
       - run: make lint-backend
         shell: bash
   lint:
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: "24.x"
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: "frontend/package.json"
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.25'
       - run: make test-backend
         shell: bash
   test:
@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: "24.x"
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: "frontend/package.json"
@@ -106,7 +106,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.25'
       - run: make build-backend
         shell: bash
 

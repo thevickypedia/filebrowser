@@ -20,6 +20,7 @@ const origin = window.location.origin;
 const tusEndpoint = `/api/tus`;
 // OTP required flag injected from backend static data (window.FileBrowser.Otp)
 const otpRequired: boolean = window.FileBrowser.Otp;
+const hideLoginButton = window.FileBrowser.HideLoginButton;
 
 export {
   name,
@@ -42,4 +43,5 @@ export {
   origin,
   tusEndpoint,
   otpRequired,
+  hideLoginButton,
 };

@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/spf13/afero"
 
 	fbErrors "github.com/thevickypedia/filebrowser/v2/errors"
@@ -37,8 +37,8 @@ var resourceGetHandler = withUser(func(w http.ResponseWriter, r *http.Request, d
 	}
 
 	if file.IsDir {
-		file.Listing.Sorting = d.user.Sorting
-		file.Listing.ApplySort()
+		file.Sorting = d.user.Sorting
+		file.ApplySort()
 		return renderJSON(w, r, file)
 	}
 
