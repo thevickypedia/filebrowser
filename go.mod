@@ -58,8 +58,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect
 	github.com/minio/minlz v1.0.1 // indirect
 	github.com/nwaples/rardecode/v2 v2.2.1 // indirect
@@ -67,11 +65,9 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
 	github.com/sorairolake/lzip-go v0.3.8 // indirect
-	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/ulikunitz/xz v0.5.15 // indirect
