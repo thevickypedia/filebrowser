@@ -11,8 +11,7 @@ RUN git clone https://github.com/thevickypedia/filebrowser.git /src
 # -----------------------------
 FROM node:24-alpine AS frontend-builder
 
-RUN apk add --no-cache curl jq mailcap ca-certificates && \
-    apk update && apk upgrade --available && update-ca-certificates
+RUN apk add --no-cache curl jq mailcap ca-certificates
 
 # Bring frontend source from fetcher stage
 COPY --from=fetcher /src/frontend /app/frontend
@@ -67,15 +66,16 @@ RUN apk add --no-cache ca-certificates mailcap curl jq git && \
 # Copy binary
 COPY --from=backend-builder /filebrowser /filebrowser
 
-# TODO: Setup healthcheck
-# # Healthcheck script
-# COPY --from=fetcher /src/filebrowser/docker/common/healthcheck.sh /healthcheck.sh
-# RUN chmod +x /healthcheck.sh
+# Healthcheck script
+COPY --from=fetcher /src/docker/common/healthcheck.sh /healthcheck.sh
+RUN chmod +x /healthcheck.sh
 
 EXPOSE 80
 
-# HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
-#     CMD /healthcheck.sh || exit 1
+HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
+    CMD /healthcheck.sh || exit 1
 
-ENTRYPOINT ["/filebrowser"]
-CMD ["--root=/data", "--address=0.0.0.0", "--port=80", "--database=/config/filebrowser.db"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
