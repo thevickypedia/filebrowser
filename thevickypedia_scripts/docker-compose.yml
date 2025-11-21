@@ -9,9 +9,9 @@ services:
     container_name: filebrowser
     ports:
       - 8080:80
-#    volumes:
-#      - ${DOCKER_VOLUME_STORAGE:-/.}/data:/data
-#      - ${DOCKER_VOLUME_STORAGE:-/.}/config:/config
-    environment:
-      - FB_BASEURL=/filebrowser
+    volumes:
+      # Bind mount for persistent storage and config
+      # export DOCKER_VOLUME_STORAGE=$(pwd)
+      - "${DOCKER_VOLUME_STORAGE:-$HOME}:/data"
+      - "${DOCKER_VOLUME_STORAGE:-$HOME/.filebrowser}/config:/config"
     restart: unless-stopped
