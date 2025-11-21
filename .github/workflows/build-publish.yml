@@ -54,10 +54,29 @@ jobs:
           repository_name: "${{ github.repository.name }}"
           repository_desc: "${{ github.repository.description }}"
 
-      - name: Check repository info
+      - name: Check repository info and set tags
         run: |
           echo "::notice title=Repository Name::${{ env.REPO_NAME }}"
           echo "::notice title=Repository Description::${{ env.REPO_DESCRIPTION }}"
+          if [ -z "${{ github.repository }}" ]; then
+            echo "::warning title=Missing Repo::Using fallback repository name."
+            REPO="thevickypedia/filebrowser"
+          else
+            REPO="${{ github.repository }}"
+          fi
+          if [ -z "${{ github.event.release.tag_name }}" ]; then
+            echo "::warning title=Missing Tag::Release tag name is not set, using 'latest' as tag."
+            TAG="latest"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          if [ "${TAG}" == "latest" ]; then
+            tags="${REPO}:latest"
+          else
+            tags="${REPO}:latest,${REPO}:${TAG}"
+          fi
+          echo "Docker image will be pushed with tags: ${tags}"
+          echo "DOCKER_TAGS=${tags}" >> $GITHUB_ENV
         shell: bash
 
       - name: Build and push Docker image
@@ -67,7 +86,7 @@ jobs:
           push: true
           file: thevickypedia_scripts/Dockerfile
           platforms: linux/amd64,linux/arm64
-          tags: ${{ github.repository }}:${{ github.event.release.tag_name }},${{ github.repository }}:latest
+          tags: ${{ env.DOCKER_TAGS }}
 
       - name: Update description
         uses: thevickypedia/describe-docker@v1
