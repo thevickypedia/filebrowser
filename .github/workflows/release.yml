@@ -68,6 +68,11 @@ jobs:
             name: linux-amd64-filebrowser.tar.gz
             pkg-name: linux-amd64-filebrowser
 
+          - release_for: linux-arm64
+            bin: filebrowser
+            name: linux-arm64-filebrowser.tar.gz
+            pkg-name: linux-arm64-filebrowser
+
           - release_for: windows-amd64
             bin: filebrowser.exe
             name: windows-amd64-filebrowser.zip
