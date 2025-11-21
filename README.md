@@ -3,9 +3,12 @@
 </p>
 
 [![Build](https://github.com/thevickypedia/filebrowser/actions/workflows/release.yml/badge.svg)](https://github.com/thevickypedia/filebrowser/actions/workflows/main.yaml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/thevickypedia/filebrowser)](https://goreportcard.com/report/github.com/thevickypedia/filebrowser)
+
+[![Build and Publish](https://github.com/thevickypedia/filebrowser/actions/workflows/build-publish.yml/badge.svg)](https://github.com/thevickypedia/filebrowser/actions/workflows/build-publish.yml)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/filebrowser/filebrowser)](https://goreportcard.com/report/github.com/thevickypedia/filebrowser)
 [![Documentation](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/thevickypedia/filebrowser)
-[![Version](https://img.shields.io/github/release/filebrowser/filebrowser.svg)](https://github.com/thevickypedia/filebrowser/releases/latest)
+[![Version](https://img.shields.io/github/release/thevickypedia/filebrowser.svg)](https://github.com/thevickypedia/filebrowser/releases/latest)
 
 File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview and edit your files. It is a **create-your-own-cloud**-kind of software where you can just install it on your server, direct it to a path and access your files through a nice web interface.
 
