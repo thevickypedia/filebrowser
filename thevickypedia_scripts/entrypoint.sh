@@ -3,13 +3,13 @@
 # If config.json exists, import config
 if [ -f "/config/config.json" ]; then
     echo "Importing config from /config/config.json"
-    /filebrowser config import /config/config.json
+    /filebrowser config import /config/config.json >/dev/null 2>&1
 fi
 
 # If users.json exists, import users
 if [ -f "/config/users.json" ]; then
     echo "Importing users from /config/users.json"
-    /filebrowser users import /config/users.json
+    /filebrowser users import /config/users.json >/dev/null 2>&1
 fi
 
 # If the above settings are present, then the filebrowser.db might be at root
@@ -21,4 +21,6 @@ fi
 # Start the normal filebrowser server
 exec /filebrowser \
     --root=/data \
+    --address=0.0.0.0 \
+    --port=80 \
     --database=/config/filebrowser.db
