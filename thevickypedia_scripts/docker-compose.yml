@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: filebrowser
+    image: thevickypedia/filebrowser
     container_name: filebrowser
     ports:
       - 8080:80

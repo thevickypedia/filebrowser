@@ -45,24 +45,24 @@ func (s *Settings) GetRules() []rules.Rule {
 
 // Server specific settings.
 type Server struct {
-	Root                  string `json:"root"`
+	Root                  string   `json:"root"`
 	AllowedOrigins        []string `json:"allowedOrigins"`
 	RefreshAllowedOrigins int16    `json:"refreshAllowedOrigins"`
 	AllowPrivateIP        bool     `json:"allowPrivateIP"`
 	AllowPublicIP         bool     `json:"allowPublicIP"`
-	BaseURL               string `json:"baseURL"`
-	Socket                string `json:"socket"`
-	TLSKey                string `json:"tlsKey"`
-	TLSCert               string `json:"tlsCert"`
-	Port                  string `json:"port"`
-	Address               string `json:"address"`
-	Log                   string `json:"log"`
-	EnableThumbnails      bool   `json:"enableThumbnails"`
-	ResizePreview         bool   `json:"resizePreview"`
-	EnableExec            bool   `json:"enableExec"`
-	TypeDetectionByHeader bool   `json:"typeDetectionByHeader"`
-	AuthHook              string `json:"authHook"`
-	TokenExpirationTime   string `json:"tokenExpirationTime"`
+	BaseURL               string   `json:"baseURL"`
+	Socket                string   `json:"socket"`
+	TLSKey                string   `json:"tlsKey"`
+	TLSCert               string   `json:"tlsCert"`
+	Port                  string   `json:"port"`
+	Address               string   `json:"address"`
+	Log                   string   `json:"log"`
+	EnableThumbnails      bool     `json:"enableThumbnails"`
+	ResizePreview         bool     `json:"resizePreview"`
+	EnableExec            bool     `json:"enableExec"`
+	TypeDetectionByHeader bool     `json:"typeDetectionByHeader"`
+	AuthHook              string   `json:"authHook"`
+	TokenExpirationTime   string   `json:"tokenExpirationTime"`
 }
 
 // Clean cleans any variables that might need cleaning.

@@ -33,9 +33,3 @@ This project is a fork of the [filebrowser](https://github.com/filebrowser/fileb
 * To generate a TOTP token, run ``python thevickypedia_scripts/otp.py``, and scan the ``totp_qr.png`` using any authenticator app.
 
 > These changes significantly improve the security posture of a basic authentication mechanism.
-
-**File Details:**
-
-* [`auth.ts`](https://github.com/thevickypedia/filebrowser/blob/8fbbf07/frontend/src/utils/auth.ts): Contains the updated authentication logic.  Review this file for details on the implementation.
-
-**Original Filebrowser Repo:** [https://github.com/filebrowser/filebrowser](https://github.com/filebrowser/filebrowser)

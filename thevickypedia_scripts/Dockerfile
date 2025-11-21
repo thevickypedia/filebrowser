@@ -13,6 +13,9 @@ FROM node:24-alpine AS frontend-builder
 
 RUN apk add --no-cache curl jq mailcap ca-certificates
 
+# Enable build scripts (pnpm 9+)
+ENV PNPM_ENABLE_PREPOST_INSTALL_SCRIPTS=true
+
 # Bring frontend source from fetcher stage
 COPY --from=fetcher /src/frontend /app/frontend
 
