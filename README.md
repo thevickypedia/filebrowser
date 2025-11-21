@@ -22,11 +22,12 @@ This project is a fork of the [filebrowser](https://github.com/filebrowser/fileb
 * **Improved JSON Authentication:**  The JSON authentication method has been redesigned to leverage HTTP headers for authentication, instead of relying solely on the JSON payload. This improves security by reducing potential exposure of authentication credentials in the request body.
 * **Transit Protection:** Added measures to protect data in transit using `base64` and unicode encoding.
 * **Brute force Protection:** Includes protection against repeated login failures with exponential backoff and progressive lockout.
-* **IP allow-list:** Includes IP allow listing techniques by leveraging the following environment variables.
+* **IP allow-list:** Includes IP allow listing techniques by leveraging the following config.
 - `allowedOrigins` - Sequence of IP address/hostname to allow.
 - `refreshAllowedOrigins` - Interval in seconds to auto refresh origins.
 - `allowPrivateIP` - Boolean flag to allow private IP address of the host machine.
 - `allowPublicIP`- Boolean flag to allow public IP address of the host machine.
+- `authenticatorToken` - MFA token for time based OTP.
 
 * **Multifactor Authentication** MFA has been implemented using TOTP which significantly improves security by adding a second layer of verification to the authenticate the server.
 * To generate a TOTP token, run ``python thevickypedia_scripts/otp.py``, and scan the ``totp_qr.png`` using any authenticator app.
