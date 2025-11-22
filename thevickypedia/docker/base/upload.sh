@@ -4,7 +4,6 @@ set -e
 
 filebrowser_os="unsupported"
 filebrowser_arch="unknown"
-install_path=$(pwd)
 
 #########################
 # Which OS and version? #
