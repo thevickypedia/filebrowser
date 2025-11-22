@@ -2,9 +2,21 @@
 name: Build and Publish Docker Image
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        type: string
+        description: 'Tag name for the release (e.g., v1.0.0)'
+        required: true
   release:
     types:
       - published
+
+env:
+  repository: ${{ github.repository || 'thevickypedia/filebrowser' }}
+  repository_name: ${{ github.repository.name || 'filebrowser' }}
+  repository_description: ${{ github.event.repository.description || '📂 Web File Browser' }}
+  release_tag_name: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
 
 jobs:
   release:
@@ -25,52 +37,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set repository info
+      - name: Set Docker Tags
         run: |
-          if [[ -z "${{ env.repository_name }}" ]]; then
-            echo "::notice title=Unresolved GH context::GitHub context for 'repository.name' did not resolve"
-            REPO_NAME="${GITHUB_REPOSITORY}"
+          if [ -z "${{ env.release_tag_name }}" ]; then
+            echo "::warning title=Missing Tag::Release tag name is not set, using ONLY 'latest' as tag."
+            tags="${{ env.repository }}:latest"
           else
-            REPO_NAME="${{ env.repository_name }}"
-          fi
-          if [ -z "$REPO_NAME" ]; then
-            echo "::warning title=Unresolved key::Guard rail for repository name failed, using fallback."
-            echo "REPO_NAME=thevickypedia/filebrowser" >> $GITHUB_ENV
-          else
-            echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-          fi
-
-          if [[ -z "${{ env.repository_desc }}" ]]; then
-            echo "::notice title=Unresolved GH context::GitHub context for 'repository.description' did not resolve"
-            echo REPO_DESCRIPTION="📂 Web File Browser" >> $GITHUB_ENV
-          else
-            echo REPO_DESCRIPTION="${{ env.repository_desc }}" >> $GITHUB_ENV
-          fi
-        shell: bash
-        env:
-          repository_name: "${{ github.repository.name }}"
-          repository_desc: "${{ github.repository.description }}"
-
-      - name: Check repository info and set tags
-        run: |
-          echo "::notice title=Repository Name::${{ env.REPO_NAME }}"
-          echo "::notice title=Repository Description::${{ env.REPO_DESCRIPTION }}"
-          if [ -z "${{ github.repository }}" ]; then
-            echo "::warning title=Missing Repo::Using fallback repository name."
-            REPO="thevickypedia/filebrowser"
-          else
-            REPO="${{ github.repository }}"
-          fi
-          if [ -z "${{ github.event.release.tag_name }}" ]; then
-            echo "::warning title=Missing Tag::Release tag name is not set, using 'latest' as tag."
-            TAG="latest"
-          else
-            TAG="${{ github.event.release.tag_name }}"
-          fi
-          if [ "${TAG}" == "latest" ]; then
-            tags="${REPO}:latest"
-          else
-            tags="${REPO}:latest,${REPO}:${TAG}"
+            tags="${{ env.repository }}:latest,${{ env.repository }}:${{ env.release_tag_name }}"
           fi
           echo "Docker image will be pushed with tags: ${tags}"
           echo "DOCKER_TAGS=${tags}" >> $GITHUB_ENV
@@ -81,7 +54,7 @@ jobs:
         with:
           context: .
           push: true
-          file: thevickypedia/Dockerfile
+          file: thevickypedia/docker/base/Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.DOCKER_TAGS }}
 
@@ -90,6 +63,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          summary: "${{ env.REPO_DESCRIPTION }}"
-          repository: "${{ env.REPO_NAME }}"
+          summary: "${{ env.repository_description }}"
+          repository: "${{ env.repository_name }}"
           filename: "README.md"
