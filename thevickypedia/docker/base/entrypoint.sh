@@ -1,9 +1,11 @@
 #!/bin/sh
 
 # If config.json exists, import config
-if [ -f "/config/config.json" ]; then
-    echo "Importing config from /config/config.json"
-    /filebrowser config import /config/config.json >/dev/null 2>&1
+if [ -f "/config/settings.json" ]; then
+    echo "Importing config from /config/settings.json"
+    /filebrowser config import /config/settings.json >/dev/null 2>&1
+    PORT=${FB_PORT:-$(jq -r .port /config/settings.json)}
+    ADDRESS=${FB_ADDRESS:-$(jq -r .address /config/settings.json)}
 fi
 
 # If users.json exists, import users
@@ -18,9 +20,12 @@ if [ -f "/filebrowser.db" ]; then
     mv /filebrowser.db /config/filebrowser.db
 fi
 
+export PORT=${PORT:-80}
+export ADDRESS=${ADDRESS:-0.0.0.0}
+
 # Start the normal filebrowser server
 exec /filebrowser \
     --root=/data \
-    --address=0.0.0.0 \
-    --port=80 \
+    --address=$ADDRESS \
+    --port=$PORT \
     --database=/config/filebrowser.db

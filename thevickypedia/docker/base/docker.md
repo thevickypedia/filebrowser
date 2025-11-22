@@ -1,11 +1,11 @@
 ### Build
 ```shell
-docker build --progress=plain -t filebrowser .
+docker build --progress=plain -t filebrowser_base .
 ```
 
 ### Run
 ```shell
-docker run -p 8080:80 filebrowser
+docker run -p 8080:80 filebrowser_base
 ```
 
 ### Compose
@@ -21,21 +21,21 @@ docker run -d \
   -v ${DOCKER_VOLUME_STORAGE:-$HOME}:/data \
   -v ${DOCKER_VOLUME_STORAGE:-$HOME}/.filebrowser/config:/config \
   --restart unless-stopped \
-  filebrowser
+  filebrowser_base
 ```
 
 > Refer [this][stackoverflow] for docker port spec
 
 ### Copy Executable
 ```shell
-docker cp "$(docker ps -aqf 'ancestor=filebrowser')":/filebrowser .
+docker cp "$(docker ps -aqf 'ancestor=filebrowser_base')":/filebrowser .
 ```
 
 ### Post-cleanup
 ```shell
-docker stop $(docker ps -aqf "ancestor=filebrowser")
-docker rm $(docker ps -aqf "ancestor=filebrowser")
-docker rmi $(docker images -q "filebrowser") -f
+docker stop $(docker ps -aqf "ancestor=filebrowser_base")
+docker rm $(docker ps -aqf "ancestor=filebrowser_base")
+docker rmi $(docker images -q "filebrowser_base") -f
 docker builder prune
 ```
 
