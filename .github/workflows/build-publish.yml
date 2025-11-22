@@ -53,7 +53,7 @@ jobs:
           else
             tags="${{ env.repository }}:latest,${{ env.repository }}:${{ github.event.inputs.tag_name }}"
           fi
-          echo "Docker image will be pushed with tags: ${tags}"
+          echo "Docker image will be published with tags: ${tags}"
           echo "dockertags=${tags}" >> $GITHUB_ENV
         shell: bash
 
