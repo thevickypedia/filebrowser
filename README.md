@@ -33,6 +33,6 @@ This project is a fork of the [filebrowser](https://github.com/filebrowser/fileb
 - `authenticatorToken` - MFA token for time based OTP.
 
 * **Multifactor Authentication** MFA has been implemented using TOTP which significantly improves security by adding a second layer of verification to the authenticate the server.
-* To generate a TOTP token, run ``python thevickypedia_scripts/otp.py``, and scan the ``totp_qr.png`` using any authenticator app.
+* To generate a TOTP token, run ``python thevickypedia/otp.py``, and scan the ``totp_qr.png`` using any authenticator app.
 
 > These changes significantly improve the security posture of a basic authentication mechanism.

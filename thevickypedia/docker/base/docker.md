@@ -1,12 +1,6 @@
-### Pre-cleanup
-```shell
-rm -rf filebrowser filebrowser.db frontend/node_modules tools/bin
-rm -rf frontend/dist && mkdir -p frontend/dist && touch frontend/dist/.gitkeep
-```
-
 ### Build
 ```shell
-docker build --no-cache --progress=plain -f thevickypedia_scripts/Dockerfile -t filebrowser .
+docker build --progress=plain -t filebrowser .
 ```
 
 ### Run
@@ -16,7 +10,7 @@ docker run -p 8080:80 filebrowser
 
 ### Compose
 ```shell
-docker-compose -f thevickypedia_scripts/docker-compose.yml up
+docker-compose -f docker-compose.yml up
 ```
 
 ### Run with volume attached
@@ -24,9 +18,8 @@ docker-compose -f thevickypedia_scripts/docker-compose.yml up
 docker run -d \
   --name filebrowser \
   -p 8080:80 \
-  -v ${DOCKER_VOLUME_STORAGE:-/.}/data:/data \
-  -v ${DOCKER_VOLUME_STORAGE:-/.}/config:/config \
-  -e FB_BASEURL=/filebrowser \
+  -v ${DOCKER_VOLUME_STORAGE:-$HOME}:/data \
+  -v ${DOCKER_VOLUME_STORAGE:-$HOME}/.filebrowser/config:/config \
   --restart unless-stopped \
   filebrowser
 ```
@@ -35,7 +28,7 @@ docker run -d \
 
 ### Copy Executable
 ```shell
-docker cp $(docker ps -aqf "ancestor=filebrowser"):/opt/filebrowser/filebrowser .
+docker cp "$(docker ps -aqf 'ancestor=filebrowser')":/filebrowser .
 ```
 
 ### Post-cleanup
