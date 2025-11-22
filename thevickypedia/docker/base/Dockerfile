@@ -78,7 +78,7 @@ EXPOSE 80
 HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
     CMD /healthcheck.sh || exit 1
 
-COPY --from=fetcher /src/thevickypedia/docker/base/entrypoint.sh /entrypoint.sh
+COPY --from=fetcher /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
