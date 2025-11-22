@@ -43,18 +43,48 @@ jobs:
 
       - name: Docker Prerequisites
         run: |
+          # Ensure Dockerfile exists
           if [ -f "${{ env.dockerfile }}" ]; then
             echo "Dockerfile found at path: ${{ env.dockerfile }}"
           else
             echo "::error title=Dockerfile Not Found::The specified Dockerfile path '${{ env.dockerfile }}' does not exist."
             exit 1
           fi
-          if [ -z "${{ env.tag_name }}" ]; then
-            echo "::warning title=Missing Tag::Release tag name is not set, using ONLY 'latest' as tag."
-            tags="${{ env.repository }}:latest"
+
+          # Start with an empty tag list
+          tags=""
+
+          # Detect base vs release image
+          if [[ "${{ env.dockerfile }}" == *"base"* ]]; then
+            echo "Building base Docker image."
+
+            # Base tag
+            tags="${{ env.repository }}:base"
+
+            # Only add <tag>-base if tag_name is set
+            if [ -n "${{ env.tag_name }}" ]; then
+              tags="$tags,${{ env.repository }}:${{ env.tag_name }}-base"
+            else
+              echo "::warning title=Missing Tag::Release tag name is not set. Skipping versioned tags."
+            fi
+
+            # latest ONLY for base
+            tags="$tags,${{ env.repository }}:latest"
+
           else
-            tags="${{ env.repository }}:latest,${{ env.repository }}:${{ env.tag_name }}"
+            echo "Building release Docker image."
+
+            # Release tag
+            tags="${{ env.repository }}:release"
+
+            # Only add <tag>-release if tag_name is set
+            if [ -n "${{ env.tag_name }}" ]; then
+              tags="$tags,${{ env.repository }}:${{ env.tag_name }}-release"
+            else
+              echo "::warning title=Missing Tag::Release tag name is not set. Skipping versioned tags."
+            fi
           fi
+
           echo "Docker image will be published with tags: ${tags}"
           echo "dockertags=${tags}" >> $GITHUB_ENV
         shell: bash
