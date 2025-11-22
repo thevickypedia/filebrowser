@@ -84,6 +84,23 @@ def should_ignore(file_path: str) -> bool:
     return file_path in IGNORE_FILES
 
 
+def rewrite_imports(path: str):
+    """Replace github.com/filebrowser with github.com/thevickypedia in a file."""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+    except UnicodeDecodeError:
+        # Skip binary files (images etc.)
+        return
+
+    new_content = content.replace("github.com/filebrowser", "github.com/thevickypedia")
+
+    if new_content != content:
+        print(f"Rewriting imports in: {path}")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
+
 def download_file(file_info, base_path):
     """Download a file at specific commit into a path."""
     file_path = file_info["filename"]
@@ -99,6 +116,9 @@ def download_file(file_info, base_path):
     with open(out_path, "wb") as f:
         f.write(r.content)
         f.flush()
+
+    # Rewrite import paths if it's a text file
+    rewrite_imports(out_path)
 
 
 # ------------------------------
