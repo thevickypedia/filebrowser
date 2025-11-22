@@ -1,11 +1,11 @@
-FROM alpine:latest
+FROM ubuntu:22.04
 
 ARG VERSION
 ENV VERSION=${VERSION:-latest}
 ENV INSTALL_PATH="/"
 
 
-RUN apk add --no-cache ca-certificates mailcap curl jq git bash && \
+RUN apt-get update && apt-get install -y ca-certificates mailcap curl jq git bash tar gzip && \
     mkdir -p -m 777 /config /data
 
 RUN git clone https://github.com/thevickypedia/filebrowser.git /src && \

@@ -115,5 +115,5 @@ case "$filebrowser_file" in
     *.tar.gz) tar -xzf "$filebrowser_file" ;;
 esac
 
-echo "Moving 'filebrowser' to $INSTALL_PATH"
+echo "Moving '$filebrowser_bin' to $INSTALL_PATH"
 mv "$filebrowser_dir/$filebrowser_bin" "$INSTALL_PATH" && rm -rf $filebrowser_dir $filebrowser_file
