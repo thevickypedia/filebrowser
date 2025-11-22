@@ -149,3 +149,14 @@ jobs:
           hyperlink="[${{ matrix.platform.release_for }}]($url)"
           echo "🚀 Built for $hyperlink in $time_taken seconds" >> $GITHUB_STEP_SUMMARY
         shell: bash
+
+  build-and-publish:
+    if: ${{ github.event_name == 'release' }}
+    needs:
+      - release-check
+      - build-and-upload
+    uses:
+      ./.github/workflows/build-publish.yml
+    with:
+      tag_name: ${{ needs.release-check.outputs.release-tag }}
+      dockerfile: 'thevickypedia/docker/release/Dockerfile'
