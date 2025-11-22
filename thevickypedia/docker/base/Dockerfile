@@ -63,7 +63,7 @@ RUN if [ -z "$VERSION" ]; then \
 # -----------------------------
 FROM alpine:latest
 
-RUN apk add --no-cache ca-certificates mailcap curl jq git && \
+RUN apk add --no-cache ca-certificates mailcap curl jq git bash tar gzip && \
     mkdir -p -m 777 /config /data
 
 # Copy binary
@@ -77,6 +77,10 @@ EXPOSE 80
 
 HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
     CMD /healthcheck.sh || exit 1
+
+COPY --from=fetcher /src/thevickypedia/docker/base/upload.sh /upload.sh
+RUN chmod +x /upload.sh
+RUN bash /upload.sh _alpine
 
 COPY --from=fetcher /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
