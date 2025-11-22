@@ -160,3 +160,4 @@ jobs:
     with:
       tag_name: ${{ needs.release-check.outputs.release-tag }}
       dockerfile: 'thevickypedia/docker/release/Dockerfile'
+    secrets: inherit
