@@ -1,11 +1,11 @@
 ### Build
 ```shell
-docker build --progress=plain -t filebrowser .
+docker build -t filebrowser_release .
 ```
 
 ### Run
 ```shell
-docker run -p 8080:80 filebrowser
+docker run -p 8080:80 filebrowser_release
 ```
 
 ### Compose

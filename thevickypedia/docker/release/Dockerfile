@@ -1,40 +1,27 @@
-# -----------------------------
-# 1. Fetcher stage
-# -----------------------------
-FROM alpine AS fetcher
+FROM alpine:latest
 
 ARG VERSION
 ENV VERSION=${VERSION:-latest}
 ENV INSTALL_PATH="/"
 
-RUN apk add --no-cache git bash jq curl
-RUN git clone https://github.com/thevickypedia/filebrowser.git /src
-RUN ls -ltrh /src/thevickypedia/docker/release/
 
-RUN chmod +x /src/thevickypedia/docker/release/release.sh
-RUN bash /src/thevickypedia/docker/release/release.sh
-
-# -----------------------------
-# 2. Runtime stage (minimal)
-# -----------------------------
-FROM alpine:latest
-
-RUN apk add --no-cache ca-certificates mailcap curl jq git && \
+RUN apk add --no-cache ca-certificates mailcap curl jq git bash && \
     mkdir -p -m 777 /config /data
 
-# Copy binary
-COPY --from=fetcher /filebrowser /filebrowser
+RUN git clone https://github.com/thevickypedia/filebrowser.git /src && \
+    ls -ltrh /src/thevickypedia/docker && \
+    cp /src/thevickypedia/docker/release/release.sh /release.sh && \
+    chmod +x /release.sh && \
+    cp /src/docker/common/healthcheck.sh /healthcheck.sh && \
+    chmod +x /healthcheck.sh && \
+    cp /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh && \
+    chmod +x /entrypoint.sh && \
+    bash /src/thevickypedia/docker/release/release.sh
 
-# Healthcheck script
-COPY --from=fetcher /src/docker/common/healthcheck.sh /healthcheck.sh
-RUN chmod +x /healthcheck.sh
-
+RUN ls -l /
 EXPOSE 80
 
 HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
     CMD /healthcheck.sh || exit 1
-
-COPY --from=fetcher /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

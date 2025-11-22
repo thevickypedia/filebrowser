@@ -1,6 +1,6 @@
 ### Build
 ```shell
-docker build --progress=plain -t filebrowser_base .
+docker build -t filebrowser_base .
 ```
 
 ### Run

@@ -102,7 +102,14 @@ asset_url="https://api.github.com/repos/$ORG/filebrowser/releases/assets/$asset_
 
 $net_getter "${headers[@]}" -H "Accept: application/octet-stream" "$asset_url" > "$INSTALL_PATH/$filebrowser_file"
 
-echo "Extracting..."
+if [ ! -f "$INSTALL_PATH/$filebrowser_file" ]; then
+    echo "Failed to download $filebrowser_file"
+    exit 1
+else
+    echo "Downloaded $filebrowser_file successfully."
+fi
+
+echo "Extracting $filebrowser_file..."
 case "$filebrowser_file" in
     *.zip)    unzip -o "$filebrowser_file" ;;
     *.tar.gz) tar -xzf "$filebrowser_file" ;;
