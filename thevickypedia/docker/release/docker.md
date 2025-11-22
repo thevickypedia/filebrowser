@@ -36,6 +36,7 @@ docker cp "$(docker ps -aqf 'ancestor=filebrowser')":/filebrowser .
 docker stop $(docker ps -aqf "ancestor=filebrowser")
 docker rm $(docker ps -aqf "ancestor=filebrowser")
 docker rmi $(docker images -q "filebrowser") -f
+docker image prune -a
 docker builder prune
 ```
 
@@ -48,6 +49,7 @@ docker builder prune
 docker stop $(docker ps -a -q)
 docker rm $(docker ps -a -q)
 docker rmi $(docker images -q) -f
+docker image prune -a
 docker builder prune
 ```
 </details>

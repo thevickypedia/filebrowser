@@ -30,6 +30,9 @@ env:
   repository: ${{ github.repository || 'thevickypedia/filebrowser' }}
   repository_name: ${{ github.repository.name || 'filebrowser' }}
   repository_description: ${{ github.event.repository.description || '📂 Web File Browser' }}
+  # workflow_call first, fallback to workflow_dispatch
+  dockerfile: ${{ inputs.dockerfile || github.event.inputs.dockerfile }}
+  tag_name: ${{ inputs.tag_name || github.event.inputs.tag_name }}
 
 jobs:
   release:
@@ -40,18 +43,17 @@ jobs:
 
       - name: Docker Prerequisites
         run: |
-          if [ -f "${{ github.event.inputs.dockerfile }}" ]; then
-            echo "Dockerfile found at path: ${{ github.event.inputs.dockerfile }}"
-            echo "dockerfile=${{ github.event.inputs.dockerfile }}" >> $GITHUB_ENV
+          if [ -f "${{ env.dockerfile }}" ]; then
+            echo "Dockerfile found at path: ${{ env.dockerfile }}"
           else
-            echo "::error title=Dockerfile Not Found::The specified Dockerfile path '${{ github.event.inputs.dockerfile }}' does not exist."
+            echo "::error title=Dockerfile Not Found::The specified Dockerfile path '${{ env.dockerfile }}' does not exist."
             exit 1
           fi
-          if [ -z "${{ github.event.inputs.tag_name }}" ]; then
+          if [ -z "${{ env.tag_name }}" ]; then
             echo "::warning title=Missing Tag::Release tag name is not set, using ONLY 'latest' as tag."
             tags="${{ env.repository }}:latest"
           else
-            tags="${{ env.repository }}:latest,${{ env.repository }}:${{ github.event.inputs.tag_name }}"
+            tags="${{ env.repository }}:latest,${{ env.repository }}:${{ env.tag_name }}"
           fi
           echo "Docker image will be published with tags: ${tags}"
           echo "dockertags=${tags}" >> $GITHUB_ENV
@@ -78,7 +80,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.dockertags }}
           build-args: |
-            VERSION=${{ github.event.inputs.tag_name || 'latest' }}
+            VERSION=${{ env.tag_name || 'latest' }}
 
       - name: Update description
         uses: thevickypedia/describe-docker@v1
