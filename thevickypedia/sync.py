@@ -15,6 +15,26 @@ except IndexError:
     TO_VERSION = "master"
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent.resolve()
+REMOVE_FILES = (
+    "CHANGELOG.md",
+    "CODE-OF-CONDUCT.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "Taskfile.yml",
+    "transifex.yml",
+    ".goreleaser.yml",
+    "renovate.json",
+    ".github/CODEOWNERS",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".github/ISSUE_TEMPLATE/bug_report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/workflows/ci.yaml",
+    ".github/workflows/docs.yml",
+)
+
+IGNORE_FILES = (
+    "README.md",
+)
 
 REPO_OWNER = "filebrowser"
 REPO_NAME = "filebrowser"
@@ -58,6 +78,12 @@ print(f"  Renamed: {len(changes['renamed'])}")
 print()
 # -----------------------------
 
+
+def should_ignore(file_path: str) -> bool:
+    """Check if a file should be ignored based on its path."""
+    return file_path in IGNORE_FILES
+
+
 def download_file(file_info, base_path):
     """Download a file at specific commit into a path."""
     file_path = file_info["filename"]
@@ -81,9 +107,15 @@ def download_file(file_info, base_path):
 print("Downloading ADDED and CHANGED files...\n")
 
 for file_info in changes["added"]:
+    if should_ignore(file_info["filename"]):
+        print(f"Ignoring (added): {file_info['filename']}")
+        continue
     download_file(file_info, ROOT_DIR)
 
 for file_info in changes["changed"]:
+    if should_ignore(file_info["filename"]):
+        print(f"Ignoring (changed): {file_info['filename']}")
+        continue
     download_file(file_info, ROOT_DIR)
 
 print("\nDownload of added+changed files completed.\n")
@@ -96,6 +128,10 @@ if changes["renamed"]:
     print("\nAuto-renaming files...")
 
     for f in changes["renamed"]:
+        if should_ignore(f["filename"]) or should_ignore(f["previous_filename"]):
+            print(f"Ignoring (renamed): {f['previous_filename']} → {f['filename']}")
+            continue
+
         old_path = os.path.join(ROOT_DIR, f["previous_filename"])
         new_path = os.path.join(ROOT_DIR, f["filename"])
 
@@ -116,6 +152,9 @@ if changes["removed"]:
     print("\nAuto-removing files...")
 
     for f in changes["removed"]:
+        if should_ignore(f["filename"]):
+            print(f"Ignoring (removed): {f['filename']}")
+            continue
         file_path = os.path.join(ROOT_DIR, f["filename"])
 
         if os.path.exists(file_path):
@@ -124,6 +163,15 @@ if changes["removed"]:
         else:
             print(f"[WARN] File already missing: {file_path}")
 
+# ------------------------
+# Remove unnecessary files
+# ------------------------
+
+for file in REMOVE_FILES:
+    file_path = ROOT_DIR / file
+    if file_path.exists():
+        print(f"Removing unnecessary file: {file_path}")
+        os.remove(file_path)
 
 print("\n=============================")
 print("All operations complete!")
