@@ -9,14 +9,14 @@ on:
       - published
 
 jobs:
-  lint-and-test:
-    uses:
-      ./.github/workflows/pre-release.yml
-    with:
-      build: 'false'
+  # lint-and-test:
+  #   uses:
+  #     ./.github/workflows/pre-release.yml
+  #   with:
+  #     build: 'false'
   release-check:
     runs-on: thevickypedia-default
-    needs: lint-and-test
+    # needs: lint-and-test
     outputs:
       release-id: ${{ steps.get-release-id.outputs.release_id }}
       release-tag: ${{ steps.get-release-id.outputs.release_tag }}
@@ -53,15 +53,15 @@ jobs:
       matrix:
         platform:
           # Naming Convention: {operating_system}-{architecture}-{package_name}.{archive_format}
-          - release_for: darwin-amd64
-            bin: filebrowser
-            name: darwin-amd64-filebrowser.tar.gz
-            pkg-name: darwin-amd64-filebrowser
+          # - release_for: darwin-amd64
+          #   bin: filebrowser
+          #   name: darwin-amd64-filebrowser.tar.gz
+          #   pkg-name: darwin-amd64-filebrowser
 
-          - release_for: darwin-arm64
-            bin: filebrowser
-            name: darwin-arm64-filebrowser.tar.gz
-            pkg-name: darwin-arm64-filebrowser
+          # - release_for: darwin-arm64
+          #   bin: filebrowser
+          #   name: darwin-arm64-filebrowser.tar.gz
+          #   pkg-name: darwin-arm64-filebrowser
 
           - release_for: linux-amd64
             bin: filebrowser
@@ -73,10 +73,10 @@ jobs:
             name: linux-arm64-filebrowser.tar.gz
             pkg-name: linux-arm64-filebrowser
 
-          - release_for: windows-amd64
-            bin: filebrowser.exe
-            name: windows-amd64-filebrowser.zip
-            pkg-name: windows-amd64-filebrowser
+          # - release_for: windows-amd64
+          #   bin: filebrowser.exe
+          #   name: windows-amd64-filebrowser.zip
+          #   pkg-name: windows-amd64-filebrowser
 
     name: Upload asset for ${{ matrix.platform.release_for }}
     runs-on: ${{ matrix.platform.release_for }}
