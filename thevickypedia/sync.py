@@ -21,7 +21,6 @@ REMOVE_FILES = (
     "CONTRIBUTING.md",
     "SECURITY.md",
     "Taskfile.yml",
-    "transifex.yml",
     ".goreleaser.yml",
     "renovate.json",
     ".github/CODEOWNERS",
