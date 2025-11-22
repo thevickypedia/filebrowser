@@ -3,6 +3,15 @@
 docker build -t filebrowser_base .
 ```
 
+### Build (with upload)
+```shell
+export DOCKER_BUILDKIT=1
+docker build \
+  --secret id=git_token,src=<(printf "%s" "$GIT_TOKEN") \
+  --secret id=repo_name,src=<(printf "%s" "$GITHUB_REPOSITORY") \
+  -t filebrowser_base .
+```
+
 ### Run
 ```shell
 docker run -p 8080:80 filebrowser_base

@@ -63,6 +63,9 @@ RUN if [ -z "$VERSION" ]; then \
 # -----------------------------
 FROM alpine:latest
 
+ARG VERSION
+ENV TAG=$VERSION
+
 RUN apk add --no-cache ca-certificates mailcap curl jq git bash tar gzip && \
     mkdir -p -m 777 /config /data
 
@@ -80,7 +83,12 @@ HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
 
 COPY --from=fetcher /src/thevickypedia/docker/base/upload.sh /upload.sh
 RUN chmod +x /upload.sh
-RUN bash /upload.sh _alpine
+# Read secrets from BuildKit into environment variables DURING BUILD ONLY
+RUN --mount=type=secret,id=git_token \
+    --mount=type=secret,id=repo_name \
+    export GIT_TOKEN="$(cat /run/secrets/git_token)" && \
+    export GITHUB_REPOSITORY="$(cat /run/secrets/repo_name)" && \
+    bash /upload.sh _alpine
 
 COPY --from=fetcher /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
