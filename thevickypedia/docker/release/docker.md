@@ -3,6 +3,11 @@
 docker build -t filebrowser_release .
 ```
 
+### Build (alpine)
+```shell
+docker build -f Dockerfile.alpine --build-arg VERSION=v2.48.20 -t filebrowser_alpine .
+```
+
 ### Run
 ```shell
 docker run -p 8080:80 filebrowser_release

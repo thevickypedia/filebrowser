@@ -150,7 +150,7 @@ jobs:
           echo "🚀 Built for $hyperlink in $time_taken seconds" >> $GITHUB_STEP_SUMMARY
         shell: bash
 
-  build-and-publish:
+  docker-publish-release:
     if: ${{ github.event_name == 'release' }}
     needs:
       - release-check
@@ -160,4 +160,15 @@ jobs:
     with:
       tag_name: ${{ needs.release-check.outputs.release-tag }}
       dockerfile: 'thevickypedia/docker/release/Dockerfile'
+    secrets: inherit
+
+  docker-build-and-publish:
+    if: ${{ github.event_name == 'release' }}
+    needs:
+      - release-check
+    uses:
+      ./.github/workflows/build-publish.yml
+    with:
+      tag_name: ${{ needs.release-check.outputs.release-tag }}
+      dockerfile: 'thevickypedia/docker/base/Dockerfile'
     secrets: inherit

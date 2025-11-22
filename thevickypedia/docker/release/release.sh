@@ -73,7 +73,8 @@ else
     return 7
 fi
 
-filebrowser_dir="$filebrowser_os-$filebrowser_arch-filebrowser"
+sfx="${1:-}"
+filebrowser_dir="$filebrowser_os-$filebrowser_arch-filebrowser$sfx"
 filebrowser_file="$filebrowser_dir$filebrowser_dl_ext"
 # shellcheck disable=SC2153
 git_token="$GIT_TOKEN"
