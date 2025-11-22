@@ -8,15 +8,28 @@ on:
         type: string
         description: 'Tag name for the release (e.g., v1.0.0)'
         required: true
-  release:
-    types:
-      - published
+      dockerfile:
+        type: string
+        description: 'Path to the Dockerfile'
+        required: true
+        default: 'thevickypedia/docker/base/Dockerfile'
+
+  workflow_call:
+    inputs:
+      tag_name:
+        type: string
+        description: 'Tag name for the release (e.g., v1.0.0)'
+        required: true
+      dockerfile:
+        type: string
+        description: 'Path to the Dockerfile'
+        required: true
+        default: 'thevickypedia/docker/base/Dockerfile'
 
 env:
   repository: ${{ github.repository || 'thevickypedia/filebrowser' }}
   repository_name: ${{ github.repository.name || 'filebrowser' }}
   repository_description: ${{ github.event.repository.description || '📂 Web File Browser' }}
-  release_tag_name: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
 
 jobs:
   release:
@@ -24,6 +37,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Docker Prerequisites
+        run: |
+          if [ -f "${{ github.event.inputs.dockerfile }}" ]; then
+            echo "Dockerfile found at path: ${{ github.event.inputs.dockerfile }}"
+            echo "dockerfile=${{ github.event.inputs.dockerfile }}" >> $GITHUB_ENV
+          else
+            echo "::error title=Dockerfile Not Found::The specified Dockerfile path '${{ github.event.inputs.dockerfile }}' does not exist."
+            exit 1
+          fi
+          if [ -z "${{ github.event.inputs.tag_name }}" ]; then
+            echo "::warning title=Missing Tag::Release tag name is not set, using ONLY 'latest' as tag."
+            tags="${{ env.repository }}:latest"
+          else
+            tags="${{ env.repository }}:latest,${{ env.repository }}:${{ github.event.inputs.tag_name }}"
+          fi
+          echo "Docker image will be pushed with tags: ${tags}"
+          echo "dockertags=${tags}" >> $GITHUB_ENV
+        shell: bash
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -37,26 +69,14 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set Docker Tags
-        run: |
-          if [ -z "${{ env.release_tag_name }}" ]; then
-            echo "::warning title=Missing Tag::Release tag name is not set, using ONLY 'latest' as tag."
-            tags="${{ env.repository }}:latest"
-          else
-            tags="${{ env.repository }}:latest,${{ env.repository }}:${{ env.release_tag_name }}"
-          fi
-          echo "Docker image will be pushed with tags: ${tags}"
-          echo "DOCKER_TAGS=${tags}" >> $GITHUB_ENV
-        shell: bash
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          file: thevickypedia/docker/base/Dockerfile
+          file: ${{ env.dockerfile }}
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.DOCKER_TAGS }}
+          tags: ${{ env.dockertags }}
 
       - name: Update description
         uses: thevickypedia/describe-docker@v1
