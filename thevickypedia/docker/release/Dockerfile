@@ -11,7 +11,7 @@ RUN git clone https://github.com/thevickypedia/filebrowser.git /src && \
     ls -ltrh /src/thevickypedia/docker && \
     cp /src/thevickypedia/docker/release/release.sh /release.sh && \
     chmod +x /release.sh && \
-    cp /src/docker/common/healthcheck.sh /healthcheck.sh && \
+    cp /src/thevickypedia/docker/healthcheck.sh /healthcheck.sh && \
     chmod +x /healthcheck.sh && \
     cp /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh && \
     chmod +x /entrypoint.sh && \

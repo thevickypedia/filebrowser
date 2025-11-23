@@ -73,7 +73,7 @@ RUN apk add --no-cache ca-certificates mailcap curl jq git bash tar gzip && \
 COPY --from=backend-builder /filebrowser /filebrowser
 
 # Healthcheck script
-COPY --from=fetcher /src/docker/common/healthcheck.sh /healthcheck.sh
+COPY --from=fetcher /src/thevickypedia/docker/healthcheck.sh /healthcheck.sh
 RUN chmod +x /healthcheck.sh
 
 EXPOSE 80
