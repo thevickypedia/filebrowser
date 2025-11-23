@@ -2,9 +2,9 @@
 # https://github.com/Haxxnet/Compose-Examples/blob/main/examples/filebrowser/docker-compose.yml
 services:
   filebrowser:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.alpine
     image: thevickypedia/filebrowser
     container_name: filebrowser
     ports:
