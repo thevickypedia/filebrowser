@@ -7,7 +7,8 @@ on:
       tag_name:
         type: string
         description: 'Tag name for the release (e.g., v1.0.0)'
-        required: true
+        required: false
+        default: null
       dockerfile:
         type: string
         description: 'Path to the Dockerfile'
@@ -19,7 +20,8 @@ on:
       tag_name:
         type: string
         description: 'Tag name for the release (e.g., v1.0.0)'
-        required: true
+        required: false
+        default: null
       dockerfile:
         type: string
         description: 'Path to the Dockerfile'
