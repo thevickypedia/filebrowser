@@ -7,15 +7,15 @@ ENV INSTALL_PATH="/"
 RUN apt-get update && apt-get install -y ca-certificates mailcap curl jq git bash tar gzip && \
     mkdir -p -m 777 /config /data
 
-RUN git clone https://github.com/thevickypedia/filebrowser.git /src && \
-    ls -ltrh /src/thevickypedia/docker && \
-    cp /src/thevickypedia/docker/release/release.sh /release.sh && \
-    chmod +x /release.sh && \
-    cp /src/thevickypedia/docker/healthcheck.sh /healthcheck.sh && \
-    chmod +x /healthcheck.sh && \
-    cp /src/thevickypedia/docker/entrypoint.sh /entrypoint.sh && \
-    chmod +x /entrypoint.sh && \
-    bash /src/thevickypedia/docker/release/release.sh
+COPY thevickypedia/docker/release/release.sh /release.sh
+RUN chmod +x /release.sh
+RUN /release.sh
+
+COPY thevickypedia/docker/healthcheck.sh /healthcheck.sh
+RUN chmod +x /healthcheck.sh
+
+COPY thevickypedia/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 RUN ls -l /
 EXPOSE 80

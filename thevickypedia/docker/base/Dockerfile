@@ -4,7 +4,7 @@
 FROM alpine AS fetcher
 
 RUN apk add --no-cache git
-RUN git clone https://github.com/thevickypedia/filebrowser.git /src
+COPY . /src
 
 # -----------------------------
 # 1. Frontend build stage
