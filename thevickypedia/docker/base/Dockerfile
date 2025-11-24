@@ -3,7 +3,6 @@
 # -----------------------------
 FROM alpine AS fetcher
 
-RUN apk add --no-cache git
 COPY . /src
 
 # -----------------------------

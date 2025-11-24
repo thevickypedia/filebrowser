@@ -4,7 +4,7 @@ ARG VERSION
 ENV VERSION=${VERSION:-latest}
 ENV INSTALL_PATH="/"
 
-RUN apk add --no-cache ca-certificates mailcap curl jq git bash tar gzip && \
+RUN apk add --no-cache ca-certificates curl jq bash tar gzip && \
     mkdir -p -m 777 /config /data
 
 COPY thevickypedia/docker/release/release.sh /release.sh

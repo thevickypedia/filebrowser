@@ -4,7 +4,7 @@ ARG VERSION
 ENV VERSION=${VERSION:-latest}
 ENV INSTALL_PATH="/"
 
-RUN apt-get update && apt-get install -y ca-certificates mailcap curl jq git bash tar gzip && \
+RUN apt-get update && apt-get install -y ca-certificates curl jq bash tar gzip && \
     mkdir -p -m 777 /config /data
 
 COPY thevickypedia/docker/release/release.sh /release.sh
