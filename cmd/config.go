@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
-	nerrors "errors"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/thevickypedia/filebrowser/v2/auth"
-	"github.com/thevickypedia/filebrowser/v2/errors"
+	fberrors "github.com/thevickypedia/filebrowser/v2/errors"
 	"github.com/thevickypedia/filebrowser/v2/settings"
 )
 
@@ -30,17 +30,22 @@ var configCmd = &cobra.Command{
 func addConfigFlags(flags *pflag.FlagSet) {
 	addServerFlags(flags)
 	addUserFlags(flags)
+
 	flags.BoolP("signup", "s", false, "allow users to signup")
 	flags.Bool("hideLoginButton", false, "hide login button from public pages")
 	flags.Bool("createUserDir", false, "generate user's home directory automatically")
 	flags.Uint("minimumPasswordLength", settings.DefaultMinimumPasswordLength, "minimum password length for new users")
 	flags.String("shell", "", "shell command to which other commands should be appended")
 
+	// NB: these are string so they can be presented as octal in the help text
+	// as that's the conventional representation for modes in Unix.
+	flags.String("fileMode", fmt.Sprintf("%O", settings.DefaultFileMode), "mode bits that new files are created with")
+	flags.String("dirMode", fmt.Sprintf("%O", settings.DefaultDirMode), "mode bits that new directories are created with")
+
 	flags.String("auth.method", string(auth.MethodJSONAuth), "authentication type")
 	flags.String("auth.header", "", "HTTP header for auth.method=proxy")
 	flags.String("auth.command", "", "command for auth.method=hook")
-
-	flags.String("authenticatorToken", "", "OTP shared secret (leave blank to disable)")
+	flags.String("auth.logoutPage", "", "url of custom logout page")
 
 	flags.String("recaptcha.host", "https://www.google.com", "use another host for ReCAPTCHA. recaptcha.net might be useful in China")
 	flags.String("recaptcha.key", "", "ReCaptcha site key")
@@ -52,10 +57,6 @@ func addConfigFlags(flags *pflag.FlagSet) {
 	flags.String("branding.files", "", "path to directory with images and custom styles")
 	flags.Bool("branding.disableExternal", false, "disable external links such as GitHub links")
 	flags.Bool("branding.disableUsedPercentage", false, "disable used disk percentage graph")
-	// NB: these are string so they can be presented as octal in the help text
-	// as that's the conventional representation for modes in Unix.
-	flags.String("fileMode", fmt.Sprintf("%O", settings.DefaultFileMode), "mode bits that new files are created with")
-	flags.String("dirMode", fmt.Sprintf("%O", settings.DefaultDirMode), "mode bits that new directories are created with")
 
 	flags.Uint64("tus.chunkSize", settings.DefaultTusChunkSize, "the tus chunk size")
 	flags.Uint16("tus.retryCount", settings.DefaultTusRetryCount, "the tus retry count")
@@ -98,12 +99,12 @@ func getProxyAuth(flags *pflag.FlagSet, defaultAuther map[string]interface{}) (a
 		return nil, err
 	}
 
-	if header == "" {
+	if header == ""  && defaultAuther != nil {
 		header = defaultAuther["header"].(string)
 	}
 
 	if header == "" {
-		return nil, nerrors.New("you must set the flag 'auth.header' for method 'proxy'")
+		return nil, errors.New("you must set the flag 'auth.header' for method 'proxy'")
 	}
 
 	return &auth.ProxyAuth{Header: header}, nil
@@ -115,27 +116,16 @@ func getNoAuth() auth.Auther {
 
 func getJSONAuth(flags *pflag.FlagSet, defaultAuther map[string]interface{}) (auth.Auther, error) {
 	jsonAuth := &auth.JSONAuth{}
-	authenticationToken, err := flags.GetString("authenticatorToken")
-	if err != nil {
-		return nil, err
-	}
-
-	if authenticationToken == "" {
-		if atok, ok := defaultAuther["authenticatorToken"].(string); ok {
-			authenticationToken = atok
-		}
-	}
-
-	jsonAuth.AuthenticatorToken = authenticationToken
-
 	host, err := flags.GetString("recaptcha.host")
 	if err != nil {
 		return nil, err
 	}
+
 	key, err := flags.GetString("recaptcha.key")
 	if err != nil {
 		return nil, err
 	}
+
 	secret, err := flags.GetString("recaptcha.secret")
 	if err != nil {
 		return nil, err
@@ -173,7 +163,7 @@ func getHookAuth(flags *pflag.FlagSet, defaultAuther map[string]interface{}) (au
 	}
 
 	if command == "" {
-		return nil, nerrors.New("you must set the flag 'auth.command' for method 'hook'")
+		return nil, errors.New("you must set the flag 'auth.command' for method 'hook'")
 	}
 
 	return &auth.HookAuth{Command: command}, nil
@@ -196,7 +186,7 @@ func getAuthentication(flags *pflag.FlagSet, defaults ...interface{}) (settings.
 	case auth.MethodHookAuth:
 		auther, err = getHookAuth(flags, defaultAuther)
 	default:
-		return "", nil, errors.ErrInvalidAuthMethod
+		return "", nil, fberrors.ErrInvalidAuthMethod
 	}
 
 	if err != nil {
@@ -212,6 +202,7 @@ func printSettings(ser *settings.Server, set *settings.Settings, auther auth.Aut
 	fmt.Fprintf(w, "Sign up:\t%t\n", set.Signup)
 	fmt.Fprintf(w, "Hide Login Button:\t%t\n", set.HideLoginButton)
 	fmt.Fprintf(w, "Create User Dir:\t%t\n", set.CreateUserDir)
+	fmt.Fprintf(w, "Logout Page:\t%s\n", set.LogoutPage)
 	fmt.Fprintf(w, "Minimum Password Length:\t%d\n", set.MinimumPasswordLength)
 	fmt.Fprintf(w, "Auth Method:\t%s\n", set.AuthMethod)
 	fmt.Fprintf(w, "Shell:\t%s\t\n", strings.Join(set.Shell, " "))
@@ -253,9 +244,11 @@ func printSettings(ser *settings.Server, set *settings.Settings, auther auth.Aut
 	fmt.Fprintf(w, "\tDirectory Creation Mode:\t%O\n", set.DirMode)
 	fmt.Fprintf(w, "\tCommands:\t%s\n", strings.Join(set.Defaults.Commands, " "))
 	fmt.Fprintf(w, "\tAce editor syntax highlighting theme:\t%s\n", set.Defaults.AceEditorTheme)
+
 	fmt.Fprintf(w, "\tSorting:\n")
 	fmt.Fprintf(w, "\t\tBy:\t%s\n", set.Defaults.Sorting.By)
 	fmt.Fprintf(w, "\t\tAsc:\t%t\n", set.Defaults.Sorting.Asc)
+
 	fmt.Fprintf(w, "\tPermissions:\n")
 	fmt.Fprintf(w, "\t\tAdmin:\t%t\n", set.Defaults.Perm.Admin)
 	fmt.Fprintf(w, "\t\tExecute:\t%t\n", set.Defaults.Perm.Execute)
@@ -265,6 +258,7 @@ func printSettings(ser *settings.Server, set *settings.Settings, auther auth.Aut
 	fmt.Fprintf(w, "\t\tDelete:\t%t\n", set.Defaults.Perm.Delete)
 	fmt.Fprintf(w, "\t\tShare:\t%t\n", set.Defaults.Perm.Share)
 	fmt.Fprintf(w, "\t\tDownload:\t%t\n", set.Defaults.Perm.Download)
+
 	w.Flush()
 
 	b, err := json.MarshalIndent(auther, "", "  ")
@@ -314,6 +308,9 @@ func getSettings(flags *pflag.FlagSet, set *settings.Settings, ser *settings.Ser
 		case "disableTypeDetectionByHeader":
 			ser.TypeDetectionByHeader, err = flags.GetBool(flag.Name)
 			ser.TypeDetectionByHeader = !ser.TypeDetectionByHeader
+		case "disableImageResolutionCalc":
+			ser.ImageResolutionCal, err = flags.GetBool(flag.Name)
+			ser.ImageResolutionCal = !ser.ImageResolutionCal
 
 		// Settings flags from [addConfigFlags]
 		case "signup":
@@ -336,6 +333,8 @@ func getSettings(flags *pflag.FlagSet, set *settings.Settings, ser *settings.Ser
 			set.DirMode, err = getAndParseFileMode(flags, flag.Name)
 		case "auth.method":
 			hasAuth = true
+		case "auth.logoutPage":
+			set.LogoutPage, err = flags.GetString(flag.Name)
 		case "branding.name":
 			set.Branding.Name, err = flags.GetString(flag.Name)
 		case "branding.theme":
@@ -365,7 +364,7 @@ func getSettings(flags *pflag.FlagSet, set *settings.Settings, ser *settings.Ser
 		flags.Visit(visit)
 	}
 
-	err := nerrors.Join(errs...)
+	err := errors.Join(errs...)
 	if err != nil {
 		return nil, err
 	}

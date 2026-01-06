@@ -1,4 +1,4 @@
-package http
+package fbhttp
 
 import (
 	"encoding/json"
@@ -12,8 +12,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang-jwt/jwt/v5/request"
 
-	"github.com/thevickypedia/filebrowser/v2/auth"
-	fbErrors "github.com/thevickypedia/filebrowser/v2/errors"
+	fbAuth "github.com/thevickypedia/filebrowser/v2/auth"
+	fberrors "github.com/thevickypedia/filebrowser/v2/errors"
+	"github.com/thevickypedia/filebrowser/v2/settings"
 	"github.com/thevickypedia/filebrowser/v2/users"
 )
 
@@ -72,6 +73,22 @@ func (e extractor) ExtractToken(r *http.Request) (string, error) {
 	return "", request.ErrNoTokenInRequest
 }
 
+func renewableErr(err error, d *data) bool {
+	if d.settings.AuthMethod != fbAuth.MethodProxyAuth || err == nil {
+		return false
+	}
+
+	if d.settings.LogoutPage == settings.DefaultLogoutPage {
+		return false
+	}
+
+	if !errors.Is(err, jwt.ErrTokenExpired) {
+		return false
+	}
+
+	return true
+}
+
 func withUser(fn handleFunc) handleFunc {
 	return func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
 		keyFunc := func(_ *jwt.Token) (interface{}, error) {
@@ -79,14 +96,9 @@ func withUser(fn handleFunc) handleFunc {
 		}
 
 		var tk authToken
-		token, err := request.ParseFromRequest(r, &extractor{}, keyFunc, request.WithClaims(&tk))
-
-		if err != nil || !token.Valid {
-			return http.StatusUnauthorized, nil
-		}
-
-		err = jwt.NewValidator(jwt.WithExpirationRequired()).Validate(tk)
-		if err != nil {
+		p := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithExpirationRequired())
+		token, err := request.ParseFromRequest(r, &extractor{}, keyFunc, request.WithClaims(&tk), request.WithParser(p))
+		if (err != nil || !token.Valid) && !renewableErr(err, d) {
 			return http.StatusUnauthorized, nil
 		}
 
@@ -96,7 +108,7 @@ func withUser(fn handleFunc) handleFunc {
 		if expiresSoon || updated {
 			w.Header().Add("X-Renew-Token", "true")
 		} else {
-			var allowedJWT = auth.GetAllowedJWT()
+			var allowedJWT = fbAuth.GetAllowedJWT()
 			if allowedJWT == nil || !contains(allowedJWT, token.Raw) {
 				return http.StatusUnauthorized, nil
 			}
@@ -122,7 +134,7 @@ var terminateHandler = withAdmin(func(_ http.ResponseWriter, _ *http.Request, d 
 		return http.StatusForbidden, nil
 	}
 
-	if err := auth.RemoveAllJWT(); err != nil {
+	if err := fbAuth.RemoveAllJWT(); err != nil {
 		log.Printf("Error: Failed to terminate all sessions: %v", err)
 		return http.StatusInternalServerError, err
 	}
@@ -138,7 +150,7 @@ var logoutHandler = func(_ http.ResponseWriter, r *http.Request, _ *data) (int, 
 		return http.StatusBadRequest, errors.New("missing auth token")
 	}
 
-	if err := auth.RemoveAllowedJWT(token); err != nil {
+	if err := fbAuth.RemoveAllowedJWT(token); err != nil {
 		log.Printf("Error: Failed to remove allowed JWT: %v", err)
 		return http.StatusInternalServerError, err
 	}
@@ -226,7 +238,7 @@ var signupHandler = func(_ http.ResponseWriter, r *http.Request, d *data) (int, 
 	log.Printf("new user: %s, home dir: [%s].", user.Username, userHome)
 
 	err = d.store.Users.Save(user)
-	if errors.Is(err, fbErrors.ErrExist) {
+	if errors.Is(err, fberrors.ErrExist) {
 		return http.StatusConflict, err
 	} else if err != nil {
 		return http.StatusInternalServerError, err
@@ -269,7 +281,7 @@ func printToken(w http.ResponseWriter, _ *http.Request, d *data, user *users.Use
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
-	if err := auth.PutAllowedJWT(signed); err != nil {
+	if err := fbAuth.PutAllowedJWT(signed); err != nil {
 		return http.StatusInternalServerError, err
 	}
 

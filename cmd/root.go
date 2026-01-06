@@ -108,6 +108,7 @@ func addServerFlags(flags *pflag.FlagSet) {
 	flags.Bool("disablePreviewResize", false, "disable resize of image previews")
 	flags.Bool("disableExec", true, "disables Command Runner feature")
 	flags.Bool("disableTypeDetectionByHeader", false, "disables type detection by reading file headers")
+	flags.Bool("disableImageResolutionCalc", false, "disables image resolution calculation by reading image files")
 }
 
 var rootCmd = &cobra.Command{
@@ -134,6 +135,11 @@ file named .filebrowser.{json, toml, yaml, yml} in the following directories:
 - ./
 - $HOME/
 - /etc/filebrowser/
+
+**Note:** Only the options listed below can be set via the config file or
+environment variables. Other configuration options live exclusively in the
+database and so they must be set by the "config set" or "config
+import" commands.
 
 The precedence of the configuration values are as follows:
 
@@ -229,12 +235,6 @@ user created with the credentials from options "username" and "password".`,
 		defer listener.Close()
 
 		log.Println("Listening on", listener.Addr().String())
-		refreshAllowedOrigins(server)
-		refreshCondition := server.RefreshAllowedOrigins != 0 && (server.AllowPrivateIP || server.AllowPublicIP)
-		var done chan bool
-		if refreshCondition {
-			done = startBackgroundTask(server)
-		}
 		srv := &http.Server{
 			Handler:           handler,
 			ReadHeaderTimeout: 60 * time.Second,
@@ -242,9 +242,6 @@ user created with the credentials from options "username" and "password".`,
 
 		go func() {
 			if err := srv.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
-				if refreshCondition {
-					done <- true
-				}
 				log.Fatalf("HTTP server error: %v", err)
 			}
 
@@ -338,6 +335,10 @@ func getServerSettings(v *viper.Viper, st *storage.Storage) (*settings.Server, e
 
 	if v.IsSet("disableTypeDetectionByHeader") {
 		server.TypeDetectionByHeader = !v.GetBool("disableTypeDetectionByHeader")
+	}
+
+	if v.IsSet("disableImageResolutionCalc") {
+		server.ImageResolutionCal = !v.GetBool("disableImageResolutionCalc")
 	}
 
 	if v.IsSet("disableExec") {
@@ -448,6 +449,7 @@ func quickSetup(v *viper.Viper, s *storage.Storage) error {
 		ResizePreview:         !v.GetBool("disablePreviewResize"),
 		EnableExec:            !v.GetBool("disableExec"),
 		TypeDetectionByHeader: !v.GetBool("disableTypeDetectionByHeader"),
+		ImageResolutionCal:    !v.GetBool("disableImageResolutionCalc"),
 	}
 
 	err = s.Settings.SaveServer(ser)

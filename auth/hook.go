@@ -11,7 +11,7 @@ import (
 	"slices"
 	"strings"
 
-	fbErrors "github.com/thevickypedia/filebrowser/v2/errors"
+	fberrors "github.com/thevickypedia/filebrowser/v2/errors"
 	"github.com/thevickypedia/filebrowser/v2/files"
 	"github.com/thevickypedia/filebrowser/v2/settings"
 	"github.com/thevickypedia/filebrowser/v2/users"
@@ -146,7 +146,7 @@ func (a *HookAuth) GetValues(s string) {
 // SaveUser updates the existing user or creates a new one when not found
 func (a *HookAuth) SaveUser() (*users.User, error) {
 	u, err := a.Users.Get(a.Server.Root, a.Cred.Username)
-	if err != nil && !errors.Is(err, fbErrors.ErrNotExist) {
+	if err != nil && !errors.Is(err, fberrors.ErrNotExist) {
 		return nil, err
 	}
 
