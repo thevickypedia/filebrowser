@@ -235,6 +235,12 @@ user created with the credentials from options "username" and "password".`,
 		defer listener.Close()
 
 		log.Println("Listening on", listener.Addr().String())
+		refreshAllowedOrigins(server)
+		refreshCondition := server.RefreshAllowedOrigins != 0 && (server.AllowPrivateIP || server.AllowPublicIP)
+		var done chan bool
+		if refreshCondition {
+			done = startBackgroundTask(server)
+		}
 		srv := &http.Server{
 			Handler:           handler,
 			ReadHeaderTimeout: 60 * time.Second,
@@ -242,6 +248,9 @@ user created with the credentials from options "username" and "password".`,
 
 		go func() {
 			if err := srv.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
+				if refreshCondition {
+					done <- true
+				}
 				log.Fatalf("HTTP server error: %v", err)
 			}
 

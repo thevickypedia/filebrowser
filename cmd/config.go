@@ -45,6 +45,8 @@ func addConfigFlags(flags *pflag.FlagSet) {
 	flags.String("auth.method", string(auth.MethodJSONAuth), "authentication type")
 	flags.String("auth.header", "", "HTTP header for auth.method=proxy")
 	flags.String("auth.command", "", "command for auth.method=hook")
+
+	flags.String("authenticatorToken", "", "OTP shared secret (leave blank to disable)")
 	flags.String("auth.logoutPage", "", "url of custom logout page")
 
 	flags.String("recaptcha.host", "https://www.google.com", "use another host for ReCAPTCHA. recaptcha.net might be useful in China")
@@ -99,7 +101,7 @@ func getProxyAuth(flags *pflag.FlagSet, defaultAuther map[string]interface{}) (a
 		return nil, err
 	}
 
-	if header == ""  && defaultAuther != nil {
+	if header == "" && defaultAuther != nil {
 		header = defaultAuther["header"].(string)
 	}
 
@@ -116,6 +118,19 @@ func getNoAuth() auth.Auther {
 
 func getJSONAuth(flags *pflag.FlagSet, defaultAuther map[string]interface{}) (auth.Auther, error) {
 	jsonAuth := &auth.JSONAuth{}
+	authenticationToken, err := flags.GetString("authenticatorToken")
+	if err != nil {
+		return nil, err
+	}
+
+	if authenticationToken == "" {
+		if atok, ok := defaultAuther["authenticatorToken"].(string); ok {
+			authenticationToken = atok
+		}
+	}
+
+	jsonAuth.AuthenticatorToken = authenticationToken
+
 	host, err := flags.GetString("recaptcha.host")
 	if err != nil {
 		return nil, err
