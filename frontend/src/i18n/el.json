@@ -259,7 +259,8 @@
     "userManagement": "Διαχείριση χρηστών",
     "userUpdated": "Ο χρήστης ενημερώθηκε!",
     "username": "Όνομα χρήστη",
-    "users": "Χρήστες"
+    "users": "Χρήστες",
+    "currentPassword": "Τρέχων κωδικός πρόσβασης"
   },
   "sidebar": {
     "help": "Βοήθεια",

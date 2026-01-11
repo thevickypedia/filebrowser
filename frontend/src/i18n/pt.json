@@ -259,7 +259,8 @@
     "userManagement": "Gestão de utilizadores",
     "userUpdated": "Utilizador atualizado!",
     "username": "Nome de utilizador",
-    "users": "Utilizadores"
+    "users": "Utilizadores",
+    "currentPassword": "Palavra-passe atual"
   },
   "sidebar": {
     "help": "Ajuda",

@@ -259,7 +259,8 @@
     "userManagement": "Gebruikersbeheer",
     "userUpdated": "Gebruiker bijgewerkt!",
     "username": "Gebruikersnaam",
-    "users": "Gebruikers"
+    "users": "Gebruikers",
+    "currentPassword": "Uw huidige wachtwoord"
   },
   "sidebar": {
     "help": "Help",

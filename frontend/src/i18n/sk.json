@@ -259,7 +259,8 @@
     "userManagement": "Správa používateľov",
     "userUpdated": "Používateľ upravený!",
     "username": "Meno používateľa",
-    "users": "Používatelia"
+    "users": "Používatelia",
+    "currentPassword": "Vaše aktuálne heslo"
   },
   "sidebar": {
     "help": "Pomoc",

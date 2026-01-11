@@ -259,7 +259,8 @@
     "userManagement": "Brukeradministrasjon",
     "userUpdated": "Bruker opprettet!",
     "username": "Brukernavn",
-    "users": "Bruker"
+    "users": "Bruker",
+    "currentPassword": "Nåværende passord"
   },
   "sidebar": {
     "help": "Hjelp",

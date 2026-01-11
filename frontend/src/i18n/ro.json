@@ -259,7 +259,8 @@
     "userManagement": "Gestionare utilizatori",
     "userUpdated": "Utilizator actualizat!",
     "username": "Utilizator",
-    "users": "Utilizatori"
+    "users": "Utilizatori",
+    "currentPassword": "Parola actuală"
   },
   "sidebar": {
     "help": "Ajutor",

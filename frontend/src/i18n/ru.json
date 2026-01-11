@@ -44,7 +44,6 @@
     "openFile": "Открыть файл",
     "stopSearch": "Прекратить поиск",
     "discardChanges": "Отказаться",
-    "stopSearch": "Stop searching",
     "saveChanges": "Сохранить",
     "editAsText": "Редактировать как текст",
     "increaseFontSize": "Увеличить размер шрифта",
@@ -260,7 +259,8 @@
     "userManagement": "Управление пользователями",
     "userUpdated": "Пользователь изменен!",
     "username": "Имя пользователя",
-    "users": "Пользователи"
+    "users": "Пользователи",
+    "currentPassword": "Текущий пароль"
   },
   "sidebar": {
     "help": "Помощь",

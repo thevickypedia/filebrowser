@@ -259,7 +259,8 @@
     "userManagement": "مدیریت کاربران",
     "userUpdated": "کاربر به روز شد!",
     "username": "نام کاربری",
-    "users": "کاربران"
+    "users": "کاربران",
+    "currentPassword": "رمز عبور فعلی"
   },
   "sidebar": {
     "help": "راهنما",

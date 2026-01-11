@@ -43,12 +43,11 @@
     "upload": "アップロード",
     "openFile": "ファイルを開く",
     "stopSearch": "検索を停止",
-    "discardChanges": "Discard",
-    "stopSearch": "Stop searching",
-    "saveChanges": "Save changes",
-    "editAsText": "Edit as Text",
-    "increaseFontSize": "Increase font size",
-    "decreaseFontSize": "Decrease font size"
+    "discardChanges": "破棄",
+    "saveChanges": "変更を保存",
+    "editAsText": "テキストとして編集",
+    "increaseFontSize": "フォントサイズを大きく",
+    "decreaseFontSize": "フォントサイズを小さく"
   },
   "download": {
     "downloadFile": "ファイルのダウンロード",
@@ -260,7 +259,8 @@
     "userManagement": "ユーザー管理",
     "userUpdated": "ユーザーを更新しました！",
     "username": "ユーザー名",
-    "users": "ユーザー"
+    "users": "ユーザー",
+    "currentPassword": "現在のパスワード"
   },
   "sidebar": {
     "help": "ヘルプ",

@@ -259,7 +259,8 @@
     "userManagement": "Kullanıcı yönetimi",
     "userUpdated": "Kullanıcı güncellendi!",
     "username": "Kullanıcı adı",
-    "users": "Kullanıcılar"
+    "users": "Kullanıcılar",
+    "currentPassword": "Mevcut şifre"
   },
   "sidebar": {
     "help": "Yardım",

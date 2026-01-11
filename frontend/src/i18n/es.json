@@ -259,7 +259,8 @@
     "userManagement": "Administración de usuarios",
     "userUpdated": "¡Usuario actualizado!",
     "username": "Usuario",
-    "users": "Usuarios"
+    "users": "Usuarios",
+    "currentPassword": "Contraseña actual"
   },
   "sidebar": {
     "help": "Ayuda",

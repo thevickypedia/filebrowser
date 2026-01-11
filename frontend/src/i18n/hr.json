@@ -259,7 +259,8 @@
     "userManagement": "Upravljanje Korisnicima",
     "userUpdated": "Korisnik ažuriran!",
     "username": "Korisničko ime",
-    "users": "Korisnici"
+    "users": "Korisnici",
+    "currentPassword": "Trenutna lozinka"
   },
   "sidebar": {
     "help": "Pomoć",
