@@ -2,7 +2,6 @@ import sys
 import os
 import requests
 import pathlib
-import pprint
 
 try:
     FROM_VERSION = sys.argv[1]
@@ -31,9 +30,7 @@ REMOVE_FILES = (
     ".github/workflows/docs.yml",
 )
 
-IGNORE_FILES = (
-    "README.md",
-)
+IGNORE_FILES = ("README.md",)
 
 REPO_OWNER = "filebrowser"
 REPO_NAME = "filebrowser"
@@ -50,12 +47,7 @@ if "files" not in data:
 # -----------------------------
 # Categorize files
 # -----------------------------
-changes = {
-    "changed": [],
-    "added": [],
-    "removed": [],
-    "renamed": []
-}
+changes = {"changed": [], "added": [], "removed": [], "renamed": []}
 
 for f in data["files"]:
     status = f["status"]
@@ -160,7 +152,9 @@ if changes["renamed"]:
             print(f"Renaming: {old_path} → {new_path}")
             os.rename(old_path, new_path)
         else:
-            print(f"[WARN] Old file missing, downloading instead: {f['previous_filename']}")
+            print(
+                f"[WARN] Old file missing, downloading instead: {f['previous_filename']}"
+            )
             download_file(f, ROOT_DIR)
 
 
