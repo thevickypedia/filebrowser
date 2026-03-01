@@ -124,8 +124,7 @@
     "passwordTooShort": "Password must be at least {min} characters",
     "logout_reasons": {
       "inactivity": "Бяхте разлогнати поради неактивност"
-    },
-    "otpPlaceholder": "Еднократен пароден код"
+    }
   },
   "permanent": "Постоянен",
   "prompts": {

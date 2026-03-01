@@ -42,12 +42,17 @@
     "update": "Güncelle",
     "upload": "Yükle",
     "openFile": "Dosyayı aç",
+    "openDirect": "View raw",
     "discardChanges": "Discard",
     "stopSearch": "Stop searching",
     "saveChanges": "Save changes",
     "editAsText": "Edit as Text",
     "increaseFontSize": "Increase font size",
-    "decreaseFontSize": "Decrease font size"
+    "decreaseFontSize": "Decrease font size",
+    "overrideAll": "Replace all files in destination folder",
+    "skipAll": "Skip all conflicting files",
+    "renameAll": "Rename all files (create a copy)",
+    "singleDecision": "Decide for each conflicting file"
   },
   "download": {
     "downloadFile": "Dosyayı indir",
@@ -88,7 +93,8 @@
       "comma": "Comma (,)",
       "semicolon": "Semicolon (;)",
       "both": "Both (,) and (;)"
-    }
+    },
+    "fileEncoding": "File Encoding"
   },
   "help": {
     "click": "dosya veya klasör seçin",
@@ -107,7 +113,6 @@
   "login": {
     "createAnAccount": "Bir hesap oluşturun",
     "loginInstead": "Zaten hesabınız var mı",
-    "otpPlaceholder": "Tek kullanımlık erişim kodu",
     "password": "Şifre",
     "passwordConfirm": "Şifre tekrarı",
     "passwordsDontMatch": "Şifreler uyuşmuyor",
@@ -119,7 +124,8 @@
     "passwordTooShort": "Password must be at least {min} characters",
     "logout_reasons": {
       "inactivity": "You have been logged out due to inactivity."
-    }
+    },
+    "otpPlaceholder": "Tek kullanımlık erişim kodu"
   },
   "permanent": "Kalıcı",
   "prompts": {
@@ -160,7 +166,17 @@
     "uploadMessage": "Yüklemek için bir seçenek belirleyin.",
     "optionalPassword": "İsteğe bağlı şifre",
     "resolution": "Resolution",
-    "discardEditorChanges": "Are you sure you wish to discard the changes you've made?"
+    "discardEditorChanges": "Are you sure you wish to discard the changes you've made?",
+    "replaceOrSkip": "Replace or skip files",
+    "resolveConflict": "Which files do you want to keep?",
+    "singleConflictResolve": "If you select both versions, a number will be added to the name of the copied file.",
+    "fastConflictResolve": "The destination folder there are {count} files with same name.",
+    "uploadingFiles": "Uploading files",
+    "filesInOrigin": "Files in origin",
+    "filesInDest": "Files in destination",
+    "override": "Overwrite",
+    "skip": "Skip",
+    "forbiddenError": "Forbidden Error"
   },
   "search": {
     "images": "Görseller",
@@ -233,7 +249,7 @@
     "permissions": "İzinler",
     "permissionsHelp": "Kullanıcıyı yönetici olarak ayarlayabilir veya izinleri ayrı ayrı seçebilirsiniz. \"Yönetici\"yi seçerseniz, diğer tüm seçenekler otomatik olarak kontrol edilecektir. Kullanıcıların yönetimi, bir yöneticinin yetkisi olarak kalır.\n",
     "profileSettings": "Profil ayarları",
-    "redirectAfterCopyMove": "Kopyalama/taşıma sonrası hedefe yönlendir",
+    "redirectAfterCopyMove": "Redirect to destination after copy/move",
     "ruleExample1": "her klasördeki herhangi bir noktalı dosyaya (.git, .gitignore gibi) erişimi engeller.\n",
     "ruleExample2": "Root erişimidenki CaddyFile dosyalarına erişimi engelle.",
     "rules": "Kurallar",
@@ -261,7 +277,7 @@
     "userUpdated": "Kullanıcı güncellendi!",
     "username": "Kullanıcı adı",
     "users": "Kullanıcılar",
-    "currentPassword": "Mevcut şifre"
+    "currentPassword": "Your Current Password"
   },
   "sidebar": {
     "help": "Yardım",

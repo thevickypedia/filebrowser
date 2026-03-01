@@ -42,12 +42,17 @@
     "update": "업데이트",
     "upload": "업로드",
     "openFile": "파일 열기",
+    "openDirect": "원본 보기",
     "discardChanges": "변경 사항 취소",
     "stopSearch": "검색 중단",
     "saveChanges": "변경사항 저장",
     "editAsText": "텍스트로 편집",
     "increaseFontSize": "글꼴 크기 증가",
-    "decreaseFontSize": "글꼴 크기 감소"
+    "decreaseFontSize": "글꼴 크기 감소",
+    "overrideAll": "Replace all files in destination folder",
+    "skipAll": "Skip all conflicting files",
+    "renameAll": "Rename all files (create a copy)",
+    "singleDecision": "Decide for each conflicting file"
   },
   "download": {
     "downloadFile": "파일 다운로드",
@@ -88,7 +93,8 @@
       "comma": "반점 (,)",
       "semicolon": "쌍반점 (;)",
       "both": "(,) 및 (;) 모두"
-    }
+    },
+    "fileEncoding": "파일 인코딩"
   },
   "help": {
     "click": "파일 또는 디렉터리 선택",
@@ -107,7 +113,6 @@
   "login": {
     "createAnAccount": "계정 생성",
     "loginInstead": "이미 계정이 있습니다",
-    "otpPlaceholder": "일회용 접근 코드",
     "password": "비밀번호",
     "passwordConfirm": "비밀번호 확인",
     "passwordsDontMatch": "비밀번호가 일치하지 않음",
@@ -119,7 +124,8 @@
     "passwordTooShort": "비밀번호는 최소 {min}자 이상이어야 함",
     "logout_reasons": {
       "inactivity": "활동이 없어 로그아웃 되었습니다."
-    }
+    },
+    "otpPlaceholder": "일회용 접근 코드"
   },
   "permanent": "영구",
   "prompts": {
@@ -160,7 +166,17 @@
     "uploadMessage": "업로드 옵션을 선택하세요.",
     "optionalPassword": "비밀번호 (선택)",
     "resolution": "해상도",
-    "discardEditorChanges": "변경 사항을 취소하시겠습니까?"
+    "discardEditorChanges": "변경 사항을 취소하시겠습니까?",
+    "replaceOrSkip": "Replace or skip files",
+    "resolveConflict": "Which files do you want to keep?",
+    "singleConflictResolve": "If you select both versions, a number will be added to the name of the copied file.",
+    "fastConflictResolve": "The destination folder there are {count} files with same name.",
+    "uploadingFiles": "Uploading files",
+    "filesInOrigin": "Files in origin",
+    "filesInDest": "Files in destination",
+    "override": "Overwrite",
+    "skip": "Skip",
+    "forbiddenError": "Forbidden Error"
   },
   "search": {
     "images": "이미지",

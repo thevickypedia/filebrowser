@@ -42,12 +42,17 @@
     "update": "Mettre à jour",
     "upload": "Importer",
     "openFile": "Ouvrir le fichier",
+    "openDirect": "View raw",
     "discardChanges": "Annuler",
     "stopSearch": "Arrêter recherche",
     "saveChanges": "Enregistrer changements",
     "editAsText": "Editer comme Texte",
     "increaseFontSize": "Augmenter taille police",
-    "decreaseFontSize": "Réduire taille police"
+    "decreaseFontSize": "Réduire taille police",
+    "overrideAll": "Replace all files in destination folder",
+    "skipAll": "Skip all conflicting files",
+    "renameAll": "Rename all files (create a copy)",
+    "singleDecision": "Decide for each conflicting file"
   },
   "download": {
     "downloadFile": "Télécharger le fichier",
@@ -88,7 +93,8 @@
       "comma": "Virgule (,)",
       "semicolon": "Point-virgule (;)",
       "both": "Les (,) et (;)"
-    }
+    },
+    "fileEncoding": "File Encoding"
   },
   "help": {
     "click": "Sélectionner un fichier ou dossier",
@@ -107,7 +113,6 @@
   "login": {
     "createAnAccount": "Créer un compte",
     "loginInstead": "Vous avez déjà un compte",
-    "otpPlaceholder": "Code d'accès à usage unique",
     "password": "Mot de passe",
     "passwordConfirm": "Confirmation de mot de passe",
     "passwordsDontMatch": "Les mots de passe ne concordent pas",
@@ -119,7 +124,8 @@
     "passwordTooShort": "Le mot de passe doit contenir au moins {min} caractères",
     "logout_reasons": {
       "inactivity": "Vous avez été déconnecté(e) en raison d'une inactivité prolongée."
-    }
+    },
+    "otpPlaceholder": "Code d'accès à usage unique"
   },
   "permanent": "Permanent",
   "prompts": {
@@ -160,7 +166,17 @@
     "uploadMessage": "Sélectionnez une option d'import.",
     "optionalPassword": "Mot de passe optionnel",
     "resolution": "Résolution",
-    "discardEditorChanges": "Êtes-vous sûr de vouloir annuler les modifications apportées ?"
+    "discardEditorChanges": "Êtes-vous sûr de vouloir annuler les modifications apportées ?",
+    "replaceOrSkip": "Replace or skip files",
+    "resolveConflict": "Which files do you want to keep?",
+    "singleConflictResolve": "If you select both versions, a number will be added to the name of the copied file.",
+    "fastConflictResolve": "The destination folder there are {count} files with same name.",
+    "uploadingFiles": "Uploading files",
+    "filesInOrigin": "Files in origin",
+    "filesInDest": "Files in destination",
+    "override": "Overwrite",
+    "skip": "Skip",
+    "forbiddenError": "Forbidden Error"
   },
   "search": {
     "images": "Images",
@@ -233,7 +249,7 @@
     "permissions": "Permissions",
     "permissionsHelp": "Vous pouvez définir l'utilisateur·ice comme étant administrateur·ice ou encore choisir les permissions individuellement. Si vous sélectionnez \"Administrateur·ice\", toutes les autres options seront automatiquement activées. La gestion des utilisateur·ices est un privilège que seul l'administrateur·ice possède.\n",
     "profileSettings": "Paramètres du profil",
-    "redirectAfterCopyMove": "Rediriger vers la destination après copier/déplacer",
+    "redirectAfterCopyMove": "Rediriger vers la destination après une copie/déplacement",
     "ruleExample1": "Bloque l'accès à tous les fichiers commençant par un point (comme par exemple .git, .gitignore) dans tous les dossiers.\n",
     "ruleExample2": "Bloque l'accès au fichier nommé \"Caddyfile\" à la racine du dossier utilisateur·ice.",
     "rules": "Règles",

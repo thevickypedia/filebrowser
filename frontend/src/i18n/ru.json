@@ -42,12 +42,17 @@
     "update": "Обновить",
     "upload": "Загрузить",
     "openFile": "Открыть файл",
-    "stopSearch": "Прекратить поиск",
+    "openDirect": "View raw",
     "discardChanges": "Отказаться",
+    "stopSearch": "Stop searching",
     "saveChanges": "Сохранить",
     "editAsText": "Редактировать как текст",
     "increaseFontSize": "Увеличить размер шрифта",
-    "decreaseFontSize": "Уменьшить размер шрифта"
+    "decreaseFontSize": "Уменьшить размер шрифта",
+    "overrideAll": "Replace all files in destination folder",
+    "skipAll": "Skip all conflicting files",
+    "renameAll": "Rename all files (create a copy)",
+    "singleDecision": "Decide for each conflicting file"
   },
   "download": {
     "downloadFile": "Скачать файл",
@@ -88,7 +93,8 @@
       "comma": "Запятая (,)",
       "semicolon": "Точка с запятой (;)",
       "both": "Оба варианта — (,) и (;)"
-    }
+    },
+    "fileEncoding": "File Encoding"
   },
   "help": {
     "click": "выбрать файл или каталог",
@@ -107,7 +113,6 @@
   "login": {
     "createAnAccount": "Создать аккаунт",
     "loginInstead": "Уже есть аккаунт",
-    "otpPlaceholder": "Одноразовый код доступа",
     "password": "Пароль",
     "passwordConfirm": "Подтверждение пароля",
     "passwordsDontMatch": "Пароли не совпадают",
@@ -119,7 +124,8 @@
     "passwordTooShort": "Пароль должен состоять как минимум из {min} символов",
     "logout_reasons": {
       "inactivity": "Сессия завершена после долгого отсутствия."
-    }
+    },
+    "otpPlaceholder": "Одноразовый код доступа"
   },
   "permanent": "Постоянный",
   "prompts": {
@@ -160,7 +166,17 @@
     "uploadMessage": "Выберите вариант для загрузки.",
     "optionalPassword": "Необязательный пароль",
     "resolution": "Разрешение",
-    "discardEditorChanges": "Вы действительно желаете отменить ваши правки?"
+    "discardEditorChanges": "Вы действительно желаете отменить ваши правки?",
+    "replaceOrSkip": "Replace or skip files",
+    "resolveConflict": "Which files do you want to keep?",
+    "singleConflictResolve": "If you select both versions, a number will be added to the name of the copied file.",
+    "fastConflictResolve": "The destination folder there are {count} files with same name.",
+    "uploadingFiles": "Uploading files",
+    "filesInOrigin": "Files in origin",
+    "filesInDest": "Files in destination",
+    "override": "Overwrite",
+    "skip": "Skip",
+    "forbiddenError": "Forbidden Error"
   },
   "search": {
     "images": "Изображения",
@@ -233,7 +249,7 @@
     "permissions": "Права доступа",
     "permissionsHelp": "Можно настроить пользователя как администратора или выбрать разрешения индивидуально. При выборе \"Администратор\", все остальные параметры будут автоматически выбраны. Управление пользователями - привилегия администратора.\n",
     "profileSettings": "Настройки профиля",
-    "redirectAfterCopyMove": "Перенаправить на место назначения после копирования/перемещения",
+    "redirectAfterCopyMove": "Redirect to destination after copy/move",
     "ruleExample1": "предотвратить доступ к любому скрытому файлу (например: .git, .gitignore) в каждой папке.\n",
     "ruleExample2": "блокирует доступ к файлу с именем Caddyfile в корневой области.",
     "rules": "Права",
@@ -261,7 +277,7 @@
     "userUpdated": "Пользователь изменен!",
     "username": "Имя пользователя",
     "users": "Пользователи",
-    "currentPassword": "Текущий пароль"
+    "currentPassword": "Your Current Password"
   },
   "sidebar": {
     "help": "Помощь",
