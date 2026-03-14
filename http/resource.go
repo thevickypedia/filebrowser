@@ -43,7 +43,7 @@ var resourceGetHandler = withUser(func(w http.ResponseWriter, r *http.Request, d
 		return renderJSON(w, r, file)
 	} else if encoding == "true" {
 		if file.Type != "text" {
-			return http.StatusUnsupportedMediaType, fmt.Errorf("file is not a text file")
+			return renderJSON(w, r, file)
 		}
 
 		f, err := d.user.Fs.Open(r.URL.Path)
@@ -212,6 +212,8 @@ func resourcePatchHandler(fileCache FileCache) handleFunc {
 		dst := r.URL.Query().Get("destination")
 		action := r.URL.Query().Get("action")
 		dst, err := url.QueryUnescape(dst)
+		dst = path.Clean("/" + dst)
+		src = path.Clean("/" + src)
 		if !d.Check(src) || !d.Check(dst) {
 			return http.StatusForbidden, nil
 		}

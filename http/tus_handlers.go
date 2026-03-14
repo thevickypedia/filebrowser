@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/afero"
@@ -112,12 +112,12 @@ func tusPostHandler(cache UploadCache) handleFunc {
 		// Enables the user to utilize the PATCH endpoint for uploading file data
 		cache.Register(file.RealPath(), uploadLength)
 
-		path, err := url.JoinPath("/", d.server.BaseURL, "/api/tus", r.URL.Path)
-		if err != nil {
-			return http.StatusBadRequest, fmt.Errorf("invalid path: %w", err)
+		basePath := "/" + strings.Trim(strings.TrimSpace(d.server.BaseURL), "/")
+		if basePath == "/" {
+			basePath = ""
 		}
 
-		w.Header().Set("Location", path)
+		w.Header().Set("Location", basePath+"/api/tus"+r.URL.EscapedPath())
 		return http.StatusCreated, nil
 	})
 }
@@ -240,7 +240,7 @@ func tusPatchHandler(cache UploadCache) handleFunc {
 
 func tusDeleteHandler(cache UploadCache) handleFunc {
 	return withUser(func(_ http.ResponseWriter, r *http.Request, d *data) (int, error) {
-		if r.URL.Path == "/" || !d.user.Perm.Create {
+		if r.URL.Path == "/" || !d.user.Perm.Delete {
 			return http.StatusForbidden, nil
 		}
 
