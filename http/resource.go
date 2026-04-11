@@ -377,6 +377,7 @@ func patchAction(ctx context.Context, action, src, dst string, d *data, fileCach
 }
 
 type DiskUsageResponse struct {
+	Path  string `json:"path"`
 	Total uint64 `json:"total"`
 	Used  uint64 `json:"used"`
 }
@@ -397,9 +398,35 @@ var diskUsage = withUser(func(w http.ResponseWriter, r *http.Request, d *data) (
 	fPath := file.RealPath()
 	if !file.IsDir {
 		return renderJSON(w, r, &DiskUsageResponse{
+			Path:  fPath,
 			Total: 0,
 			Used:  0,
 		})
+	}
+
+	// Check for symlink and resolve it safely
+	info, err := os.Lstat(fPath)
+	if err != nil {
+		return errToStatus(err), err
+	}
+
+	if info.Mode()&os.ModeSymlink != 0 {
+		target, err := os.Readlink(fPath)
+		if err != nil {
+			return errToStatus(err), err
+		}
+		log.Printf("'%s' -> '%s'", fPath, target)
+		fPath = target
+
+		// realPath, err := filepath.EvalSymlinks(fPath)
+		// if err != nil {
+		// 	return errToStatus(err), err
+		// }
+		// log.Printf("'%s' -> '%s'", fPath, realPath)
+		// fPath = realPath
+	} else {
+		// Fallback to root filesystem
+		fPath = "/"
 	}
 
 	usage, err := disk.UsageWithContext(r.Context(), fPath)
@@ -407,6 +434,7 @@ var diskUsage = withUser(func(w http.ResponseWriter, r *http.Request, d *data) (
 		return errToStatus(err), err
 	}
 	return renderJSON(w, r, &DiskUsageResponse{
+		Path:  fPath,
 		Total: usage.Total,
 		Used:  usage.Used,
 	})
