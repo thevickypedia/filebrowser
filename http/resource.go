@@ -376,6 +376,31 @@ func patchAction(ctx context.Context, action, src, dst string, d *data, fileCach
 	}
 }
 
+func resolveToSymlinkRoot(p string) (string, error) {
+	for {
+		info, err := os.Lstat(p)
+		if err != nil {
+			return "", err
+		}
+
+		if info.Mode()&os.ModeSymlink != 0 {
+			realPath, err := filepath.EvalSymlinks(p)
+			if err != nil {
+				return "", err
+			}
+			return realPath, nil
+		}
+
+		parent := filepath.Dir(p)
+		if parent == p {
+			// reached root, no symlink found
+			return "/", nil
+		}
+
+		p = parent
+	}
+}
+
 type DiskUsageResponse struct {
 	Path  string `json:"path"`
 	Total uint64 `json:"total"`
@@ -404,30 +429,15 @@ var diskUsage = withUser(func(w http.ResponseWriter, r *http.Request, d *data) (
 		})
 	}
 
-	// Check for symlink and resolve it safely
-	info, err := os.Lstat(fPath)
+	resolvedPath, err := resolveToSymlinkRoot(fPath)
 	if err != nil {
 		return errToStatus(err), err
 	}
 
-	if info.Mode()&os.ModeSymlink != 0 {
-		target, err := os.Readlink(fPath)
-		if err != nil {
-			return errToStatus(err), err
-		}
-		log.Printf("'%s' -> '%s'", fPath, target)
-		fPath = target
-
-		// realPath, err := filepath.EvalSymlinks(fPath)
-		// if err != nil {
-		// 	return errToStatus(err), err
-		// }
-		// log.Printf("'%s' -> '%s'", fPath, realPath)
-		// fPath = realPath
-	} else {
-		// Fallback to root filesystem
-		fPath = "/"
+	if resolvedPath != "/" {
+		log.Printf("'%s' -> '%s'", fPath, resolvedPath)
 	}
+	fPath = resolvedPath
 
 	usage, err := disk.UsageWithContext(r.Context(), fPath)
 	if err != nil {
