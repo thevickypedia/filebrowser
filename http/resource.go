@@ -433,10 +433,6 @@ var diskUsage = withUser(func(w http.ResponseWriter, r *http.Request, d *data) (
 	if err != nil {
 		return errToStatus(err), err
 	}
-
-	if resolvedPath != "/" {
-		log.Printf("'%s' -> '%s'", fPath, resolvedPath)
-	}
 	fPath = resolvedPath
 
 	usage, err := disk.UsageWithContext(r.Context(), fPath)
