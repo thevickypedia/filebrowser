@@ -29,6 +29,8 @@
     "rename": "Mudar o nome",
     "replace": "Substituir",
     "reportIssue": "Reportar problema",
+    "resumeTransfer": "Resume previous transfer",
+    "resumeTransferTooltip": "Skip all conflicting files, except the ones that are smaller on the server as we suppose that their transfert has been interrupted.",
     "save": "Guardar",
     "schedule": "Agendar",
     "search": "Pesquisar",
@@ -246,7 +248,7 @@
       "execute": "Executar comandos",
       "modify": "Editar ficheiros",
       "rename": "Mudar o nome ou mover ficheiros e pastas",
-      "share": "Ficheiros partilhados"
+      "share": "Share files (require download permission)"
     },
     "permissions": "Permissões",
     "permissionsHelp": "Pode definir um utilizador um administrador ou escolher as permissões individualmente. Se escolher \"Administrador\", todas as outras opções serão automaticamente marcadas. A gestão de utilizadores continua a ser um privilégio de um administrador.\n",
@@ -282,6 +284,7 @@
     "currentPassword": "A Sua Palavra-passe Actual"
   },
   "sidebar": {
+    "diskUsed": "{used} of {total} used",
     "help": "Ajuda",
     "hugoNew": "Hugo New",
     "login": "Iniciar sessão",

@@ -29,6 +29,8 @@
     "rename": "Pārdēvēt",
     "replace": "Aizstāt",
     "reportIssue": "Ziņot par problēmu",
+    "resumeTransfer": "Resume previous transfer",
+    "resumeTransferTooltip": "Skip all conflicting files, except the ones that are smaller on the server as we suppose that their transfert has been interrupted.",
     "save": "Saglabāt",
     "schedule": "Grafiks",
     "search": "Meklēt",
@@ -246,7 +248,7 @@
       "execute": "Izpildīt komandas",
       "modify": "Rediģēt failus",
       "rename": "Pārdēvēt vai pārvietot failus un direktorijus",
-      "share": "Kopīgojiet failus"
+      "share": "Share files (require download permission)"
     },
     "permissions": "Atļaujas",
     "permissionsHelp": "Varat iestatīt lietotāju kā administratoru vai izvēlēties atļaujas individuāli. Ja atlasīsiet “Administrators”, visas pārējās opcijas tiks automātiski atzīmētas. Lietotāju pārvaldība joprojām ir administratora privilēģija.\n",
@@ -282,6 +284,7 @@
     "currentPassword": "Your Current Password"
   },
   "sidebar": {
+    "diskUsed": "{used} of {total} used",
     "help": "Palīdzība",
     "hugoNew": "Hugo Jauns",
     "login": "Pieteikties",

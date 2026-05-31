@@ -29,6 +29,8 @@
     "rename": "Preimenuj",
     "replace": "Zamijeni",
     "reportIssue": "Prijavi grešku",
+    "resumeTransfer": "Resume previous transfer",
+    "resumeTransferTooltip": "Skip all conflicting files, except the ones that are smaller on the server as we suppose that their transfert has been interrupted.",
     "save": "Spremi",
     "schedule": "Zakaži",
     "search": "Pretraži",
@@ -246,7 +248,7 @@
       "execute": "Izvršavanje naredbi",
       "modify": "Uređivanje datoteka",
       "rename": "Preimenovanje ili premještanje datoteka i mapa",
-      "share": "Dijeljenje datoteka"
+      "share": "Share files (require download permission)"
     },
     "permissions": "Dopuštenja",
     "permissionsHelp": "Korisnika možete postaviti administratorom ili odabrati dopuštenja individualno. Odabirom na \"Administrator\", sve druge opcije bit će automatski odabrane. Upravljanje korisnicima ostaje privilegija administratora.\n",
@@ -282,6 +284,7 @@
     "currentPassword": "Vaša trenutna lozinka"
   },
   "sidebar": {
+    "diskUsed": "{used} of {total} used",
     "help": "Pomoć",
     "hugoNew": "Hugo New",
     "login": "Prijava",

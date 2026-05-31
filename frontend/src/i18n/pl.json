@@ -29,6 +29,8 @@
     "rename": "Zmień nazwę",
     "replace": "Zamień",
     "reportIssue": "Zgłoś problem",
+    "resumeTransfer": "Resume previous transfer",
+    "resumeTransferTooltip": "Pomiń wszystkie pliki powodujące konflikty, z wyjątkiem tych, które są mniejsze na serwerze, ponieważ podejrzewamy, że ich transfer został przerwany.",
     "save": "Zapisz",
     "schedule": "Harmonogram",
     "search": "Szukaj",
@@ -246,7 +248,7 @@
       "execute": "Wykonywanie poleceń",
       "modify": "Edytowanie plików",
       "rename": "Zmienianie nazwy lub przenoszenie plików i katalogów",
-      "share": "Udostępnianie plików"
+      "share": "Udostępnianie plików (wymaga uprawnienia do pobierania)"
     },
     "permissions": "Uprawnienia",
     "permissionsHelp": "Możesz ustawić użytkownika jako administratora lub wybrać uprawnienia indywidualnie. Jeśli wybierzesz „Administrator”, wszystkie pozostałe opcje zostaną automatycznie zaznaczone. Zarządzanie użytkownikami pozostaje przywilejem administratora.\n",
@@ -282,6 +284,7 @@
     "currentPassword": "Twoje aktualne hasło"
   },
   "sidebar": {
+    "diskUsed": "Wykorzystano {used} z {total}",
     "help": "Pomoc",
     "hugoNew": "Nowy Hugo",
     "login": "Zaloguj",

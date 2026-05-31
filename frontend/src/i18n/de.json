@@ -29,6 +29,8 @@
     "rename": "Umbenennen",
     "replace": "Ersetzen",
     "reportIssue": "Problem melden",
+    "resumeTransfer": "Resume previous transfer",
+    "resumeTransferTooltip": "Skip all conflicting files, except the ones that are smaller on the server as we suppose that their transfert has been interrupted.",
     "save": "Speichern",
     "schedule": "Planen",
     "search": "Suchen",
@@ -246,7 +248,7 @@
       "execute": "Befehle ausführen",
       "modify": "Dateien bearbeiten",
       "rename": "Dateien und Verzeichnisse umbenennen oder verschieben",
-      "share": "Dateien teilen"
+      "share": "Dateien freigeben (Download-Berechtigung erforderlich)"
     },
     "permissions": "Berechtigungen",
     "permissionsHelp": "Du kannst den Benutzer zum Administrator machen oder die Berechtigungen einzeln festlegen. Wenn du \"Administrator\" wählst, werden automatisch alle anderen Optionen aktiviert. Die Benutzerverwaltung bleibt ein Administratorrecht.\n",
@@ -282,6 +284,7 @@
     "currentPassword": "Dein aktuelles Passwort"
   },
   "sidebar": {
+    "diskUsed": "{used} of {total} used",
     "help": "Hilfe",
     "hugoNew": "Hugo Neu",
     "login": "Anmelden",
