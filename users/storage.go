@@ -10,6 +10,7 @@ import (
 // StorageBackend is the interface to implement for a users storage.
 type StorageBackend interface {
 	GetBy(interface{}) (*User, error)
+	GetByScope(scope string) (*User, error)
 	Gets() ([]*User, error)
 	Save(u *User) error
 	Update(u *User, fields ...string) error
@@ -19,8 +20,9 @@ type StorageBackend interface {
 }
 
 type Store interface {
-	Get(baseScope string, id interface{}) (user *User, err error)
-	Gets(baseScope string) ([]*User, error)
+	Get(baseScope string, followExternalSymlinks bool, id interface{}) (user *User, err error)
+	GetByScope(scope string) (*User, error)
+	Gets(baseScope string, followExternalSymlinks bool) ([]*User, error)
 	Update(user *User, fields ...string) error
 	Save(user *User) error
 	Delete(id interface{}) error
@@ -45,26 +47,33 @@ func NewStorage(back StorageBackend) *Storage {
 // Get allows you to get a user by its name or username. The provided
 // id must be a string for username lookup or a uint for id lookup. If id
 // is neither, a ErrInvalidDataType will be returned.
-func (s *Storage) Get(baseScope string, id interface{}) (user *User, err error) {
+func (s *Storage) Get(baseScope string, followExternalSymlinks bool, id interface{}) (user *User, err error) {
 	user, err = s.back.GetBy(id)
 	if err != nil {
 		return
 	}
-	if err := user.Clean(baseScope); err != nil {
+	if err := user.Clean(baseScope, followExternalSymlinks); err != nil {
 		return nil, err
 	}
 	return
 }
 
+// GetByScope returns the first user whose scope matches the given one, or
+// ErrNotExist if none does. The user is returned as stored, without setting up
+// its filesystem, as it is meant for existence checks rather than serving.
+func (s *Storage) GetByScope(scope string) (*User, error) {
+	return s.back.GetByScope(scope)
+}
+
 // Gets gets a list of all users.
-func (s *Storage) Gets(baseScope string) ([]*User, error) {
+func (s *Storage) Gets(baseScope string, followExternalSymlinks bool) ([]*User, error) {
 	users, err := s.back.Gets()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, user := range users {
-		if err := user.Clean(baseScope); err != nil {
+		if err := user.Clean(baseScope, followExternalSymlinks); err != nil {
 			return nil, err
 		}
 	}
@@ -74,7 +83,7 @@ func (s *Storage) Gets(baseScope string) ([]*User, error) {
 
 // Update updates a user in the database.
 func (s *Storage) Update(user *User, fields ...string) error {
-	err := user.Clean("", fields...)
+	err := user.Clean("", false, fields...)
 	if err != nil {
 		return err
 	}
@@ -92,7 +101,7 @@ func (s *Storage) Update(user *User, fields ...string) error {
 
 // Save saves the user in a storage.
 func (s *Storage) Save(user *User) error {
-	if err := user.Clean(""); err != nil {
+	if err := user.Clean("", false); err != nil {
 		return err
 	}
 

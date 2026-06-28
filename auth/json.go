@@ -206,7 +206,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 	cred, err := extractCredentials(authHeader)
 	if err != nil {
 		log.Printf("Warning: Failed to extract credentials. %s", err)
-		return nil, err
+		return nil, os.ErrPermission
 	}
 
 	// If ReCaptcha is enabled, check the code.
@@ -222,7 +222,7 @@ func (a JSONAuth) Auth(r *http.Request, usr users.Store, _ *settings.Settings, s
 		}
 	}
 
-	u, err := usr.Get(srv.Root, cred.Username)
+	u, err := usr.Get(srv.Root, srv.FollowExternalSymlinks, cred.Username)
 	if err != nil {
 		log.Printf("Warning: Login error for %s - lookup failed: %v", cred.Username, err)
 		// Even if the user is not found, we check the password against a dummy hash
