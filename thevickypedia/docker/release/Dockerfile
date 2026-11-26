@@ -9,7 +9,12 @@ RUN apt-get update && apt-get install -y ca-certificates curl jq bash tar gzip &
 
 COPY thevickypedia/docker/release/release.sh /release.sh
 RUN chmod +x /release.sh
-RUN /release.sh
+# Read secrets from BuildKit into environment variables DURING BUILD ONLY
+RUN --mount=type=secret,id=git_token \
+    --mount=type=secret,id=repo_name \
+    export GIT_TOKEN="$(cat /run/secrets/git_token)" && \
+    export GITHUB_REPOSITORY="$(cat /run/secrets/repo_name)" && \
+    /release.sh
 
 COPY thevickypedia/docker/healthcheck.sh /healthcheck.sh
 RUN chmod +x /healthcheck.sh

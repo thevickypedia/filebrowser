@@ -2,7 +2,12 @@
 
 set -e
 
-ORG=${ORG:-thevickypedia}
+# Use GITHUB_REPOSITORY if available (format: owner/repo), otherwise fall back to ORG
+if [ -n "$GITHUB_REPOSITORY" ]; then
+    ORG="${GITHUB_REPOSITORY%/*}"
+else
+    ORG=${ORG:-thevickypedia}
+fi
 VERSION=${VERSION:-latest}
 INSTALL_PATH=${INSTALL_PATH:-$(pwd)}
 
