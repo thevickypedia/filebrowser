@@ -124,7 +124,7 @@ jobs:
           Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ matrix.platform.pkg-name }}
         shell: pwsh
 
-      - name: Copy Asset (macOS/Linux/RaspberryPi)
+      - name: Copy Asset (macOS/Linux)
         if: "!startsWith(matrix.platform.release_for, 'windows')"
         run: |
           mkdir -p ${{ matrix.platform.pkg-name }}
@@ -134,10 +134,14 @@ jobs:
 
       - name: Upload Artifact
         run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
-          -H "Content-Type: application/octet-stream" \
-          --data-binary @"${{ matrix.platform.name }}" \
-          "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.release-check.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
+          echo "Uploading ${{ matrix.platform.name }}..."
+          curl  --fail --show-error \
+            -X POST \
+            -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"${{ matrix.platform.name }}" \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.release-check.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
+          echo "Upload successful!"
         shell: bash
 
       - name: Runtime Analyzer
